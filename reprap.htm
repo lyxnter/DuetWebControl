@@ -1959,7 +1959,13 @@
 								<div class="col-md-12">
 									<table id="table_gcode_files_directory" class="table-file-navigation">
 										<tr>
-											<td id="td_volume" class="hidden hidden-xs">
+											<td style="width: auto;">
+												<button class="btn btn-secondary" title="Do a backup of the gcode files (Warning this may take up to several minutes files > 10Mb)" id="backGco">
+													<span class="glyphicon glyphicon-save"></span>
+													Backup GCodes
+												</button>
+											</td>
+											<td id="td_volume" class="hidden hidden-xs" style="width: auto">
 												<div class="dropdown">
 													<button id="btn_volume" class="btn btn-success dropdown-toggle" type="button" data-toggle="dropdown">
 														<span class="glyphicon glyphicon-hdd"></span> <span class="content">SD Card 0</span> <span class="caret"></span>
@@ -2028,7 +2034,13 @@
 								<div class="col-md-12">
 									<table class="table-file-navigation">
 										<tr>
-											<td>
+											<td style="width: auto;">
+												<button class="btn btn-secondary" title="Do a backup of the macro files" id="backMac">
+													<span class="glyphicon glyphicon-save"></span>
+													Backup macros
+												</button>
+											</td>
+											<td style="width: 100%;">
 												<ol class="breadcrumb breadcrumb-directory" id="ol_macro_directory">
 													<li class="active"><span class="glyphicon glyphicon-folder-open"></span> Macros Directory</li>
 													<li class="pull-right"><span class="glyphicon glyphicon-level-up"></span> Go Up</li>
@@ -2082,7 +2094,13 @@
 								<div class="col-md-12">
 									<table class="table-file-navigation">
 										<tr>
-											<td>
+											<td style="width: auto; display: none;">
+												<button class="btn btn-secondary" title="Do a backup of the filaments" id="backFil">
+													<span class="glyphicon glyphicon-save"></span>
+													Backup Filaments
+												</button>
+											</td>
+											<td style="width: 100%">
 												<ol class="breadcrumb breadcrumb-directory" id="ol_filament">
 													<li class="active"><span class="glyphicon glyphicon-folder-open"></span> Filaments Directory</li>
 												</ol>
@@ -2317,65 +2335,36 @@
 										<div class="col-xs-12 col-sm-6 col-md-4 col-lg-4 col-right">
 											<div class="panel panel-default">
 												<div class="panel-heading">
-													<span>Backups</span>
+													<span>Special Backups</span>
 												</div>
+
 												<div class="panel-body">
-													<!--div class="col-sm-12 col-md-12 col-lg-12">
-														<div class="btn-group-justified">
-															<div class="btn-group">
-																<button class="btn btn-lg btn-primary" title="Do a backup of the filaments" id="backFil">
-																	<span class="glyphicon glyphicon-save"></span>
-																	Backup Filaments
-																</button>
-															</div>
-														</div>
-													</div-->
 													<div class="col-sm-12 col-md-12 col-lg-12">
 														<div class="btn-group-justified">
 															<div class="btn-group">
-																<button class="btn btn-lg btn-primary" title="Do a backup of the gcode files (Warning this may take up to several minutes files > 10Mb)" id="backGco">
+																<button class="btn btn-lg btn-secondary" title="Do a full backup of all the files (macros, system, web) except gcodes" id="backFull">
 																	<span class="glyphicon glyphicon-save"></span>
-																	Backup GCodes
+																	Full backup
 																</button>
 															</div>
 														</div>
 													</div>
-													<div class="col-sm-12 col-md-12 col-lg-12">
+													<div class="col-sm-12 col-md-12 col-lg-12" style="display: none;">
 														<div class="btn-group-justified">
 															<div class="btn-group">
-																<button class="btn btn-lg btn-primary" title="Do a backup of the macro files" id="backMac">
+																<button class="btn btn-lg btn-secondary" title="Do a backup of the System config files" id="backSys">
 																	<span class="glyphicon glyphicon-save"></span>
-																	Backup Macros
+																	Backup system files
 																</button>
 															</div>
 														</div>
 													</div>
-													<div class="col-sm-12 col-md-12 col-lg-12">
+													<div class="col-sm-12 col-md-12 col-lg-12" style="display: none;">
 														<div class="btn-group-justified">
 															<div class="btn-group">
-																<button class="btn btn-lg btn-primary" title="Do a backup of the System config files" id="backSys">
-																	<span class="glyphicon glyphicon-save"></span>
-																	Backup System files
-																</button>
-															</div>
-														</div>
-													</div>
-													<!--div class="col-sm-12 col-md-12 col-lg-12">
-														<div class="btn-group-justified">
-															<div class="btn-group">
-																<button class="btn btn-lg btn-primary" title="Do a backup of the Webserver files" id="backWeb">
+																<button class="btn btn-lg btn-secondary" title="Do a backup of the Webserver files" id="backWeb">
 																	<span class="glyphicon glyphicon-save"></span>
 																	Backup Web files
-																</button>
-															</div>
-														</div>
-													</div-->
-													<div class="col-sm-12 col-md-12 col-lg-12">
-														<div class="btn-group-justified">
-															<div class="btn-group">
-																<button class="btn btn-lg btn-primary" title="Do a backup of the machine configuration (macros, system)" id="backFull">
-																	<span class="glyphicon glyphicon-save"></span>
-																	Full machine backup
 																</button>
 															</div>
 														</div>
@@ -2810,16 +2799,10 @@
 									<div class="tab-pane" id="page_backedit">
 										<table class="table-file-navigation">
 											<tr>
-												<!--td style="width: auto;">
-													<button class="btn btn-primary" title="Do a backup of the Backups files" id="backBack">
+												<td style="width: auto; display: none">
+													<button class="btn btn-secondary" title="Do a backup of the Backups files" id="backMac">
 														<span class="glyphicon glyphicon-save"></span>
 														Backup Backups
-													</button>
-												</td-->
-												<td style="width: auto;">
-													<button class="btn btn-danger" onclick="removeAll()">
-														<span class="glyphicon glyphicon-trash"></span>
-														Delete all
 													</button>
 												</td>
 												<td style="width: 100%;">
@@ -2828,7 +2811,7 @@
 														<li class="pull-right"><span class="glyphicon glyphicon-level-up"></span> Go Up</li>
 													</ol>
 												</td>
-												<!--td class="hidden-xs hidden-sm hidden online-control">
+												<td class="hidden-xs hidden-sm hidden online-control">
 													<button class="btn btn-primary btn-upload disabled" title="Upload one or more Backup files (drag&amp;drop is supported as well)" data-type="back" data-style="btn-primary"><span class="glyphicon glyphicon-cloud-upload"></span> Upload Back File(s)</button>
 												</td>
 												<td class="hidden online-control">
@@ -2838,10 +2821,10 @@
 														</button>
 														<ul class="dropdown-menu dropdown-menu-right">
 															<li><a href="#" id="a_new_back_directory" title="Create a new directory"><span class="glyphicon glyphicon-folder-open"></span> Directory</a></li>
-															<li><a href="#" id="a_new_back_file" title="Create a new back file"><span class="glyphicon glyphicon-file"></span> Backup</a></li>
+															<li><a href="#" id="a_new_back_file" title="Create a new back file"><span class="glyphicon glyphicon-file"></span> Back</a></li>
 														</ul>
 													</div>
-												</td-->
+												</td>
 											</tr>
 										</table>
 
