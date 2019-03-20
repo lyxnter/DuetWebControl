@@ -4109,6 +4109,66 @@ $("#a_context_download_zip").click(function(e) {
 	e.preventDefault();
 });
 
+	var fileIndex = 1;
+$("#a_context_download_zip_dir").click(function(e) {
+	if (doingFileTask) {
+		showMessage("warning", T("Download as ZIP"), T("Please wait until the pending operations have finished before you download more files"));
+	} else {
+		downloadNotification = showDownloadMessage();
+		zipFile = new JSZip();
+
+		fileIndex = 1
+		$.each(contextMenuTargets, function() {
+			var row = $(this);
+      if (row.data("file")) {
+  			multiFileOperations.push({
+  				action: "download_zip",
+  				filename: row.data("file"),
+  				path: getFilePath() + "/" + row.data("file"),
+  				progress: fileIndex / contextMenuTargets.length * 100
+  			});
+  			fileIndex++;
+      } else {
+        //console.log(row)
+        //console.log(getFilePath()+"/"+row.data("directory"))
+				listDir(getFilePath()+"/"+row.data("directory"), (getFilePath()+"/").length);
+      }
+		});
+		for (var i = 0; i < multiFileOperations.length; i++)
+		{
+			multiFileOperations[i].progress = ((i+1)/multiFileOperations.length)*100
+		}
+		doFileTask();
+	}
+	e.preventDefault();
+});
+
+function listDir(path, offset) {
+	$.get({
+		url: ajaxPrefix + "rr_filelist?dir="+encodeURIComponent(path),
+		success : function(result) {
+			if (result.err) {
+				console.log(path)
+				return;
+			}
+			for(var i = 0; i < result.files.length; i++){
+				if (result.files[i].type == "d") {
+					listDir(path + "/" + result.files[i].name, offset)
+				} else {
+					multiFileOperations.push({
+						action: "download_zip",
+						filename: result.dir.substring(offset) + "/" + result.files[i].name,
+						path: result.dir + "/" + result.files[i].name,
+						progress: fileIndex / contextMenuTargets.length * 100
+					});
+					fileIndex++;
+				}
+			}
+		},
+		async: false,
+	})
+}
+
 $("#a_context_edit").click(function(e) {
 	var file = getFilePath() + "/" + contextMenuTargets.data("file");
 	editFile(file, true, contextMenuTargets.data("size"), function(newSize) {
@@ -8090,7 +8150,7 @@ function applySettings() {
 		themeInclude.remove();
 		themeInclude = undefined;
 	}
-
+	settings.theme = "Slate";
 	switch (settings.theme) {
 		case "default":	// Default Bootstrap theme
 			themeInclude = $('<link onload="applyThemeColors();" rel="stylesheet" href="css/bootstrap.theme.css" type="text/css"></link>');
@@ -8134,7 +8194,7 @@ function applySettings() {
 
 	// Set theme selection
 	$("#btn_theme").data("theme", settings.theme);
-	var themeName = settings.theme == "default" ? "Bootstrap" : (settings.theme == "none" ? T("None") : settings.theme);
+	var themeName = "Slate";//settings.theme == "default" ? "Slate" : (settings.theme == "none" ? T("None") : settings.theme);
 	$("#btn_theme > span:first-child").text(themeName);
 
 	// Language is set in XML AJAX handler
@@ -8250,7 +8310,7 @@ function saveSettings() {
 	}
 
 	// Save theme
-	settings.theme = $("#btn_theme").data("theme");
+	settings.theme = "Slate"//$("#btn_theme").data("theme");
 
 	// Save language
 	if (settings.language != $("#btn_language").data("language")) {
@@ -8363,7 +8423,7 @@ $(".btn-reset-settings").click(function(e) {
 			});
 		} else {
 			$("#btn_language").data("language", "en").children("span:first-child").text("English");
-			$("#btn_theme").data("theme", "default").children("span:first-child").text(T("Bootstrap"));
+			$("#btn_theme").data("theme", "default").children("span:first-child").text(T("Slate"));
 
 			applySettings();
 			saveSettings();
@@ -10986,6 +11046,9 @@ $(".color-scheme").click(function(e) {
 
 	e.preventDefault();
 });
+
+// LYNXMOD
+
 var date;
 
 function getFormatDate(deliJ, deliHJ, deliH) {
@@ -11108,11 +11171,10 @@ function saveFile() {
     curCol.find(".glyphicon").removeClass("glyphicon-asterisk").addClass("glyphicon-cloud-upload");
     var start = new Date();
 		var eta = ((file.size / 512) / speed).toFixed(3)
-    console.log("saving " + file.name + " (" + formatSize(file.size) + "), eta: " + (eta >= 60 ? Math.floor(eta / 60) + "min " : " ") + (eta % 60).toFixed(3) + "sec");
-
+    //console.log("saving " + file.name + " (" + formatSize(file.size) + "), eta: " + (eta >= 60 ? Math.floor(eta / 60) + "min " : " ") + (eta % 60).toFixed(3) + "sec");
     $.ajax({
         type: "GET",
-        url: params.url + "/rr_download?name=0:/" + params.dir + "/" + file.name,
+        url: params.url + "/rr_download?name=0:/" + encodeURIComponent(params.dir + "/" + file.name),
         uploadCol: curCol,
         beforeSend: function (xhr) {
             xhr.setRequestHeader("Accept", "application/octet-stream;application/json;application/javascript;text/html");
@@ -11125,6 +11187,11 @@ function saveFile() {
 
             this.uploadCol.find(".progress-bar").css("width", 50 + "%");
             this.uploadCol.find(".progress-bar > span").text(T("50%"));
+            if (("0:/Backups/backup_" + date + "/" + params.dir + "/" + file.name).length > 120) {
+              console.log("file name too long : 0:/Backups/backup_"+ date + "/" + params.dir + "/" + file.name)
+              file.name = file.name.substring(0, 120-("0:/Backups/backup_"+ date + "/" + params.dir + "/").length)
+              console.log(file.name)
+            }
             if (generateArchive) {
               if (backZip == undefined)
                 backZip = new JSZip();
@@ -11133,7 +11200,7 @@ function saveFile() {
             var success = true;
             $.ajax({
                 type: "POST",
-                url: params.url + "/rr_upload?name=0:/Backups/backup_" + date + "/" + params.dir + "/" + file.name,
+                url: params.url + "/rr_upload?name=0:/Backups/backup_" + date + "/" + encodeURIComponent(params.dir + "/" + file.name),
                 data: fileContent,
                 index: this.index,
                 uploadCol: this.uploadCol,
@@ -11166,33 +11233,52 @@ function saveFile() {
                     $("#modal_upload h4").text(uploadTitle);
                     speed = ((file.size / 512) / ((new Date() - start) / 1000));
                     var took = (new Date() - start) / 1000
-                    console.log("\tTransferred " + (file.size / 512).toFixed(2) + " Kb in " + (took > 60 ? (took < 600 ? "0" : "") + Math.floor(took / 60) + "min " + (took % 60).toFixed(3) : took) + "sec avg speed " + speed.toFixed(2) + "Kb/s");
+                    //console.log("\tTransferred " + (file.size / 512).toFixed(2) + " Kb in " + (took > 60 ? (took < 600 ? "0" : "") + Math.floor(took / 60) + "min " + (took % 60).toFixed(3) : took) + "sec avg speed " + speed.toFixed(2) + "Kb/s");
                     uploadedFileCount++;
                     uploading = false;
 										filesInDir.shift();
                     if (filesInDir && filesInDir.length > 0) {
                         setTimeout(saveFile, 100);
+												setTimeout(function(uploadCol){
+													uploadCol.remove();
+												}, 2000, this.uploadCol);
                     } else {
                         $("#modal_upload").modal("hide");
+                        $("#modal_upload").find(".modal-body > p").prop("style", "display: block");
+                        $("#modal_upload").find(".modal-footer").removeClass("hidden");
                         isDoingBackup = false;
 												if (generateArchive) {
-                            console.log("generating archive");
 					                  setTimeout(function() {
-															generateArchive = false;
-                              //var content = backZip.generate();
-                              var promise = null;
-                              if (JSZip.support.base64) {
-                                promise = backZip.generateAsync({type : "base64"}).then( function(uint8array) {
-                                  SaveAs("data:application/zip;base64," + encodeURIComponent(uint8array), "backup_" + date + ".zip");
-                                });
-                              } else {
-                                promise = backZip.generateAsync({type : "string"}).then( function(blob) {
-                                  SaveAs(blob, "backup_" + date + ".zip");
-                                });
-                              }
-														}, 2000);
+                              showConfirmationDialog("Download the backup ?", "<p>Backup successfull<p><p> Would you like to download a copy of the backup ?</p>\
+                            	<p> Your backup should be named <b> backup_" + date + ".zip</b></p>", function() {
+															$("#modal_loading").modal("show")
+															$("#modal_loading h4").text("Generating archive");
+															$("#modal_loading p").text(T("Please wait while the archive is being generated:"))
+			                            console.log("generating archive");
+                            		startUpdates();
+                                generateArchive = false;
+                                //var content = backZip.generate();
+                                var promise = null;
+                                if (JSZip.support.base64) {
+                                  promise = backZip.generateAsync({type : "base64"}).then( function(uint8array) {
+                                    setTimeout(function() {
+																			SaveAs("data:application/zip;base64," + encodeURIComponent(uint8array), "backup_" + date + ".zip");
+																			setTimeout(function() {
+																				$("#modal_loading").modal("hide")
+																			}, 500);
+																		}, 1000);
+                                  });
+                                } else {
+                                  promise = backZip.generateAsync({type : "string"}).then( function(blob) {
+                                    SaveAs(blob, "backup_" + date + ".zip");
+																			setTimeout(function() {$("#modal_loading").modal("hide")}, 500);
+                                  });
+                                }
+                            	}, function(){backZip = undefined;});
+														}, 1000);
 												}
                         console.log("Done")
+												updateBackFiles();
 										}
 
                 },
@@ -11303,7 +11389,6 @@ function doBackup(dirName) {
 var sort = false;
 var isDoingBackup = false;
 function tryBackup(vars, callback) {
-	 $("#modal_upload").modal("show");
 
 	 $("#modal_upload h4").text("Preparing to Create backup");
 
@@ -11351,7 +11436,10 @@ function tryBackup(vars, callback) {
 				}
 		});
 	}
-	setTimeout(saveFile, 100);
+
+		 $("#modal_loading").modal("hide");
+		 $("#modal_upload").modal("show");
+		 setTimeout(saveFile, 100);
 
 		if (callback !== undefined) {
 			inter = setInterval(function(callback){
@@ -11362,6 +11450,7 @@ function tryBackup(vars, callback) {
 			}, 2000, callback);
 		}
 }
+
 function askBeforeBackup(folderList, beforeUpload)
 {
 	date = getFormatDate("_", " ", "-");
@@ -11369,11 +11458,21 @@ function askBeforeBackup(folderList, beforeUpload)
 	if (folderList.length > 1 )
 	 folder  = "Configuration"
 	else
-	 folder = folderList[0].charAt(0).toUpperCase() + folderList[0].slice(1)
-	showConfirmationDialog("Create a backup of the " + folder + " directory ?", (beforeUpload?"<p>Do": "<p>Are you sure") + " you want to create a backup of  the " + folder + " directory " +(folder === "Configuration"?"<p><b>(macros, system)</b></p>":"") + "</p>\
+	 folder = folderList[0].charAt(0).toUpperCase() + folderList[0].slice(1);
+   var folList = "</p><p><b>("
+   for (var i = 0; i < folderList.length; i++){
+     folList += (i!=0?", ":"") + folderList[i].charAt(0).toUpperCase() + folderList[i].slice(1);
+     if (folderList[i] == "sys")
+      folList += "tem";
+   }
+   folList += ")</b></p><p>"
+	showConfirmationDialog("Create a backup of the " + folder + " directory ?", (beforeUpload?"<p>Do": "<p>Are you sure") + " you want to create a backup of  the " + folder + " directory " + (folderList.length>1?folList:"") + "</p>\
 	<p> This may take a few minutes</p>\
 	<p> Your backup will be in <i>Settings > Backup Editor ></i><b> backup_" + date + "</b></p>", function() {
-		$("#modal_upload").modal("show");
+
+		$("#modal_loading").modal("show");
+		$("#modal_loading h4").text("Preparing backup");
+		$("#modal_loading p").text(T("Please wait while we are listing all files to be saved"))
 
 		$("#modal_upload").find(".modal-body > p").prop("style", "display: none");
 		$("#modal_upload").find(".modal-footer").addClass("hidden")
@@ -11466,6 +11565,7 @@ $("#a_context_backup_file").click(function(e) {
 	    $("#table_upload_files > tbody").children().remove();
 
 			$("#modal_upload").modal("show");
+
 	    setTimeout(function(file) {
 	        listDirectory(file.substring(0,file.lastIndexOf("/")));
 	        setTimeout(function() {
@@ -11502,13 +11602,15 @@ $("#backFil").click(function(event) {
 $("#backGco").click(function(event) {
 	  event.preventDefault();
 	  event.stopPropagation();
+		generateArchive = true;
 	  askBeforeBackup(["gcodes"], false);
 
 })
 $("#backMac").click(function(event) {
     event.preventDefault();
     event.stopPropagation();
-		askBeforeBackup(["macros"], false);
+		generateArchive = true;
+		askBeforeBackup(["macros", "sys"], false);
 })
 $("#backSys").click(function(event) {
     event.preventDefault();
@@ -11524,7 +11626,7 @@ $("#backFull").click(function(event) {
     event.preventDefault();
     event.stopPropagation();
 		generateArchive = true;
-		askBeforeBackup([/*"filaments", "gcodes",*/ "macros", "sys"/*, "www"*/], false);
+		askBeforeBackup([/*"filaments",*/ "gcodes", "macros", "sys"/*, "www"*/], false);
 })
 
 var date;
@@ -11817,10 +11919,12 @@ function removeAll(files, callback) {
 		success: removeFile,
     async: false,
 	})
-  if (files.length > 0)
-    removeAll(files, callback)
-  else
-    callback();
+  if (files !== undefined) {
+    if (files.length > 0)
+      removeAll(files, callback)
+    else
+      callback();
+  }
 }
 
 function removeFile(result) {
@@ -11833,7 +11937,7 @@ function removeFile(result) {
 			//console.log("entering : " + result.files[i].name)
 			$.ajax({
 					type: "GET",
-					url: this.url + "/" + result.files[i].name,
+					url: this.url + "/" +encodeURIComponent(result.files[i].name),
 					success: removeFile,
 					async: false
 			});
@@ -11842,7 +11946,7 @@ function removeFile(result) {
 		console.log("removing : " + result.files[i].name)
 		$.ajax({
 				type: "GET",
-				url: ajaxPrefix + "rr_delete?name=" + this.url.substring(this.url.indexOf("=")+1) + "/" + result.files[i].name,
+				url: ajaxPrefix + "rr_delete?name=" + this.url.substring(this.url.indexOf("=")+1) + "/" + encodeURIComponent(result.files[i].name),
 				success: function(result) {
 					console.log((result.err == 0)? "success" : "error");
 				},

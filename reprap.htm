@@ -23,6 +23,22 @@
 		<link rel="shortcut icon" href="favicon.ico">
 		<!-- CSS -->
 <link href="css/dwc.css" rel="stylesheet">
+<style>
+.loader {
+  border: 16px solid #fff; /* white */
+  border-top: 16px solid #0000; /* transparent */
+  border-radius: 50%;
+  width: 120px;
+  height: 120px;
+  animation: spin 1s ease-in-out infinite;
+	margin: auto;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+</style>
 	</head>
 
 	<body>
@@ -2333,7 +2349,7 @@
 													<div class="col-sm-12 col-md-12 col-lg-12">
 														<div class="btn-group-justified">
 															<div class="btn-group">
-																<button class="btn btn-lg btn-primary" title="Do a backup of the gcode files (Warning this may take up to several minutes files > 10Mb)" id="backGco">
+																<button class="btn btn-primary" title="Do a backup of the gcode files (Warning this may take up to several minutes files > 10Mb)" id="backGco">
 																	<span class="glyphicon glyphicon-save"></span>
 																	Backup GCodes
 																</button>
@@ -2343,23 +2359,23 @@
 													<div class="col-sm-12 col-md-12 col-lg-12">
 														<div class="btn-group-justified">
 															<div class="btn-group">
-																<button class="btn btn-lg btn-primary" title="Do a backup of the macro files" id="backMac">
+																<button class="btn btn-primary" title="Do a backup of the macro files" id="backMac">
 																	<span class="glyphicon glyphicon-save"></span>
-																	Backup Macros
+																	Backup Macros & System
 																</button>
 															</div>
 														</div>
 													</div>
-													<div class="col-sm-12 col-md-12 col-lg-12">
+													<!--div class="col-sm-12 col-md-12 col-lg-12">
 														<div class="btn-group-justified">
 															<div class="btn-group">
-																<button class="btn btn-lg btn-primary" title="Do a backup of the System config files" id="backSys">
+																<button class="btn btn-sm btn-primary" title="Do a backup of the System config files" id="backSys">
 																	<span class="glyphicon glyphicon-save"></span>
 																	Backup System files
 																</button>
 															</div>
 														</div>
-													</div>
+													</div-->
 													<!--div class="col-sm-12 col-md-12 col-lg-12">
 														<div class="btn-group-justified">
 															<div class="btn-group">
@@ -2373,7 +2389,7 @@
 													<div class="col-sm-12 col-md-12 col-lg-12">
 														<div class="btn-group-justified">
 															<div class="btn-group">
-																<button class="btn btn-lg btn-primary" title="Do a backup of the machine configuration (macros, system)" id="backFull">
+																<button class="btn btn-primary" title="Do a backup of the machine configuration (macros, system)" id="backFull">
 																	<span class="glyphicon glyphicon-save"></span>
 																	Full machine backup
 																</button>
@@ -2431,7 +2447,7 @@
 													</div>
 
 													<div class="row">
-														<div class="col-xs-6 col-sm-6 col-md-6 col-lg-6">
+														<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
 															<label id="label_language">Language:</label>
 															<div class="dropdown" id="dropdown_language">
 																<button class="btn btn-default dropdown-toggle" type="button" id="btn_language" data-language="en" data-toggle="dropdown">
@@ -2443,7 +2459,7 @@
 																</ul>
 															</div>
 														</div>
-														<div class="col-xs-6 col-sm-6 col-md-6 col-lg-6">
+														<div class="col-xs-6 col-sm-6 col-md-6 col-lg-6 hidden">
 															<label>Theme:</label>
 															<div class="dropdown" id="dropdown_theme">
 																<button class="btn btn-default dropdown-toggle" type="button" id="btn_theme" data-theme="default" data-toggle="dropdown">
@@ -2816,12 +2832,12 @@
 														Backup Backups
 													</button>
 												</td-->
-												<td style="width: auto;">
+												<!--td style="width: auto;">
 													<button class="btn btn-danger" onclick="removeAll()">
 														<span class="glyphicon glyphicon-trash"></span>
 														Delete all
 													</button>
-												</td>
+												</td-->
 												<td style="width: 100%;">
 													<ol class="breadcrumb breadcrumb-directory" id="ol_back_directory">
 														<li class="active"><span class="glyphicon glyphicon-folder-open"></span> Backups Directory</li>
@@ -3366,6 +3382,23 @@
 					<div class="modal-footer">
 						<button type="button" class="btn btn-danger" id="btn_cancel_upload"><span class="glyphicon glyphicon-remove"></span> Cancel Upload(s)</button>
 						<button type="button" class="btn btn-success hidden" data-dismiss="modal"><span class="glyphicon glyphicon-ok"></span> Close</button>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<div id="modal_loading" class="modal fade" data-backdrop="static">
+			<div class="modal-dialog modal-md">
+				<div class="modal-content">
+					<div class="modal-header">
+						<button type="button" class="close hidden" data-dismiss="modal"><span>&times;</span></button>
+						<h4 class="modal-title"></h4>
+					</div>
+					<div class="modal-body">
+						<p><!--see JS--> </p>
+					  <div class="loader" role="status">
+					    <span class="sr-only">Loading...</span>
+					  </div>
 					</div>
 				</div>
 			</div>
@@ -4021,6 +4054,7 @@
 			<li class="single file"><a tabindex="-1" href="#" id="a_context_view_heightmap"><span class="glyphicon glyphicon-eye-open"></span> View Heightmap</a></li>
 			<li class="single file"><a tabindex="-1" href="#" id="a_context_download_file" ><span class="glyphicon glyphicon-download-alt"></span> Download</a></li>
 			<li class="multi  file"><a tabindex="-1" href="#" id="a_context_download_zip"  ><span class="glyphicon glyphicon-compressed"></span> Download as ZIP</a></li>
+			<li class="directory"><a tabindex="-1" href="#" id="a_context_download_zip_dir"  ><span class="glyphicon glyphicon-compressed"></span> Download as ZIP</a></li>
 			<li class="divider"></li>
 			<li class="backup-action single file">      <a tabindex="-1" href="#" id="a_context_backup_file"> <span class="glyphicon glyphicon-save"></span> Backup this file</a></li>
 			<li class="backup-action single directory"> <a tabindex="-1" href="#" id="a_context_backup_dir">  <span class="glyphicon glyphicon-save"></span> Backup this directory</a></li>
@@ -4036,6 +4070,6 @@
 		<!-- Bootstrap core JavaScript
 		================================================== -->
 		<!-- Placed at the end of the document so the pages load faster -->
-<script src="js/dwc.js"></script>
+		<script src="js/dwc.js"></script>
 	</body>
 </html>
