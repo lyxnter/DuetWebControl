@@ -471,6 +471,10 @@ function connect(password, regularConnect) {
 			showHostPrompt();
 			return;
 		}
+	} else {
+		$("#modal_loading").modal("show");
+		$("#modal_loading h4").text("Connecting ");
+		$("#modal_loading p").text(T("trying to connect to ") + ajaxPrefix)
 	}
 
 	$.ajax(ajaxPrefix + "rr_connect?password=" + password + "&time=" + encodeURIComponent(timeToStr(new Date())), {
@@ -514,6 +518,7 @@ function connect(password, regularConnect) {
 				$("#modal_reconnecting").modal("hide");
 
 				if (response.err == 0) {		// Connection established
+					$("#modal_loading").modal("hide");
 					sessionPassword = password;
 					postConnect(response);
 				} else {						// Invalid password
@@ -6260,7 +6265,7 @@ $("#div_content").resize(function() {
 	// a) this option is explicitly enabled
 	// b) DWC is not running in a small window
 	// c) the sidebar has enough space to be fully displayed
-	if (!settings.scrollContent || windowIsXsSm() || $("#div_static_sidebar").first().offset().top + $("#div_static_sidebar").first().height() > $(window).height()) {
+	if (!settings.scrollContent || windowIsXsSm() || $("#div_content").first().offset().top + $("#div_content").first().height() > $(window).height()) {
 		$(this).css("height", "").css("min-height", "");
 	} else {
 		var height = "calc(100vh - " + $(this).offset().top + "px)";
@@ -7917,8 +7922,8 @@ var settings = {
 	dwsReconnectDelay: 45000,		// in ms
 	dwcReconnectDelay: 225000,		// in ms (only for SPIFFS updates)
 
-	showConnect: false,				// whether the Connect button is shown on remote connections
-	confirmStop: false,				// ask for confirmation when pressing Emergency STOP
+	showConnect: true,				// whether the Connect button is shown on remote connections
+	confirmStop: true,				// ask for confirmation when pressing Emergency STOP
 	useKiB: true,					// display file sizes in KiB instead of KB
 	theme: "default",				// name of the theme to use
 	scrollContent: true,			// make the main content scrollable on md+ resolutions
@@ -8169,7 +8174,7 @@ function applySettings() {
 	}
 
 	// Make main content scrollable on md+ screens or restore default behavior
-	$("#div_content").css("overflow-y", (settings.scrollContent) ? "auto" : "").resize();
+	//$("#div_content").css("overflow-y", (settings.scrollContent) ? "auto" : "").resize();
 
 	/* Set values on the Settings page */
 
@@ -9575,7 +9580,7 @@ $(".btn-upload").click(function(e) {
 			var type = $(this).data("type");
 			if (files.length == 1 && files[0].name.includes(".zip")){
 				date = getFormatDate("_", " ", "-");
-				showConfirmationDialog("Backup machine configuration before updating system?", "<p>Do you want to do a backup of the machine configuration <b>(macros, system and web interface)</b> before uploading the archive</p>\
+				showConfirmationDialog("Backup machine configuration before updating system?", "<p>Do you want to do a backup of the machine configuration <b>(gcodes, macros, system)</b> before uploading the archive</p>\
 				<p> This may take a few seconds</p>\
 				<p> Your backup will be in <i>Settings > Backup Editor ></i><b> backup_" + date + "</b></p>", function() {
 					$("#modal_upload").modal("show");
@@ -9584,7 +9589,7 @@ $(".btn-upload").click(function(e) {
 					$("#modal_upload").find(".modal-footer").addClass("hidden")
 
 					stopUpdates();
-					tryBackup([/*"filaments",*/ "macros", "sys", /*"www", "gcodes"*/], startUpload.bind(this, type, files, false));
+					tryBackup([/*"filaments",*/ "gcodes", "macros", "sys", /*"www"*/], startUpload.bind(this, type, files, false));
           generateArchive = true;
 
 				},
@@ -9605,7 +9610,7 @@ $("#input_file_upload").change(function(e) {
     var type = $(this).data("type");
     if (files.length == 1 && files[0].name.includes(".zip")){
       date = getFormatDate("_", " ", "-");
-      showConfirmationDialog("Backup machine configuration before updating system?", "<p>Do you want to do a backup of the machine configuration <b>(macros, system and web interface)</b> before uploading the archive</p>\
+      showConfirmationDialog("Backup machine configuration before updating system?", "<p>Do you want to do a backup of the machine configuration <b>(gcodes, macros, system)</b> before uploading the archive</p>\
       <p> This may take a few seconds</p>\
       <p> Your backup will be in <i>Settings > Backup Editor ></i><b> backup_" + date + "</b></p>", function() {
         $("#modal_upload").modal("show");
@@ -9614,7 +9619,7 @@ $("#input_file_upload").change(function(e) {
         $("#modal_upload").find(".modal-footer").addClass("hidden")
 
         stopUpdates();
-        tryBackup([/*"filaments",*/ "macros", "sys", /*"www", "gcodes"*/], startUpload.bind(this, type, files, false));
+        tryBackup([/*"filaments",*/ "gcodes", "macros", "sys", /*"www"*/], startUpload.bind(this, type, files, false));
         generateArchive = true;
 
       },
@@ -11138,7 +11143,8 @@ function getFiles(result) {
             row += '<td><div class="progress"><div class="progress-bar progress-bar-info progress-bar-striped"><span></span></div></div></td></tr>';
 
             var rowElem = $(row);
-            rowElem.appendTo("#table_upload_files > tbody");
+						if ($("#table_upload_files > tbody > tr").length < 25)
+            	rowElem.appendTo("#table_upload_files > tbody");
             uploadRows.push(rowElem);
 
             uploadTotalBytes++;
@@ -11188,9 +11194,9 @@ function saveFile() {
             this.uploadCol.find(".progress-bar").css("width", 50 + "%");
             this.uploadCol.find(".progress-bar > span").text(T("50%"));
             if (("0:/Backups/backup_" + date + "/" + params.dir + "/" + file.name).length > 120) {
-              console.log("file name too long : 0:/Backups/backup_"+ date + "/" + params.dir + "/" + file.name)
+              //console.log("File name too long : 0:/Backups/backup_"+ date + "/" + params.dir + "/" + file.name)
               file.name = file.name.substring(0, 120-("0:/Backups/backup_"+ date + "/" + params.dir + "/").length)
-              console.log(file.name)
+              console.log("File name truncated: " + file.name)
             }
             if (generateArchive) {
               if (backZip == undefined)
@@ -11239,6 +11245,11 @@ function saveFile() {
 										filesInDir.shift();
                     if (filesInDir && filesInDir.length > 0) {
                         setTimeout(saveFile, 100);
+
+												for (var i = $("#table_upload_files > tbody > tr").length; i < filesInDir.length; i++){
+													filesInDir[i].row.appendTo("#table_upload_files > tbody");
+												}
+
 												setTimeout(function(uploadCol){
 													uploadCol.remove();
 												}, 2000, this.uploadCol);
@@ -11494,6 +11505,10 @@ $("#a_context_backup_dir").click(function(e) {
 	    isUploading = true;
 	    uploadTotalBytes = uploadedTotalBytes = uploadedFileCount = 0;
 
+			$("#modal_loading").modal("show");
+			$("#modal_loading h4").text("Preparing backup");
+			$("#modal_loading p").text(T("Please wait while we are listing all files to be saved"))
+
 	    uploadRows = [];
 	    uploadedDWC = false;
 	    uploadIncludedConfig = false;
@@ -11509,7 +11524,6 @@ $("#a_context_backup_dir").click(function(e) {
 	    // Add files to the table
 	    $("#table_upload_files > tbody").children().remove();
 
-			$("#modal_upload").modal("show");
 	    setTimeout(function(file) {
 	        listDirectory(file);
 	        setTimeout(function() {
@@ -11530,11 +11544,13 @@ $("#a_context_backup_dir").click(function(e) {
 						$("#modal_upload").find(".modal-body > p").prop("style", "display: none");
 						$("#modal_upload").find(".modal-footer").addClass("hidden")
 
+						$("#modal_loading").modal("hide");
+						$("#modal_upload").modal("show");
 	          saveFile();
 	            //startUpdates();
 	            //$("#modal_upload").modal("hide");
-	        }, 2000);
-	    }, 5000, file);
+	        }, 1000);
+	    }, 1000, file);
 		});
 });
 
@@ -11564,7 +11580,14 @@ $("#a_context_backup_file").click(function(e) {
 	    // Add files to the table
 	    $("#table_upload_files > tbody").children().remove();
 
-			$("#modal_upload").modal("show");
+
+			$("#modal_upload").find(".modal-body > p").prop("style", "display: none");
+			$("#modal_upload").find(".modal-footer").addClass("hidden")
+
+
+			$("#modal_loading").modal("show");
+			$("#modal_loading h4").text("Preparing backup");
+			$("#modal_loading p").text(T("Please wait while we are preparing the file"))
 
 	    setTimeout(function(file) {
 	        listDirectory(file.substring(0,file.lastIndexOf("/")));
@@ -11583,14 +11606,13 @@ $("#a_context_backup_file").click(function(e) {
 						}
 						filesInDir[0].row.appendTo("#table_upload_files > tbody");
 
-						$("#modal_upload").find(".modal-body > p").prop("style", "display: none");
-						$("#modal_upload").find(".modal-footer").addClass("hidden")
-
+						$("#modal_loading").modal("hide");
+						$("#modal_upload").modal("show");
 	          saveFile();
 	            //startUpdates();
 	            //$("#modal_upload").modal("hide");
-	        }, 2000);
-	    }, 5000, file);
+	        }, 100);
+	    }, 100, file);
 		});
 });
 
@@ -11650,12 +11672,39 @@ $("#a_context_restore_dir").click(function(e) {
 	    $("#modal_upload").data("backdrop", "static");
 	    $("#modal_upload .close, #modal_upload button[data-dismiss='modal']").addClass("hidden");
 	    $("#btn_cancel_upload, #modal_upload p").removeClass("hidden");
-	    $("#modal_upload h4").text(T("Uploading File(s), {0}% Complete", 0));
+	    $("#modal_upload h4").text(T("Restauring File(s), {0}% Complete", 0));
+
+
+			$("#modal_loading").modal("show");
+			$("#modal_loading h4").text("Preparing restauration");
+			if (file.substring(38).length > 0){
+				$("#modal_loading p").text(T("Please wait while we are deleting all files in ") + file.substring(38))
+				removeAll(encodeURIComponent(file.substring(38)));
+			} else {
+				$("#modal_loading p").text(T("Please wait while we are deleting all files in " ))
+				var restFiles = [];
+				$.ajax({
+					type: "GET",
+					url: ajaxPrefix + "rr_filelist?dir=" + encodeURIComponent(file),
+					success: function(result) {
+						console.log(result);
+						for(var i = 0; i < result.files.length; i++){
+							if (result.files[i].type === "d") {
+								console.log((result.dir + "/" + result.files[i].name).substring(38))
+								restFiles.push((result.dir + "/" + result.files[i].name).substring(38))
+								$("#modal_loading p").text($("#modal_loading p").text() + " " + result.files[i].name)
+							}
+						}
+					},
+					async: false,
+				})
+				removeAll(restFiles);
+			}
+
+			$("#modal_loading p").text(T("Please wait while we are listing all files to be restaured"))
 
 	    // Add files to the table
 	    $("#table_upload_files > tbody").children().remove();
-
-			$("#modal_upload").modal("show");
 	    setTimeout(function(file) {
 	        listDirectory(file);
 	        setTimeout(function() {
@@ -11670,16 +11719,19 @@ $("#a_context_restore_dir").click(function(e) {
 	                }
 	            })
 						}
-						for (var i = 0; i < filesInDir.length; i++)
+						for (var i = 0; i < (25<filesInDir.length?25:filesInDir.length); i++)
 							filesInDir[i].row.appendTo("#table_upload_files > tbody");
 						$("#modal_upload").find(".modal-body > p").prop("style", "display: none");
 						$("#modal_upload").find(".modal-footer").addClass("hidden")
 
+						$("#modal_loading").modal("hide");
+						$("#modal_upload").modal("show");
+
 	          restoreFile();
 	            //startUpdates();
 	            //$("#modal_upload").modal("hide");
-	        }, 2000);
-	    }, 5000, file);
+	        }, 1000);
+	    }, 1000, file);
 		});
 });
 
@@ -11707,7 +11759,23 @@ $("#a_context_restore_file").click(function(e) {
 	    // Add files to the table
 	    $("#table_upload_files > tbody").children().remove();
 
-			$("#modal_upload").modal("show");
+
+			$("#modal_loading").modal("show");
+			$("#modal_loading h4").text("Preparing restauration");
+			$("#modal_loading p").text(T("Please wait while we are preparing the file"))
+
+			$("#modal_loading").modal("show");
+			$("#modal_loading h4").text("Preparing restauration");
+			$("#modal_loading p").text(T("Please wait while we are deleting ") + "<b>" + file.substring(38) + "</b>")
+
+			$.ajax({
+	        type: "GET",
+					url: ajaxPrefix + "rr_delete?name=0:/" + encodeURIComponent(file.substring(38)),
+					async: false,
+				})
+
+			$("#modal_loading p").text(T("Please wait while we are listing all files to be restaured"))
+
 	    setTimeout(function(file) {
 	        listDirectory(file.substring(0,file.lastIndexOf("/")));
 	        setTimeout(function() {
@@ -11726,21 +11794,25 @@ $("#a_context_restore_file").click(function(e) {
 						filesInDir[0].row.appendTo("#table_upload_files > tbody");
 						//console.log(filesInDir[0].path)
 
+						$("#modal_loading").modal("hide");
+
 						$("#modal_upload").find(".modal-body > p").prop("style", "display: none");
 						$("#modal_upload").find(".modal-footer").addClass("hidden")
+						$("#modal_upload").modal("show");
 
 	          restoreFile();
 	            //startUpdates();
 	            //$("#modal_upload").modal("hide");
-	        }, 1000);
-	    }, 1000, file);
+	        }, 100);
+	    }, 100, file);
 		});
 });
 
 var filesInDir = [];
 
 function restoreFile() {
-
+	if (filesInDir.length == 0)
+		return;
     var file = filesInDir.shift();
     var rowElem = file.row;
     var oldPath = file.path;
@@ -11752,7 +11824,7 @@ function restoreFile() {
     uploadPosition = 0;
 
     var start = new Date();
-    console.log("Restauring " + file.name + " (" + formatSize(file.size) + ")")
+    //console.log("Restauring " + file.name + " (" + formatSize(file.size) + ")")
     var eta = ((file.size / 512) / speed).toFixed(3)
     //console.log("eta: " + (eta >= 60 ? Math.floor(eta / 60) + "min " : "") + (eta % 60).toFixed(3) + "sec");
 
@@ -11825,18 +11897,31 @@ function restoreFile() {
                         $("#modal_upload h4").text(uploadTitle);
 
                         if (result.err === undefined || result.err === 0) {
-                            console.log("file restored");
+                            //console.log("file restored");
                         } else {
-                            console.log(result.err == 1 ? "no such file" : "not mounted");
+                            console.log("Error: " + file.name + (result.err == 1 ? "no such file" : "not mounted"));
                         }
 
-                        if (filesInDir.length > 0)
+                        if (filesInDir.length > 0) {
                             setTimeout(restoreFile, 100);
-                        else {
+														for (var i = $("#table_upload_files > tbody > tr").length; i < filesInDir.length; i++){
+															filesInDir[i].row.appendTo("#table_upload_files > tbody");
+														}
+														setTimeout(function(uploadCol){
+															uploadCol.remove();
+														}, 2000, this.rowElem);
+                      	} else {
                             setTimeout(function() {
                                 $("#modal_upload").modal("hide")
+																showConfirmationDialog("Restore successfull", "<p>Restore completed successfully</p><p> Would you like to reboot your Duet now?</p>", function() {
+																	// Perform software reset
+																	sendGCode("M999");
+																});
                             }, 2000);
-
+														updateBackFiles();
+														updateGCodeFiles();
+														updateMacroFiles();
+														updateSysFiles();
                         }
                     },
                     xhr: function() {
@@ -11911,7 +11996,9 @@ function removeAll(files, callback) {
   var file;
   if (files == undefined)
     file = "Backups"
-  else
+  else if (typeof(files) === 'string')
+		file = files;
+	else if (typeof(files) === 'object')
     file = files.pop();
 	$.ajax({
 		type: "GET",
@@ -11919,12 +12006,12 @@ function removeAll(files, callback) {
 		success: removeFile,
     async: false,
 	})
-  if (files !== undefined) {
-    if (files.length > 0)
-      removeAll(files, callback)
-    else
-      callback();
-  }
+	if (files !== undefined) {
+	  if (typeof(files) === 'object' && files.length > 0)
+	    removeAll(files, callback)
+	  else if (callback !== undefined)
+	    callback();
+	}
 }
 
 function removeFile(result) {
@@ -11943,12 +12030,13 @@ function removeFile(result) {
 			});
 			//console.log("exiting : " + result.files[i].name)
 		}
-		console.log("removing : " + result.files[i].name)
+		//console.log("removing : " + result.files[i].name)
 		$.ajax({
 				type: "GET",
 				url: ajaxPrefix + "rr_delete?name=" + this.url.substring(this.url.indexOf("=")+1) + "/" + encodeURIComponent(result.files[i].name),
 				success: function(result) {
-					console.log((result.err == 0)? "success" : "error");
+					if (result.err !== 0)
+						console.log("error");
 				},
 				async: false,
 		});

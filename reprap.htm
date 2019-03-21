@@ -1,49 +1,89 @@
-<!DOCTYPE html>
-<!--	Duet Web Control v1.22.5
 
+
+<!DOCTYPE html>
+<!--	Duet Web Control v1.22.6
 	written by Christian Hammacher
 
 	licensed under the terms of the GPL v2
 	see http://www.gnu.org/licenses/gpl-2.0.html
--->
+	-->
 <html lang="en">
 	<head>
 		<meta charset="utf-8">
 		<title id="title">Duet Web Control</title>
 		<meta http-equiv="X-UA-Compatible" content="IE=edge">
-		<!--[if IEMobile]><meta http-equiv="cleartype" content="on"><![endif]-->
+		<!--[if IEMobile]>
+		<meta http-equiv="cleartype" content="on">
+		<![endif]-->
 		<meta name="description" content="Web Interface for Duet Electronics (+ Extension)">
 		<meta name="author" content="Christian Hammacher">
 		<meta name="MobileOptimized" content="320">
 		<meta name="HandheldFriendly" content="yes">
 		<meta name="apple-mobile-web-app-capable" content="yes">
 		<meta name="viewport" content="width=480, initial-scale=0.75">
-
 		<!-- Favicon -->
 		<link rel="shortcut icon" href="favicon.ico">
 		<!-- CSS -->
-<link href="css/dwc.css" rel="stylesheet">
-<style>
-.loader {
-  border: 16px solid #fff; /* white */
-  border-top: 16px solid #0000; /* transparent */
-  border-radius: 50%;
-  width: 120px;
-  height: 120px;
-  animation: spin 1s ease-in-out infinite;
-	margin: auto;
-}
-
-@keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
-}
-</style>
+		<link href="css/dwc.css" rel="stylesheet">
+		<style>
+			.loader {
+			border: 10px solid #fff; /* white */
+			border-top-color: #0000; /* transparent */
+			border-radius: 50%;
+			width: 90px;
+			height: 90px;
+			animation: spin 1s ease-in-out infinite;
+			margin: auto;
+			}
+			@keyframes spin {
+			0% { transform: rotate(0deg);}
+			100% { transform: rotate(360deg);}
+			}
+			@keyframes spin-lynx {
+			0% { transform: rotate(0deg);
+			border-top-color: #fdb913;
+			border-bottom-color: #fdb913;
+			border-left-color: #2d4ea2;
+			border-right-color: #2d4ea2;
+			}
+			50% { transform: rotate(90deg);
+			border-top-color: #2d4ea2;
+			border-bottom-color: #2d4ea2;
+			border-left-color: #fdb913;
+			border-right-color: #fdb913;
+			}
+			100% { transform: rotate(180deg);
+			border-top-color: #fdb913;
+			border-bottom-color: #fdb913;
+			border-left-color: #2d4ea2;
+			border-right-color: #2d4ea2;
+			}
+			}
+		</style>
 	</head>
-
 	<body>
 		<!-- Dynamic sidebar -->
 		<nav class="well hidden" id="nav_sidebar">
+			<section id="section_navigation">
+				<h4 class="text-muted">Navigation</h4>
+				<div class="list-group">
+					<a class="navlink list-group-item active" href="#" data-target="control"><span class="glyphicon glyphicon-home"></span> Machine Control</a>
+					<a class="navlink list-group-item" href="#" data-target="job"><span class="glyphicon glyphicon-print"></span> Job Status</a>
+				</div>
+				<div class="list-group scan-control hidden">
+					<a class="navlink list-group-item" href="#" data-target="scanner"><span class="glyphicon glyphicon-facetime-video"></span> 3D Scanner <span class="glyphicon glyphicon-refresh span-refresh-scans hidden"></span></a>
+				</div>
+				<div class="list-group">
+					<a class="navlink list-group-item" href="#" data-target="console"><span class="glyphicon glyphicon-console"></span> G-Code Console</a>
+					<a class="navlink list-group-item" href="#" data-target="files"><span class="glyphicon glyphicon-hdd"></span> G-Code Files <span class="glyphicon glyphicon-refresh span-refresh-files hidden"></span></a>
+					<a class="navlink list-group-item" href="#" data-target="macros"><span class="glyphicon glyphicon-link"></span> Macros <span class="glyphicon glyphicon-refresh span-refresh-macros hidden"></span></a>
+				</div>
+				<div class="list-group">
+					<a class="navlink list-group-item" href="#" data-target="filaments"><span class="glyphicon glyphicon-cd"></span> Filaments <span class="glyphicon glyphicon-refresh span-refresh-filaments hidden"></span></a>
+					<a class="navlink list-group-item diabase hidden" href="#" data-target="calibration"><span class="glyphicon glyphicon-screenshot"></span> Calibration</a>
+					<a class="navlink list-group-item" href="#" data-target="settings"><span class="glyphicon glyphicon-cog"></span> Settings</a>
+				</div>
+			</section>
 			<section id="section_actions">
 				<h4 class="text-muted">Actions</h4>
 				<div class="list-group">
@@ -51,31 +91,6 @@
 					<a class="list-group-item list-group-item-danger btn-emergency-stop online-control hidden" href="#"><span class="glyphicon glyphicon-flash"></span> Emergency STOP</a>
 				</div>
 			</section>
-
-			<section id="section_navigation">
-				<h4 class="text-muted">Navigation</h4>
-				<div class="list-group">
-					<a class="navlink list-group-item active" href="#" data-target="control"><span class="glyphicon glyphicon-home"></span> Machine Control</a>
-					<a class="navlink list-group-item" href="#" data-target="job"><span class="glyphicon glyphicon-print"></span> Job Status</a>
-				</div>
-
-				<div class="list-group scan-control hidden">
-					<a class="navlink list-group-item" href="#" data-target="scanner"><span class="glyphicon glyphicon-facetime-video"></span> 3D Scanner <span class="glyphicon glyphicon-refresh span-refresh-scans hidden"></span></a>
-				</div>
-
-				<div class="list-group">
-					<a class="navlink list-group-item" href="#" data-target="console"><span class="glyphicon glyphicon-console"></span> G-Code Console</a>
-					<a class="navlink list-group-item" href="#" data-target="files"><span class="glyphicon glyphicon-hdd"></span> G-Code Files <span class="glyphicon glyphicon-refresh span-refresh-files hidden"></span></a>
-					<a class="navlink list-group-item" href="#" data-target="macros"><span class="glyphicon glyphicon-link"></span> Macros <span class="glyphicon glyphicon-refresh span-refresh-macros hidden"></span></a>
-				</div>
-
-				<div class="list-group">
-					<a class="navlink list-group-item" href="#" data-target="filaments"><span class="glyphicon glyphicon-cd"></span> Filaments <span class="glyphicon glyphicon-refresh span-refresh-filaments hidden"></span></a>
-					<a class="navlink list-group-item diabase hidden" href="#" data-target="calibration"><span class="glyphicon glyphicon-screenshot"></span> Calibration</a>
-					<a class="navlink list-group-item" href="#" data-target="settings"><span class="glyphicon glyphicon-cog"></span> Settings</a>
-				</div>
-			</section>
-
 			<section id="section_app" class="app-control hidden">
 				<h4 class="text-muted">App</h4>
 				<div class="list-group">
@@ -83,7 +98,6 @@
 				</div>
 			</section>
 		</nav>
-
 		<!-- Main Content -->
 		<main id="main_content">
 			<!-- Navigation Bar -->
@@ -92,59 +106,49 @@
 					<!-- Machine Name -->
 					<div class="navbar-header">
 						<a class="navbar-brand hidden-xs" href="#">
-							<img alt="logo" class="hidden" src="about:blank">
-							<span class="machine-name">Duet Web Control</span>
-							<abbr class="hidden home-warning small" title="Some axes are not homed"><span class="glyphicon glyphicon-alert"></span></abbr>
+						<img alt="logo" class="hidden" src="about:blank">
+						<span class="machine-name">Duet Web Control</span>
+						<abbr class="hidden home-warning small" title="Some axes are not homed"><span class="glyphicon glyphicon-alert"></span></abbr>
 						</a>
 					</div>
-
 					<span class="label label-default label-status navbar-left">Disconnected</span>
-
 					<!-- Regular navbar entries -->
 					<div id="div_navbar_buttons" class="collapse navbar-collapse navbar-right">
 						<div class="btn-group navbar-checkbox navbar-left hidden-md hidden-lg" data-toggle="buttons">
 							<button class="btn btn-default btn-hide-info active">
-								<span class="glyphicon glyphicon-dashboard"></span>
+							<span class="glyphicon glyphicon-dashboard"></span>
 							</button>
 						</div>
-
 						<button type="button" class="btn btn-info btn-connect navbar-btn navbar-left hidden"><span class="glyphicon glyphicon-log-in"></span> <span>Connect</span></button>
-
 						<form class="navbar-form padding-small navbar-left hidden-sm gcode-input" autocomplete="off">
 							<div class="input-group">
 								<span class="input-group-addon">
-									<a href="https://duet3d.dozuki.com/Wiki/Gcode" target="_blank">?</a>
+								<a href="https://duet3d.dozuki.com/Wiki/Gcode" target="_blank">?</a>
 								</span>
-
 								<input type="text" name="gcode" class="form-control typeahead" placeholder="Send G-Code..." data-provide="typeahead" disabled>
 								<div class="input-group-btn">
 									<button type="submit" class="btn btn-default disabled" title="Send G-Code from input"><span class="glyphicon glyphicon-send"></span> Send</button>
 								</div>
 							</div>
 						</form>
-
 						<button type="button" class="btn btn-default btn-upload navbar-btn navbar-left padding-small hidden-xs hidden-sm disabled" title="Upload &amp; Start one or more G-Code files (drag&amp;drop is supported as well)" data-type="start" data-style="btn-default"><span class="glyphicon glyphicon-cloud-upload"></span> Upload &amp; Start</button>
-
 						<button type="button" class="btn btn-danger btn-emergency-stop navbar-btn navbar-left disabled" title="Enforces an immediate software reset (M112+M999)"><span class="glyphicon glyphicon-flash"></span> Emergency STOP</button>
 					</div>
-
 					<!-- Mobile navbar entries -->
 					<div class="navbar-header collapsed">
 						<button type="button" class="navbar-toggle pull-left" id="btn_toggle_sidebar">
-							<span class="sr-only">Toggle navigation</span>
-							<span class="icon-bar"></span>
-							<span class="icon-bar"></span>
-							<span class="icon-bar"></span>
+						<span class="sr-only">Toggle navigation</span>
+						<span class="icon-bar"></span>
+						<span class="icon-bar"></span>
+						<span class="icon-bar"></span>
 						</button>
-
 						<a class="navbar-brand visible-xs">
-							<span class="machine-name">Duet Web Control</span>
-							<abbr title="Some axes are not homed" class="hidden home-warning"><span class="glyphicon glyphicon-alert"></span></abbr>
+						<span class="machine-name">Duet Web Control</span>
+						<abbr title="Some axes are not homed" class="hidden home-warning"><span class="glyphicon glyphicon-alert"></span></abbr>
 						</a>
 					</div>
 				</div>
 			</nav>
-
 			<!-- Info Panels -->
 			<div class="container-fluid" id="div_info_panels">
 				<div class="row">
@@ -156,7 +160,6 @@
 								<span>Machine Status</span>
 								<a href="#" id="a_mode"><span id="span_mode" class="label label-default hidden">Mode: <span>n/a</span></span></a>
 							</div>
-
 							<div class="panel-table-container">
 								<table class="table table-bordered table-condensed table-centered-cells table-axis-positions table-status diabase hidden">
 									<tr>
@@ -197,7 +200,6 @@
 										<td class="hidden" data-axis="8">n/a</td>
 									</tr>
 								</table>
-
 								<table class="table table-bordered table-condensed table-centered-cells table-axis-positions table-status no-diabase">
 									<tr>
 										<th rowspan="2" class="th-status">Head Position</th>
@@ -223,11 +225,12 @@
 										<td class="hidden hidden-md hidden-xs" data-axis="8">n/a</td>
 									</tr>
 								</table>
-
 								<table id="table_extruder_positions" class="table table-bordered table-condensed table-centered-cells table-status no-diabase">
 									<tr>
 										<th id="th_extruder_drives" rowspan="2" class="th-status">Extruder Drives</th>
-										<th class="hidden"><!-- only for HTML validation --></th>
+										<th class="hidden">
+											<!-- only for HTML validation -->
+										</th>
 										<th class="hidden-md" data-extruder="0">Drive 0</th>
 										<th class="hidden-md" data-extruder="1">Drive 1</th>
 										<th class="hidden-md hidden" data-extruder="2">Drive 2</th>
@@ -251,7 +254,6 @@
 										<td class="hidden-md hidden" data-extruder="8">n/a</td>
 									</tr>
 								</table>
-
 								<table class="table table-bordered table-condensed table-centered-cells table-status speeds hidden">
 									<tr>
 										<th rowspan="2" class="th-status">Speeds</th>
@@ -263,7 +265,6 @@
 										<td class="top-speed" title="Top speed of the current move">n/a</td>
 									</tr>
 								</table>
-
 								<table class="table table-bordered table-condensed table-centered-cells table-status">
 									<tr>
 										<th rowspan="2" class="th-status">Sensors</th>
@@ -282,7 +283,6 @@
 							</div>
 						</div>
 					</div>
-
 					<!-- Tools / Heaters / Extra -->
 					<div class="col-xs-12 col-sm-5 col-md-5 col-lg-4" id="div_tools_heaters">
 						<!-- Tools -->
@@ -293,7 +293,6 @@
 								<a href="#" class="a-heaters"><span class="glyphicon glyphicon-fire"></span> Heaters</a>
 								<span class="extra-temps hidden">&nbsp;/&nbsp;</span>
 								<a href="#" class="a-extra extra-temps hidden"><span class="glyphicon glyphicon-plus"></span> Extra</a>
-
 								<div class="dropdown pull-right" id="control_all_tools">
 									<a href="#" class="dropdown-toggle" data-toggle="dropdown" data-target="control_all_tools"><span class="glyphicon glyphicon-menu-hamburger"></span> Control All <span class="caret"></span></a>
 									<ul class="dropdown-menu" id="ul_control_dropdown_tools">
@@ -323,7 +322,6 @@
 									</ul>
 								</div>
 							</div>
-
 							<table class="table table-bordered table-condensed table-centered-cells" id="table_tools">
 								<thead>
 									<tr>
@@ -334,7 +332,6 @@
 										<th>Standby</th>
 									</tr>
 								</thead>
-
 								<tbody>
 									<tr data-tool="0" data-heater="1">
 										<th>
@@ -367,7 +364,6 @@
 											</div>
 										</td>
 									</tr>
-
 									<tr data-tool="1" data-heater="2">
 										<th>
 											<a href="#"><span>Tool 1</span></a>
@@ -399,7 +395,6 @@
 											</div>
 										</td>
 									</tr>
-
 									<tr data-heater="bed">
 										<th>
 											<a href="#">Bed</a>
@@ -421,7 +416,6 @@
 										</td>
 										<td></td>
 									</tr>
-
 									<tr data-heater="chamber" class="hidden">
 										<th>
 											<a href="#">Chamber</a>
@@ -443,7 +437,6 @@
 										</td>
 										<td></td>
 									</tr>
-
 									<tr data-heater="cabinet" class="hidden">
 										<th>
 											<a href="#">Second Chamber</a>
@@ -468,7 +461,6 @@
 								</tbody>
 							</table>
 						</div>
-
 						<!-- Heater Temperatures -->
 						<div id="div_heaters" class="panel panel-default panel-status hidden">
 							<div class="panel-heading">
@@ -477,7 +469,6 @@
 								<strong><span class="glyphicon glyphicon-fire"></span> Heaters</strong>
 								<span class="extra-temps hidden">&nbsp;/&nbsp;</span>
 								<a href="#" class="a-extra extra-temps hidden"><span class="glyphicon glyphicon-plus"></span> Extra</a>
-
 								<div class="dropdown pull-right" id="control_all_heaters">
 									<a href="#" class="dropdown-toggle" data-toggle="dropdown" data-target="control_all_heaters"><span class="glyphicon glyphicon-menu-hamburger"></span> Control All <span class="caret"></span></a>
 									<ul class="dropdown-menu" id="ul_control_dropdown_heaters">
@@ -507,7 +498,6 @@
 									</ul>
 								</div>
 							</div>
-
 							<table class="table table-bordered table-condensed table-centered-cells" id="table_heaters">
 								<tr>
 									<th></th>
@@ -515,7 +505,6 @@
 									<th>Active</th>
 									<th>Standby</th>
 								</tr>
-
 								<tr data-heater="1">
 									<th>
 										<a href="#" class="heater-1">Heater 1<span class="caret hidden"></span></a>
@@ -543,7 +532,6 @@
 										</div>
 									</td>
 								</tr>
-
 								<tr data-heater="2">
 									<th>
 										<a href="#" class="heater-2">Heater 2<span class="caret hidden"></span></a>
@@ -571,7 +559,6 @@
 										</div>
 									</td>
 								</tr>
-
 								<tr data-heater="3" class="hidden">
 									<th>
 										<a href="#" class="heater-3">Heater 3<span class="caret hidden"></span></a>
@@ -599,7 +586,6 @@
 										</div>
 									</td>
 								</tr>
-
 								<tr data-heater="4" class="hidden">
 									<th>
 										<a href="#" class="heater-4">Heater 4<span class="caret hidden"></span></a>
@@ -627,7 +613,6 @@
 										</div>
 									</td>
 								</tr>
-
 								<tr data-heater="5" class="hidden">
 									<th>
 										<a href="#" class="heater-5">Heater 5<span class="caret hidden"></span></a>
@@ -655,7 +640,6 @@
 										</div>
 									</td>
 								</tr>
-
 								<tr data-heater="6" class="hidden">
 									<th>
 										<a href="#" class="heater-6">Heater 6<span class="caret hidden"></span></a>
@@ -683,7 +667,6 @@
 										</div>
 									</td>
 								</tr>
-
 								<tr data-heater="7" class="hidden">
 									<th>
 										<a href="#" class="heater-7">Heater 7<span class="caret hidden"></span></a>
@@ -711,7 +694,6 @@
 										</div>
 									</td>
 								</tr>
-
 								<tr data-heater="bed">
 									<th>
 										<a href="#" class="heater-0">Bed</a>
@@ -730,7 +712,6 @@
 									</td>
 									<td></td>
 								</tr>
-
 								<tr data-heater="chamber" class="hidden">
 									<th>
 										<a href="#" class="chamber">Chamber</a>
@@ -749,28 +730,26 @@
 									</td>
 									<td></td>
 								</tr>
-
-									<tr data-heater="cabinet" class="hidden">
-										<th>
-											<a href="#">Dry Cabinet</a>
-											<span class="text-muted heater-state"></span>
-										</th>
-										<td class="current">n/a</td>
-										<td>
-											<div class="input-group input-group-sm">
-												<input type="number" class="form-control" value="0" disabled>
-												<div class="input-group-btn div-head-temp hidden-sm">
-													<button type="button" class="btn btn-default dropdown-toggle btn-bed-temp disabled" data-toggle="dropdown"><span class="caret"></span></button>
-													<ul class="dropdown-menu dropdown-menu-right ul-bed-temp">
-													</ul>
-												</div>
+								<tr data-heater="cabinet" class="hidden">
+									<th>
+										<a href="#">Dry Cabinet</a>
+										<span class="text-muted heater-state"></span>
+									</th>
+									<td class="current">n/a</td>
+									<td>
+										<div class="input-group input-group-sm">
+											<input type="number" class="form-control" value="0" disabled>
+											<div class="input-group-btn div-head-temp hidden-sm">
+												<button type="button" class="btn btn-default dropdown-toggle btn-bed-temp disabled" data-toggle="dropdown"><span class="caret"></span></button>
+												<ul class="dropdown-menu dropdown-menu-right ul-bed-temp">
+												</ul>
 											</div>
-										</td>
-										<td></td>
-									</tr>
+										</div>
+									</td>
+									<td></td>
+								</tr>
 							</table>
 						</div>
-
 						<div id="div_extra" class="panel panel-default panel-status hidden">
 							<div class="panel-heading">
 								<a href="#" class="a-tools"><span class="glyphicon glyphicon-wrench"></span> Tools</a>
@@ -779,7 +758,6 @@
 								<span>&nbsp;/&nbsp;</span>
 								<strong><span class="glyphicon glyphicon-plus"></span> Extra</strong>
 							</div>
-
 							<table class="table table-bordered table-condensed table-centered-cells" id="table_extra">
 								<tr>
 									<th class="hidden-sm hidden-xs"></th>
@@ -839,7 +817,6 @@
 							</table>
 						</div>
 					</div>
-
 					<!-- Temperature Chart -->
 					<div class="hidden-xs hidden-sm col-md-3 col-lg-5" id="div_temp_chart">
 						<div class="panel panel-default panel-status">
@@ -847,7 +824,6 @@
 								<span class="glyphicon glyphicon-scale"></span>
 								<span>Temperature Chart</span>
 							</div>
-
 							<div class="panel-body panel-chart">
 								<div id="chart_temp" title="Time vs. Temperature">
 									<!-- see JS -->
@@ -857,7 +833,6 @@
 					</div>
 				</div>
 			</div>
-
 			<!-- Content -->
 			<div class="container-fluid">
 				<div class="row">
@@ -868,17 +843,14 @@
 								<a class="navlink list-group-item active" href="#" data-target="control"><span class="glyphicon glyphicon-home"></span> Machine Control</a>
 								<a class="navlink list-group-item" href="#" data-target="job"><span class="glyphicon glyphicon-print"></span> Job Status</a>
 							</div>
-
 							<div class="list-group scan-control hidden">
 								<a class="navlink list-group-item" href="#" data-target="scanner"><span class="glyphicon glyphicon-facetime-video"></span> 3D Scanner <span class="glyphicon glyphicon-refresh span-refresh-scans hidden"></span></a>
 							</div>
-
 							<div class="list-group">
 								<a class="navlink list-group-item" href="#" data-target="console"><span class="glyphicon glyphicon-console"></span> G-Code Console</a>
 								<a class="navlink list-group-item" href="#" data-target="files"><span class="glyphicon glyphicon-hdd"></span> G-Code Files <span class="glyphicon glyphicon-refresh span-refresh-files hidden"></span></a>
 								<a class="navlink list-group-item" href="#" data-target="macros"><span class="glyphicon glyphicon-link"></span> Macros <span class="glyphicon glyphicon-refresh span-refresh-macros hidden"></span></a>
 							</div>
-
 							<div class="list-group">
 								<a class="navlink list-group-item" href="#" data-target="filaments"><span class="glyphicon glyphicon-cd"></span> Filaments <span class="glyphicon glyphicon-refresh span-refresh-filaments hidden"></span></a>
 								<a class="navlink list-group-item diabase hidden" href="#" data-target="calibration"><span class="glyphicon glyphicon-screenshot"></span> Calibration</a>
@@ -886,7 +858,6 @@
 							</div>
 						</div>
 					</div>
-
 					<!-- Page Contents -->
 					<div class="col-xs-12 col-sm-9 col-md-10 col-lg-10" id="div_content">
 						<!-- Control Page -->
@@ -916,7 +887,6 @@
 												</ul>
 											</div>
 										</div>
-
 										<div class="panel-body">
 											<div class="hidden-lg btn-group btn-group-justified mobile-home-buttons">
 												<div class="btn-group"><button data-axis="all" class="btn btn-primary btn-home disabled">Home All</button></div>
@@ -1003,12 +973,10 @@
 											</table>
 										</div>
 									</div>
-
 									<div class="panel panel-default hidden" id="panel_extra_axes">
 										<div class="panel-heading">
 											<span>Additional Axes</span>
 										</div>
-
 										<div class="panel-body">
 											<div class="hidden-lg btn-group btn-group-justified mobile-home-buttons">
 												<div class="btn-group"><button data-axis="3" class="btn btn-primary btn-home disabled">Home U</button></div>
@@ -1172,113 +1140,107 @@
 											</table>
 										</div>
 									</div>
-
 									<div class="alert alert-warning hidden home-warning">
 										<span class="glyphicon glyphicon-warning-sign"></span>
 										<span id="unhomed_warning">The following axes are not homed: <strong id="unhomed_axes">X, Y, Z</strong></span>
 									</div>
-
 									<div class="panel panel-default" id="panel_extrude">
 										<div class="panel-heading">
 											<span>Extruder Control</span>
 										</div>
-
 										<div class="panel-body">
 											<div class="col-xs-10 col-sm-10 col-md-10 col-lg-3 hidden" id="div_extruders">
 												<label>Extruder Drive:</label>
 												<div class="btn-group btn-group-justified" data-toggle="buttons">
 													<label class="btn btn-primary disabled active" title="Requires mixing to be configured via M567+M568">
-														<input type="radio" name="extruder" value="mix" checked> Mix
+													<input type="radio" name="extruder" value="mix" checked> Mix
 													</label>
 													<label class="btn btn-default disabled">
-														<input type="radio" name="extruder" value="all"> All
+													<input type="radio" name="extruder" value="all"> All
 													</label>
 													<label class="btn btn-default disabled extr-0">
-														<input type="radio" name="extruder" value="0"> 0
+													<input type="radio" name="extruder" value="0"> 0
 													</label>
 													<label class="btn btn-default disabled extr-1">
-														<input type="radio" name="extruder" value="1"> 1
+													<input type="radio" name="extruder" value="1"> 1
 													</label>
 													<label class="btn btn-default disabled extr-2 hidden">
-														<input type="radio" name="extruder" value="2"> 2
+													<input type="radio" name="extruder" value="2"> 2
 													</label>
 													<label class="btn btn-default disabled extr-3 hidden">
-														<input type="radio" name="extruder" value="3"> 3
+													<input type="radio" name="extruder" value="3"> 3
 													</label>
 													<label class="btn btn-default disabled extr-4 hidden">
-														<input type="radio" name="extruder" value="4"> 4
+													<input type="radio" name="extruder" value="4"> 4
 													</label>
 													<label class="btn btn-default disabled extr-5 hidden">
-														<input type="radio" name="extruder" value="5"> 5
+													<input type="radio" name="extruder" value="5"> 5
 													</label>
 													<label class="btn btn-default disabled extr-6 hidden">
-														<input type="radio" name="extruder" value="6"> 6
+													<input type="radio" name="extruder" value="6"> 6
 													</label>
 													<label class="btn btn-default disabled extr-7 hidden">
-														<input type="radio" name="extruder" value="7"> 7
+													<input type="radio" name="extruder" value="7"> 7
 													</label>
 													<label class="btn btn-default disabled extr-8 hidden">
-														<input type="radio" name="extruder" value="8"> 8
+													<input type="radio" name="extruder" value="8"> 8
 													</label>
 												</div>
 											</div>
-
 											<div class="col-xs-5 col-sm-5 col-md-5 col-lg-5 no-horizontal-padding" id="div_feed">
 												<label>Feed amount in mm:</label>
 												<div class="btn-group btn-group-justified" data-toggle="buttons">
 													<label class="btn btn-default disabled">
-														<input type="radio" name="feed" value="100">
-														<span>100</span>
+													<input type="radio" name="feed" value="100">
+													<span>100</span>
 													</label>
 													<label class="btn btn-default disabled">
-														<input type="radio" name="feed" value="50">
-														<span>50</span>
+													<input type="radio" name="feed" value="50">
+													<span>50</span>
 													</label>
 													<label class="btn btn-default disabled">
-														<input type="radio" name="feed" value="20">
-														<span>20</span>
+													<input type="radio" name="feed" value="20">
+													<span>20</span>
 													</label>
 													<label class="btn btn-primary disabled active">
-														<input type="radio" name="feed" value="10" checked>
-														<span>10</span>
+													<input type="radio" name="feed" value="10" checked>
+													<span>10</span>
 													</label>
 													<label class="btn btn-default disabled">
-														<input type="radio" name="feed" value="5">
-														<span>5</span>
+													<input type="radio" name="feed" value="5">
+													<span>5</span>
 													</label>
 													<label class="btn btn-default disabled">
-														<input type="radio" name="feed" value="1">
-														<span>1</span>
+													<input type="radio" name="feed" value="1">
+													<span>1</span>
 													</label>
 												</div>
 											</div>
-
 											<div class="col-xs-5 col-sm-5 col-md-5 col-lg-5" id="div_feedrate">
 												<label>Feedrate in mm/sec:</label>
 												<div class="btn-group btn-group-justified" data-toggle="buttons">
 													<label class="btn btn-default disabled">
-														<input type="radio" name="feedrate" value="60">
-														<span>60</span>
+													<input type="radio" name="feedrate" value="60">
+													<span>60</span>
 													</label>
 													<label class="btn btn-default disabled">
-														<input type="radio" name="feedrate" value="30">
-														<span>30</span>
+													<input type="radio" name="feedrate" value="30">
+													<span>30</span>
 													</label>
 													<label class="btn btn-default disabled">
-														<input type="radio" name="feedrate" value="15">
-														<span>15</span>
+													<input type="radio" name="feedrate" value="15">
+													<span>15</span>
 													</label>
 													<label class="btn btn-primary disabled active">
-														<input type="radio" name="feedrate" value="5" checked>
-														<span>5</span>
+													<input type="radio" name="feedrate" value="5" checked>
+													<span>5</span>
 													</label>
 													<label class="btn btn-default disabled">
-														<input type="radio" name="feedrate" value="1">
-														<span>1</span>
+													<input type="radio" name="feedrate" value="1">
+													<span>1</span>
 													</label>
 												</div>
 											</div>
-
 											<div class="col-xs-2 col-sm-2 col-md-2 col-lg-2 no-horizontal-padding" id="div_extrude">
 												<div class="btn-group-vertical btn-group-vertical-justified">
 													<div class="btn-group">
@@ -1292,20 +1254,17 @@
 										</div>
 									</div>
 								</div>
-
 								<div class="col-xs-12 col-sm-6 col-md-4 col-lg-3 col-right">
 									<div class="panel panel-default" id="panel_macro_buttons">
 										<div class="panel-heading">
 											<span>User-Defined Macros</span>
 										</div>
-
 										<div class="panel-body text-center">
 											<h4 class="text-muted">Connect to your Duet to display Macro files</h4>
 											<div class="btn-group-vertical btn-group-vertical-justified"></div>
 										</div>
 									</div>
 								</div>
-
 								<div class="col-xs-12 col-sm-6 col-md-4 col-lg-3 col-right">
 									<div class="panel panel-default" id="panel_control_misc">
 										<div class="panel-heading">
@@ -1319,12 +1278,12 @@
 														<div class="btn-group btn-group-justified" data-toggle="buttons">
 															<div class="btn-group">
 																<label class="btn btn-success disabled" title="Turn on ATX power (M80)">
-																	<input type="radio" name="atxPower" value="1">On
+																<input type="radio" name="atxPower" value="1">On
 																</label>
 															</div>
 															<div class="btn-group">
 																<label class="btn btn-danger active disabled" title="Turn off ATX power (M81)">
-																	<input type="radio" name="atxPower" value="0" checked>Off
+																<input type="radio" name="atxPower" value="0" checked>Off
 																</label>
 															</div>
 														</div>
@@ -1349,7 +1308,7 @@
 																</td>
 																<td>
 																	<button class="btn btn-default btn-sm disabled fan-override" title="Override Fan Value">
-																		<span class="glyphicon glyphicon-pushpin"></span>
+																	<span class="glyphicon glyphicon-pushpin"></span>
 																	</button>
 																</td>
 																<td>
@@ -1364,7 +1323,7 @@
 																</td>
 																<td>
 																	<button class="btn btn-default btn-sm disabled fan-override" title="Override Fan Value">
-																		<span class="glyphicon glyphicon-pushpin"></span>
+																	<span class="glyphicon glyphicon-pushpin"></span>
 																	</button>
 																</td>
 																<td>
@@ -1379,7 +1338,7 @@
 																</td>
 																<td>
 																	<button class="btn btn-default btn-sm disabled fan-override" title="Override Fan Value">
-																		<span class="glyphicon glyphicon-pushpin"></span>
+																	<span class="glyphicon glyphicon-pushpin"></span>
 																	</button>
 																</td>
 																<td>
@@ -1394,7 +1353,7 @@
 																</td>
 																<td>
 																	<button class="btn btn-default btn-sm disabled fan-override" title="Override Fan Value">
-																		<span class="glyphicon glyphicon-pushpin"></span>
+																	<span class="glyphicon glyphicon-pushpin"></span>
 																	</button>
 																</td>
 																<td>
@@ -1409,7 +1368,7 @@
 																</td>
 																<td>
 																	<button class="btn btn-default btn-sm disabled fan-override" title="Override Fan Value">
-																		<span class="glyphicon glyphicon-pushpin"></span>
+																	<span class="glyphicon glyphicon-pushpin"></span>
 																	</button>
 																</td>
 																<td>
@@ -1424,7 +1383,7 @@
 																</td>
 																<td>
 																	<button class="btn btn-default btn-sm disabled fan-override" title="Override Fan Value">
-																		<span class="glyphicon glyphicon-pushpin"></span>
+																	<span class="glyphicon glyphicon-pushpin"></span>
 																	</button>
 																</td>
 																<td>
@@ -1439,7 +1398,7 @@
 																</td>
 																<td>
 																	<button class="btn btn-default btn-sm disabled fan-override" title="Override Fan Value">
-																		<span class="glyphicon glyphicon-pushpin"></span>
+																	<span class="glyphicon glyphicon-pushpin"></span>
 																	</button>
 																</td>
 																<td>
@@ -1454,7 +1413,7 @@
 																</td>
 																<td>
 																	<button class="btn btn-default btn-sm disabled fan-override" title="Override Fan Value">
-																		<span class="glyphicon glyphicon-pushpin"></span>
+																	<span class="glyphicon glyphicon-pushpin"></span>
 																	</button>
 																</td>
 																<td>
@@ -1469,7 +1428,7 @@
 																</td>
 																<td>
 																	<button class="btn btn-default btn-sm disabled fan-override" title="Override Fan Value">
-																		<span class="glyphicon glyphicon-pushpin"></span>
+																	<span class="glyphicon glyphicon-pushpin"></span>
 																	</button>
 																</td>
 																<td>
@@ -1487,7 +1446,6 @@
 								</div>
 							</div>
 						</div>
-
 						<!-- Job Status -->
 						<div id="page_job" class="page">
 							<div class="row row-progress hidden">
@@ -1505,7 +1463,6 @@
 									</div>
 								</div>
 							</div>
-
 							<div class="row">
 								<div class="col-xs-12 col-sm-12 col-md-6 col-md-push-3 col-lg-7 col-lg-push-2">
 									<div id="panel_webcam" class="panel panel-default hidden">
@@ -1515,13 +1472,11 @@
 										</div>
 										<div class="panel-body">
 											<img src="about:blank" id="img_webcam" alt="(image not available)">
-
 											<div id="div_ifm_webcam" class="embed-responsive embed-responsive-16by9 hidden">
 												<iframe src="about:blank" id="ifm_webcam" class="embed-responsive-item"></iframe>
 											</div>
 										</div>
 									</div>
-
 									<div class="panel panel-default">
 										<div class="panel-heading">
 											<span>Layer Statistics</span>
@@ -1532,12 +1487,10 @@
 											</div>
 										</div>
 									</div>
-
 									<div id="panel_job_info" class="panel panel-default">
 										<div class="panel-heading">
 											<span>Collected Data</span>
 										</div>
-
 										<table class="table table-bordered table-condensed">
 											<tr>
 												<th>Warm-Up Time</th>
@@ -1553,12 +1506,10 @@
 											</tr>
 										</table>
 									</div>
-
 									<div class="panel panel-default">
 										<div class="panel-heading">
 											<span>Estimations</span>
 										</div>
-
 										<table class="table table-bordered table-condensed" id="table_estimations">
 											<tr>
 												<th>Based on</th>
@@ -1581,7 +1532,6 @@
 										</table>
 									</div>
 								</div>
-
 								<div class="col-xs-4 col-sm-6 col-md-3 col-md-pull-6 col-lg-2 col-lg-pull-7 col-left">
 									<div class="panel panel-default" id="panel_job_control">
 										<div class="panel-heading">
@@ -1601,39 +1551,35 @@
 													<button class="btn btn-success" id="btn_process_another" title="Start the same file once again"><span class="glyphicon glyphicon-refresh"></span> <span>Start Another</span></button>
 												</div>
 											</div>
-
 											<div class="checkbox disabled">
 												<label title="Run M1 when the job has finished">
-													<input type="checkbox" id="auto_sleep" disabled/> Enable Auto-Sleep
+												<input type="checkbox" id="auto_sleep" disabled/> Enable Auto-Sleep
 												</label>
 											</div>
 										</div>
 									</div>
-
 									<div class="panel panel-default babystepping">
 										<div class="panel-heading">
 											<span>Z Baby Stepping</span>
 										</div>
 										<div class="panel-body">
 											<p>Current Offset: <span id="span_babystepping">n/a</span></p>
-
 											<div class="btn-group btn-group-justified">
 												<div class="btn-group">
 													<button class="btn btn-default btn-sm disabled" id="btn_baby_down" title="Lower the tool head by a tiny amount without modifying the machine's Z position (M290 Sxxx)">
-														<span class="glyphicon glyphicon-save"></span>
-														<span class="content">-</span>
+													<span class="glyphicon glyphicon-save"></span>
+													<span class="content">-</span>
 													</button>
 												</div>
 												<div class="btn-group">
 													<button class="btn btn-default btn-sm disabled" id="btn_baby_up" title="Lift the tool head by a tiny amount without modifying the machine's Z position (M290 Sxxx)">
-														<span class="glyphicon glyphicon-open"></span>
-														<span class="content">+</span>
+													<span class="glyphicon glyphicon-open"></span>
+													<span class="content">+</span>
 													</button>
 												</div>
 											</div>
 										</div>
 									</div>
-
 									<div class="panel panel-default">
 										<div class="panel-heading">
 											<span>File Information</span>
@@ -1654,13 +1600,11 @@
 										</div>
 									</div>
 								</div>
-
 								<div class="col-xs-8 col-sm-6 col-md-3 col-lg-3 col-right">
 									<div class="panel panel-default fan-control">
 										<div class="panel-heading">
 											<span>Fan Control</span>
 										</div>
-
 										<div class="panel-body">
 											<table class="table-fan-control" id="table_fan_job">
 												<tr data-fan="tool">
@@ -1679,7 +1623,7 @@
 													</td>
 													<td>
 														<button class="btn btn-default btn-sm disabled fan-override" title="Override Fan Value">
-															<span class="glyphicon glyphicon-pushpin"></span>
+														<span class="glyphicon glyphicon-pushpin"></span>
 														</button>
 													</td>
 													<td>
@@ -1694,7 +1638,7 @@
 													</td>
 													<td>
 														<button class="btn btn-default btn-sm disabled fan-override" title="Override Fan Value">
-															<span class="glyphicon glyphicon-pushpin"></span>
+														<span class="glyphicon glyphicon-pushpin"></span>
 														</button>
 													</td>
 													<td>
@@ -1709,7 +1653,7 @@
 													</td>
 													<td>
 														<button class="btn btn-default btn-sm disabled fan-override" title="Override Fan Value">
-															<span class="glyphicon glyphicon-pushpin"></span>
+														<span class="glyphicon glyphicon-pushpin"></span>
 														</button>
 													</td>
 													<td>
@@ -1724,7 +1668,7 @@
 													</td>
 													<td>
 														<button class="btn btn-default btn-sm disabled fan-override" title="Override Fan Value">
-															<span class="glyphicon glyphicon-pushpin"></span>
+														<span class="glyphicon glyphicon-pushpin"></span>
 														</button>
 													</td>
 													<td>
@@ -1739,7 +1683,7 @@
 													</td>
 													<td>
 														<button class="btn btn-default btn-sm disabled fan-override" title="Override Fan Value">
-															<span class="glyphicon glyphicon-pushpin"></span>
+														<span class="glyphicon glyphicon-pushpin"></span>
 														</button>
 													</td>
 													<td>
@@ -1754,7 +1698,7 @@
 													</td>
 													<td>
 														<button class="btn btn-default btn-sm disabled fan-override" title="Override Fan Value">
-															<span class="glyphicon glyphicon-pushpin"></span>
+														<span class="glyphicon glyphicon-pushpin"></span>
 														</button>
 													</td>
 													<td>
@@ -1769,7 +1713,7 @@
 													</td>
 													<td>
 														<button class="btn btn-default btn-sm disabled fan-override" title="Override Fan Value">
-															<span class="glyphicon glyphicon-pushpin"></span>
+														<span class="glyphicon glyphicon-pushpin"></span>
 														</button>
 													</td>
 													<td>
@@ -1784,7 +1728,7 @@
 													</td>
 													<td>
 														<button class="btn btn-default btn-sm disabled fan-override" title="Override Fan Value">
-															<span class="glyphicon glyphicon-pushpin"></span>
+														<span class="glyphicon glyphicon-pushpin"></span>
 														</button>
 													</td>
 													<td>
@@ -1799,7 +1743,7 @@
 													</td>
 													<td>
 														<button class="btn btn-default btn-sm disabled fan-override" title="Override Fan Value">
-															<span class="glyphicon glyphicon-pushpin"></span>
+														<span class="glyphicon glyphicon-pushpin"></span>
 														</button>
 													</td>
 													<td>
@@ -1811,7 +1755,6 @@
 											</table>
 										</div>
 									</div>
-
 									<div class="panel panel-default">
 										<div class="panel-heading">
 											<span>Speed Factor</span>
@@ -1823,7 +1766,6 @@
 										</div>
 									</div>
 								</div>
-
 								<div class="col-xs-8 col-sm-6 col-md-3 col-lg-3 col-right">
 									<div id="panel_extrusion_factors" class="panel panel-default">
 										<div class="panel-heading">
@@ -1891,7 +1833,6 @@
 								</div>
 							</div>
 						</div>
-
 						<!-- Scanner -->
 						<div id="page_scanner" class="page">
 							<div class="row">
@@ -1917,13 +1858,13 @@
 											</td>
 										</tr>
 									</table>
-
 									<h1 class="text-center text-muted">Connect to your Duet to display scanned files</h1>
-
 									<table class="table table-bordered table-files table-hover table-striped hidden" id="table_scan_files">
 										<thead>
 											<tr>
-												<th><!-- see JS --></th>
+												<th>
+													<!-- see JS -->
+												</th>
 												<th>File Name</th>
 												<th>Size</th>
 												<th>Date Created</th>
@@ -1936,7 +1877,6 @@
 								</div>
 							</div>
 						</div>
-
 						<!-- G-Code Console -->
 						<div id="page_console" class="page">
 							<div class="row">
@@ -1944,7 +1884,7 @@
 									<div class="col-md-12">
 										<div class="input-group">
 											<span class="input-group-addon">
-												<a href="https://duet3d.dozuki.com/Wiki/Gcode" target="_blank">?</a>
+											<a href="https://duet3d.dozuki.com/Wiki/Gcode" target="_blank">?</a>
 											</span>
 											<input type="text" name="gcode" class="form-control typeahead" placeholder="Send G-Code..." data-provide="typeahead" disabled>
 											<div class="input-group-btn">
@@ -1960,7 +1900,6 @@
 									</div>
 								</form>
 							</div>
-
 							<div class="row">
 								<div class="col-md-12">
 									<div class="container-fluid" id="console_log">
@@ -1968,7 +1907,6 @@
 								</div>
 							</div>
 						</div>
-
 						<!-- G-Code Files -->
 						<div id="page_files" class="page">
 							<div class="row">
@@ -1978,17 +1916,17 @@
 											<td id="td_volume" class="hidden hidden-xs">
 												<div class="dropdown">
 													<button id="btn_volume" class="btn btn-success dropdown-toggle" type="button" data-toggle="dropdown">
-														<span class="glyphicon glyphicon-hdd"></span> <span class="content">SD Card 0</span> <span class="caret"></span>
+													<span class="glyphicon glyphicon-hdd"></span> <span class="content">SD Card 0</span> <span class="caret"></span>
 													</button>
 													<ul class="dropdown-menu" id="ul_volumes">
 														<li>
 															<a href="#" data-volume="0">
-																<span class="glyphicon glyphicon-ok text-success"></span> SD Card 0 (mounted)
+															<span class="glyphicon glyphicon-ok text-success"></span> SD Card 0 (mounted)
 															</a>
 														</li>
 														<li>
 															<a href="#" data-volume="1">
-																<span class="glyphicon glyphicon-remove text-danger"></span> SD Card 1 (not mounted)
+															<span class="glyphicon glyphicon-remove text-danger"></span> SD Card 1 (not mounted)
 															</a>
 														</li>
 													</ul>
@@ -2008,9 +1946,7 @@
 											</td>
 										</tr>
 									</table>
-
 									<h1 class="text-center text-muted">Connect to your Duet to display G-Code files</h1>
-
 									<table class="table table-bordered table-files table-hover table-striped hidden" id="table_gcode_files">
 										<thead>
 											<tr>
@@ -2028,7 +1964,6 @@
 											<!-- see JS -->
 										</tbody>
 									</table>
-
 									<div class="row visible-xs visible-sm">
 										<div class="col-md-12 text-center hidden online-control">
 											<button class="btn btn-primary btn-upload" title="Upload one or more G-Code files (drag&amp;drop is supported as well)" data-type="gcode" data-style="btn-primary"><span class="glyphicon glyphicon-cloud-upload"></span> Upload G-Code File(s)</button>
@@ -2037,7 +1972,6 @@
 								</div>
 							</div>
 						</div>
-
 						<!-- Macro Files -->
 						<div id="page_macros" class="page">
 							<div class="row">
@@ -2056,7 +1990,7 @@
 											<td class="hidden online-control">
 												<div class="btn-group">
 													<button type="button" class="btn btn-info dropdown-toggle online-control hidden" data-toggle="dropdown">
-														<span class="glyphicon glyphicon-plus"></span> Make new... <span class="caret"></span>
+													<span class="glyphicon glyphicon-plus"></span> Make new... <span class="caret"></span>
 													</button>
 													<ul class="dropdown-menu dropdown-menu-right">
 														<li><a href="#" id="a_new_macro_directory" title="Create a new directory"><span class="glyphicon glyphicon-folder-open"></span> Directory</a></li>
@@ -2066,9 +2000,7 @@
 											</td>
 										</tr>
 									</table>
-
 									<h1 class="text-center text-muted">Connect to your Duet to display Macro files</h1>
-
 									<table class="table table-bordered table-files table-hover table-striped hidden" id="table_macro_files">
 										<thead>
 											<tr>
@@ -2082,7 +2014,6 @@
 											<!-- see JS -->
 										</tbody>
 									</table>
-
 									<div class="row visible-xs visible-sm">
 										<div class="col-md-12 text-center hidden online-control">
 											<button class="btn btn-primary btn-upload" title="Upload one or more macro files (drag&amp;drop is supported as well)" data-type="macro" data-style="btn-primary"><span class="glyphicon glyphicon-cloud-upload"></span> Upload Macro File(s)</button>
@@ -2091,7 +2022,6 @@
 								</div>
 							</div>
 						</div>
-
 						<!-- Filaments -->
 						<div id="page_filaments" class="page">
 							<div class="row">
@@ -2103,7 +2033,6 @@
 													<li class="active"><span class="glyphicon glyphicon-folder-open"></span> Filaments Directory</li>
 												</ol>
 											</td>
-
 											<td class="hidden-xs hidden-sm hidden online-control">
 												<button class="btn btn-primary btn-upload disabled" title="Upload one or more filament configurations (drag&amp;drop is supported as well)" data-type="filament" data-style="btn-primary"><span class="glyphicon glyphicon-cloud-upload"></span> Upload Configuration(s)</button>
 											</td>
@@ -2112,9 +2041,7 @@
 											</td>
 										</tr>
 									</table>
-
 									<h1 class="text-center text-muted">Connect to your Duet to display Filaments</h1>
-
 									<table class="table table-bordered table-files table-hover table-striped hidden" id="table_filaments">
 										<thead>
 											<tr>
@@ -2130,7 +2057,6 @@
 								</div>
 							</div>
 						</div>
-
 						<!-- Calibration -->
 						<div id="page_calibration" class="page">
 							<div class="row">
@@ -2139,14 +2065,12 @@
 										<div class="panel-heading">Live Stream</div>
 										<div class="panel-body">
 											<img id="img_crosshair" src="about:blank" alt="(crosshair not available)">
-
 											<img id="img_webcam_calibration" src="about:blank" alt="(image not available)">
 											<div id="div_ifm_webcam_calibration" class="embed-responsive embed-responsive-16by9 hidden">
 												<iframe src="about:blank" id="ifm_webcam_calibration" class="embed-responsive-item"></iframe>
 											</div>
 										</div>
 									</div>
-
 									<div class="panel panel-default">
 										<div class="panel-heading">
 											<span>Tool Offsets</span>
@@ -2167,20 +2091,17 @@
 											</tbody>
 										</table>
 									</div>
-
 									<div class="text-center">
 										<button id="btn_calibrate_all" class="btn btn-lg btn-success disable-processing disabled"><span class="glyphicon glyphicon-screenshot"></span> Calibrate All</button>
 										<button class="btn btn-lg btn-warning disable-processing disabled" data-gcode="M32 calibrate.g"><span class="glyphicon glyphicon-print"></span> Print Calibration Piece</button>
 										<button class="btn btn-lg btn-info diabase hidden" data-toggle="modal" data-target="#modal_wifi_cam"><span class="glyphicon glyphicon-wrench"></span> Set up WiFi</button>
 									</div>
 								</div>
-
 								<div class="col-md-4">
 									<div class="panel panel-default">
 										<div class="panel-heading">
 											<span>Axis Orientation</span>
 										</div>
-
 										<div class="panel-body">
 											<img id="img_calibration_diagram" src="about:blank" alt="(calibration diagram)" class="img-responsive">
 										</div>
@@ -2188,7 +2109,6 @@
 								</div>
 							</div>
 						</div>
-
 						<!-- Settings -->
 						<div id="page_settings" class="page">
 							<form id="frm_settings">
@@ -2203,7 +2123,6 @@
 									<li><a href="#page_machine" data-toggle="tab">Machine Properties</a></li>
 									<li><a href="#page_tools" data-toggle="tab">Tools</a></li>
 								</ul>
-
 								<!-- Page Selector (Mobile) -->
 								<ul class="nav nav-tabs visible-xs visible-sm">
 									<li class="active"><a href="#page_general" data-toggle="tab">General</a></li>
@@ -2220,7 +2139,6 @@
 										</ul>
 									</li>
 								</ul>
-
 								<div class="tab-content well well-sm">
 									<!-- General Settings -->
 									<div class="tab-pane row active" id="page_general">
@@ -2252,10 +2170,9 @@
 															<td id="dwc_version">1.22.5</td>
 														</tr>
 													</table>
-													<span id="span_copyright">Web Interface by Christian Hammacher<br/>Licensed under the terms of the <a href="https://www.gnu.org/licenses/gpl-3.0" target="blank">GPL v3</a></span>
+													<span id="span_copyright">Web Interface by Christian Hammacher and <a href="https://github.com/lyxnter/DuetWebControl" target="_blank">Lynxter</a><br/>Licensed under the terms of the <a href="https://www.gnu.org/licenses/gpl-3.0" target="blank">GPL v3</a></span>
 												</div>
 											</div>
-
 											<div class="panel panel-default hidden-xs hidden-sm">
 												<div class="panel-heading">
 													<span>File Upload for /sys and /www Directories</span>
@@ -2266,62 +2183,52 @@
 															<button class="btn btn-lg btn-info btn-upload disabled" title="Upload one or more files to the /sys or /www directory (drag&amp;drop is supported as well)" data-type="generic" data-style="btn-info"><span class="glyphicon glyphicon-cloud-upload"></span>  Upload File(s)</button>
 														</div>
 													</div>
-
 													<p id="p_uploadinfo" class="text-muted">Here you can upload firmware, Duet WiFi and Duet Web Control files as well</p>
 												</div>
 											</div>
 										</div>
-
 										<div class="col-xs-12 col-sm-6 col-md-4 col-lg-4">
 											<div class="panel panel-default">
 												<div class="panel-heading">
 													<span>Communication</span>
 												</div>
-
 												<div class="panel-body">
 													<label for="input_update_interval">Status Update Interval:</label>
 													<div class="input-group">
 														<input type="number" id="input_update_interval" class="form-control" title="Interval at which status updates are requested" data-setting="updateInterval" data-min="50">
 														<span class="input-group-addon">ms</span>
 													</div>
-
 													<label for="input_extended_status_interval">Extended Status Update after every:</label>
 													<div class="input-group">
 														<input type="number" id="input_extended_status_interval" class="form-control" title="Extended status updates are requested after each n-th status response" data-setting="extendedStatusInterval" data-min="1">
 														<span class="input-group-addon">th response</span>
 													</div>
-
 													<label for="input_max_retries">Maximum number of AJAX retries:</label>
 													<input type="number" id="input_max_retries" class="form-control" title="Maximum number of AJAX retries before the connection is terminated" data-setting="maxRetries" data-min="0" data-max="50">
 												</div>
 											</div>
 										</div>
-
 										<div class="col-xs-12 col-sm-6 col-md-4 col-lg-4 col-right">
 											<div class="panel panel-default">
 												<div class="panel-heading">
 													<span>Reconnect Preferences</span>
 												</div>
-
 												<div class="panel-body">
 													<label for="input_reconnect_halt_delay">Reconnect Delay on Halt:</label>
 													<div class="input-group">
 														<input type="number" id="input_reconnect_halt_delay" class="form-control" title="Time to wait for a reconnect after an emergency stop was reported" data-setting="haltedReconnectDelay" data-factor="1000">
 														<span class="input-group-addon">s</span>
 													</div>
-
 													<label for="input_reconnect_update_delay">Reconnect Delay on Firmware Update:</label>
 													<div class="input-group">
 														<input type="number" id="input_reconnect_update_delay" class="form-control" title="Time to wait for a reconnect when a new firmware is about to be flashed" data-setting="updateReconnectDelay" data-factor="1000">
 														<span class="input-group-addon">s</span>
 													</div>
-
 													<label for="input_reconnect_dws_delay" class="wifi-setting">Reconnect Delay on Duet WiFi Server Update:</label>
 													<div class="input-group wifi-setting">
 														<input type="number" id="input_reconnect_dws_delay" class="form-control" title="Time to wait for a reconnect when a new Duet WiFi Server firmware is about to be flashed (Duet WiFi only)" data-setting="dwsReconnectDelay" data-factor="1000">
 														<span class="input-group-addon">s</span>
 													</div>
-
 													<label for="input_reconnect_dwc_delay" class="wifi-setting">Reconnect Delay on Duet Web Control Update:</label>
 													<div class="input-group wifi-setting">
 														<input type="number" id="input_reconnect_dwc_delay" class="form-control" title="Time to wait for a reconnect when a new Duet Web Control binary is about to be flashed (Duet WiFi only)" data-setting="dwcReconnectDelay" data-factor="1000">
@@ -2345,13 +2252,13 @@
 																</button>
 															</div>
 														</div>
-													</div-->
+														</div-->
 													<div class="col-sm-12 col-md-12 col-lg-12">
 														<div class="btn-group-justified">
 															<div class="btn-group">
-																<button class="btn btn-primary" title="Do a backup of the gcode files (Warning this may take up to several minutes files > 10Mb)" id="backGco">
-																	<span class="glyphicon glyphicon-save"></span>
-																	Backup GCodes
+																<button class="btn btn-primary" title="Backup the gcode files (Warning this may take up to several minutes files > 10Mb)" id="backGco">
+																<span class="glyphicon glyphicon-save"></span>
+																Backup GCodes
 																</button>
 															</div>
 														</div>
@@ -2359,9 +2266,9 @@
 													<div class="col-sm-12 col-md-12 col-lg-12">
 														<div class="btn-group-justified">
 															<div class="btn-group">
-																<button class="btn btn-primary" title="Do a backup of the macro files" id="backMac">
-																	<span class="glyphicon glyphicon-save"></span>
-																	Backup Macros & System
+																<button class="btn btn-primary" title="Backup the configuration files (macros and system)" id="backMac">
+																<span class="glyphicon glyphicon-save"></span>
+																Backup Macros & System
 																</button>
 															</div>
 														</div>
@@ -2375,7 +2282,7 @@
 																</button>
 															</div>
 														</div>
-													</div-->
+														</div-->
 													<!--div class="col-sm-12 col-md-12 col-lg-12">
 														<div class="btn-group-justified">
 															<div class="btn-group">
@@ -2385,13 +2292,13 @@
 																</button>
 															</div>
 														</div>
-													</div-->
+														</div-->
 													<div class="col-sm-12 col-md-12 col-lg-12">
 														<div class="btn-group-justified">
 															<div class="btn-group">
-																<button class="btn btn-primary" title="Do a backup of the machine configuration (macros, system)" id="backFull">
-																	<span class="glyphicon glyphicon-save"></span>
-																	Full machine backup
+																<button class="btn btn-primary" title="Backup the full machine configuration (gcodes, macros and system)" id="backFull">
+																<span class="glyphicon glyphicon-save"></span>
+																Full machine backup
 																</button>
 															</div>
 														</div>
@@ -2400,7 +2307,6 @@
 											</div>
 										</div>
 									</div>
-
 									<!-- User Interface -->
 									<div class="tab-pane row" id="page_ui">
 										<div class="col-xs-12 col-sm-12 col-md-4 col-lg-4 col-left">
@@ -2408,51 +2314,44 @@
 												<div class="panel-heading">
 													<span>General</span>
 												</div>
-
 												<div class="panel-body">
 													<div class="checkbox">
 														<label title="Always show the connect button on remote connections">
-															<input type="checkbox" data-setting="showConnect" /> Show Connect button
+														<input type="checkbox" data-setting="showConnect" /> Show Connect button
 														</label>
 													</div>
-
 													<div class="checkbox">
 														<label title="Display file sizes with a base of 1024 instead of 1000">
-															<input type="checkbox" data-setting="useKiB" /> Display File Sizes with Binary Prefix
+														<input type="checkbox" data-setting="useKiB" /> Display File Sizes with Binary Prefix
 														</label>
 													</div>
-
 													<div class="checkbox hidden-xs hidden-sm">
 														<label title="Turning on this option ensures the info area and the main menu are always shown on larger displays. This option has no effect on small devices">
-															<input type="checkbox" data-setting="scrollContent" /> Always show info area and main menu
+														<input type="checkbox" data-setting="scrollContent" /> Always show info area and main menu
 														</label>
 													</div>
-
 													<div class="checkbox">
 														<label title="Show Fan Sliders allowing you to control the Fan Outputs">
-															<input type="checkbox" data-setting="showFanControl" checked /> Show Fan Controls
+														<input type="checkbox" data-setting="showFanControl" checked /> Show Fan Controls
 														</label>
 													</div>
-
 													<div class="checkbox">
 														<label title="Display fan RPM of a 4-pin PWM cooling fan in the sensors area">
-															<input type="checkbox" data-setting="showFanRPM" checked /> Show Fan RPM in Sensors
+														<input type="checkbox" data-setting="showFanRPM" checked /> Show Fan RPM in Sensors
 														</label>
 													</div>
-
 													<div class="checkbox">
 														<label title="Store the settings of Duet Web Control for each device on the Duet">
-															<input type="checkbox" data-setting="settingsOnDuet" checked /> Store Web Interface Settings on the Duet
+														<input type="checkbox" data-setting="settingsOnDuet" checked /> Store Web Interface Settings on the Duet
 														</label>
 													</div>
-
 													<div class="row">
 														<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
 															<label id="label_language">Language:</label>
 															<div class="dropdown" id="dropdown_language">
 																<button class="btn btn-default dropdown-toggle" type="button" id="btn_language" data-language="en" data-toggle="dropdown">
-																	<span>English</span>
-																	<span class="caret"></span>
+																<span>English</span>
+																<span class="caret"></span>
 																</button>
 																<ul class="dropdown-menu">
 																	<li><a data-language="en" href="#">English</a></li>
@@ -2463,8 +2362,8 @@
 															<label>Theme:</label>
 															<div class="dropdown" id="dropdown_theme">
 																<button class="btn btn-default dropdown-toggle" type="button" id="btn_theme" data-theme="default" data-toggle="dropdown">
-																	<span>Bootstrap</span>
-																	<span class="caret"></span>
+																<span>Bootstrap</span>
+																<span class="caret"></span>
 																</button>
 																<ul class="dropdown-menu">
 																	<li><a data-theme="default" href="#">Bootstrap</a></li>
@@ -2475,12 +2374,10 @@
 													</div>
 												</div>
 											</div>
-
 											<div class="panel panel-default">
 												<div class="panel-heading">
 													<span>Machine Control</span>
 												</div>
-
 												<div class="panel-body">
 													<div class="row">
 														<div class="col-lg-6 col-md-6 col-sm-12 col-xs-12">
@@ -2490,7 +2387,6 @@
 																<span class="input-group-addon">mm/s</span>
 															</div>
 														</div>
-
 														<div class="col-lg-6 col-md-6 col-sm-12 col-xs-12">
 															<label for="input_babystepping_z">Z Distance per Babystep:</label>
 															<div class="input-group">
@@ -2499,111 +2395,101 @@
 															</div>
 														</div>
 													</div>
-
 													<div class="checkbox">
 														<label title="Confirm emergency stop by displaying a message box">
-															<input type="checkbox" data-setting="confirmStop" /> Confirm Emergency STOP
+														<input type="checkbox" data-setting="confirmStop" /> Confirm Emergency STOP
 														</label>
 													</div>
-
 													<div class="checkbox">
 														<label title="Show a small panel on the Control page to toggle ATX power">
-															<input type="checkbox" data-setting="showATXControl" checked /> Show ATX Power control
+														<input type="checkbox" data-setting="showATXControl" checked /> Show ATX Power control
 														</label>
 													</div>
 												</div>
 											</div>
 										</div>
-
 										<div class="col-xs-12 col-sm-6 col-md-4 col-lg-4">
 											<div class="panel panel-default" id="panel_tool_changes">
 												<div class="panel-heading">
 													<span>Tool Changes</span>
 												</div>
-
 												<div class="panel-body">
 													<div class="row">
 														<div class="col-md-4">
 															<div class="checkbox">
 																<label title="Run tfree*.g macro when the current tool is changed via the web interface">
-																	<input type="checkbox" data-setting="doTfree" checked /> Run free macro
+																<input type="checkbox" data-setting="doTfree" checked /> Run free macro
 																</label>
 															</div>
 														</div>
-
 														<div class="col-md-4">
 															<div class="checkbox">
 																<label title="Run tpre*.g macro when the current tool is changed via the web interface">
-																	<input type="checkbox" data-setting="doTpre" checked /> Run pre macro
+																<input type="checkbox" data-setting="doTpre" checked /> Run pre macro
 																</label>
 															</div>
 														</div>
-
 														<div class="col-md-4">
 															<div class="checkbox">
 																<label title="Run tpost*.g macro when the current tool is changed via the web interface">
-																	<input type="checkbox" data-setting="doTpost" checked /> Run post macro
+																<input type="checkbox" data-setting="doTpost" checked /> Run post macro
 																</label>
 															</div>
 														</div>
 													</div>
 												</div>
 											</div>
-
 											<div class="panel panel-default">
 												<div class="panel-heading">
 													<span>Notifications</span>
 												</div>
-
 												<div class="panel-body">
 													<div class="checkbox">
 														<label title="Show HTML5 desktop notifications when the web interface is not visible">
-															<input type="checkbox" data-setting="useHtmlNotifications" /> Use HTML5-based desktop notifications when the page is hidden
+														<input type="checkbox" data-setting="useHtmlNotifications" /> Use HTML5-based desktop notifications when the page is hidden
 														</label>
 													</div>
 													<div class="checkbox">
 														<label title="Activate this to display M117 messages only for a certain time span">
-															<input type="checkbox" data-setting="autoCloseUserMessages" checked /> Automatically close user-generated firmware messages
+														<input type="checkbox" data-setting="autoCloseUserMessages" checked /> Automatically close user-generated firmware messages
 														</label>
 													</div>
 													<div class="checkbox">
 														<label title="Activate this to automatically close error messages">
-															<input type="checkbox" data-setting="autoCloseErrorMessages" checked /> Automatically close error messages
+														<input type="checkbox" data-setting="autoCloseErrorMessages" checked /> Automatically close error messages
 														</label>
 													</div>
-
 													<label>Show Pop-Up Notifications for:</label>
 													<div class="well well-sm">
 														<div class="checkbox" id="div_show_empty_responses">
 															<label title="Show a pop-up notification when the firmware reports that a code from the web interface has completed">
-																<input type="checkbox" data-setting="showEmptyResponses" checked /> Codes that Completed without a Response
+															<input type="checkbox" data-setting="showEmptyResponses" checked /> Codes that Completed without a Response
 															</label>
 														</div>
 														<div class="row">
 															<div class="col-md-4">
 																<div class="checkbox">
 																	<label title="Show pop-up notifications for info messages">
-																		<input type="checkbox" data-setting="showInfoMessages" checked /> Info Messages
+																	<input type="checkbox" data-setting="showInfoMessages" checked /> Info Messages
 																	</label>
 																</div>
 															</div>
 															<div class="col-md-4">
 																<div class="checkbox">
 																	<label title="Show pop-up notifications for warning messages">
-																		<input type="checkbox" data-setting="showWarningMessages" checked /> Warnings
+																	<input type="checkbox" data-setting="showWarningMessages" checked /> Warnings
 																	</label>
 																</div>
 															</div>
 															<div class="col-md-4">
 																<div class="checkbox">
 																	<label title="Show pop-up notifications for error messages">
-																		<input type="checkbox" data-setting="showErrorMessages" checked /> Errors
+																	<input type="checkbox" data-setting="showErrorMessages" checked /> Errors
 																	</label>
 																</div>
 															</div>
 														</div>
 													</div>
-
 													<div class="row">
 														<div class="col-md-6">
 															<label for="input_notification_timeout">Default Notification Timeout:</label>
@@ -2620,24 +2506,20 @@
 												</div>
 											</div>
 										</div>
-
 										<div class="col-xs-12 col-sm-6 col-md-4 col-lg-4 col-right">
 											<div class="panel panel-default">
 												<div class="panel-heading">
 													<span>G-Codes</span>
 												</div>
-
 												<div class="panel-body">
 													<div class="checkbox">
 														<label title="Convert every G-Code to Upper-Case before sending them">
-															<input type="checkbox" data-setting="uppercaseGCode" checked /> Always Convert G-Codes to Upper-Case
+														<input type="checkbox" data-setting="uppercaseGCode" checked /> Always Convert G-Codes to Upper-Case
 														</label>
 													</div>
-
 													<button id="btn_clear_cache" class="btn btn-danger" title="Clear cached G-Code File Information"><span class="glyphicon glyphicon-trash"></span> Clear Cached File Information</button>
 												</div>
 											</div>
-
 											<div class="panel panel-default">
 												<div class="panel-heading">
 													<span>Webcam Integration</span>
@@ -2645,25 +2527,21 @@
 												<div class="panel-body">
 													<label for="input_webcam_url">Optional URL to an external Webcam:</label>
 													<input id="input_webcam_url" class="form-control" type="text" placeholder="(not set)" title="URL must point to an image file" data-setting="webcamURL">
-
 													<label for="input_webcam_interval">Webcam Update Interval:</label>
 													<div class="input-group">
 														<input type="number" id="input_webcam_interval" class="form-control" title="Interval at which the webcam image on the Print Status page will be updated" data-setting="webcamInterval" data-min="0" data-factor="1000">
 														<span class="input-group-addon">s</span>
 													</div>
-
 													<div class="checkbox">
 														<label title="Enable this option if your webcam cannot handle additional HTTP keys. Some IP cameras need this">
-															<input type="checkbox" data-setting="webcamFix" /> Do not append extra HTTP qualifier
+														<input type="checkbox" data-setting="webcamFix" /> Do not append extra HTTP qualifier
 														</label>
 													</div>
-
 													<div class="checkbox">
 														<label title="Enable this option if you need to embed a page using an iframe to display a webcam stream">
-															<input type="checkbox" data-setting="webcamEmbedded" /> Embed Webcam Stream
+														<input type="checkbox" data-setting="webcamEmbedded" /> Embed Webcam Stream
 														</label>
 													</div>
-
 													<div class="row">
 														<div class="col-md-6">
 															<label for="select_webcam_rotation">Rotation angle:</label>
@@ -2674,7 +2552,6 @@
 																<option value="270">270°</option>
 															</select>
 														</div>
-
 														<div class="col-md-6">
 															<label for="select_webcam_flip">Flip image:</label>
 															<select id="select_webcam_flip" class="form-control" data-setting="webcamFlip">
@@ -2689,7 +2566,6 @@
 											</div>
 										</div>
 									</div>
-
 									<!-- List Items -->
 									<div class="tab-pane row" id="page_listitems">
 										<div class="col-md-4 col-lg-4 col-left">
@@ -2710,7 +2586,6 @@
 												</table>
 											</div>
 										</div>
-
 										<div class="col-md-4 col-lg-5">
 											<div class="panel panel-default" id="panel_head_temps">
 												<div class="panel-heading">
@@ -2720,21 +2595,18 @@
 													<label>Which temperatures do you want to manage?</label>
 													<div class="radio">
 														<label>
-															<input type="radio" name="temp_selection" value="active" checked>Active Temperatures
+														<input type="radio" name="temp_selection" value="active" checked>Active Temperatures
 														</label>
 													</div>
 													<div class="radio">
 														<label>
-															<input type="radio" name="temp_selection" value="standby">Standby Temperatures
+														<input type="radio" name="temp_selection" value="standby">Standby Temperatures
 														</label>
 													</div>
-
 													<ul class="list-group temp-list" id="ul_active_temps"></ul>
-
 													<ul class="list-group temp-list hidden" id="ul_standby_temps"></ul>
 												</div>
 											</div>
-
 											<div class="panel panel-default">
 												<div class="panel-heading">
 													<span>Add new Temperature</span>
@@ -2766,7 +2638,6 @@
 													<ul class="list-group temp-list" id="ul_bed_temps"></ul>
 												</div>
 											</div>
-
 											<div class="panel panel-default">
 												<div class="panel-heading">
 													<span>Add new Temperature</span>
@@ -2790,7 +2661,6 @@
 											</div>
 										</div>
 									</div>
-
 									<!-- System Editor -->
 									<div class="tab-pane" id="page_sysedit">
 										<ol id="ol_sys_directory" class="breadcrumb breadcrumb-directory">
@@ -2798,9 +2668,7 @@
 											<li class="pull-right hidden online-control"><a href="#" id="a_refresh_sys"><span class="glyphicon glyphicon-refresh"></span> Refresh</a></li>
 											<li class="pull-right hidden online-control"><a href="#" id="a_new_sys_file"><span class="glyphicon glyphicon-file"></span> New File</a></li>
 										</ol>
-
 										<h1 class="text-center text-muted">Connect to your Duet to display System files</h1>
-
 										<table class="table table-bordered table-files table-hover table-striped hidden" id="table_sys_files">
 											<thead>
 												<tr>
@@ -2814,14 +2682,12 @@
 												<!-- see JS -->
 											</tbody>
 										</table>
-
 										<div class="row visible-xs visible-sm">
 											<div class="col-md-12 text-center hidden online-control">
 												<button class="btn btn-info btn-upload" title="Upload one or more files to the /sys or /www directory (drag&amp;drop is supported as well)" data-type="generic" data-style="btn-info"><span class="glyphicon glyphicon-cloud-upload"></span> Upload File(s)</button>
 											</div>
 										</div>
 									</div>
-
 									<!-- Backup Editor -->
 									<div class="tab-pane" id="page_backedit">
 										<table class="table-file-navigation">
@@ -2831,13 +2697,13 @@
 														<span class="glyphicon glyphicon-save"></span>
 														Backup Backups
 													</button>
-												</td-->
+													</td-->
 												<!--td style="width: auto;">
 													<button class="btn btn-danger" onclick="removeAll()">
 														<span class="glyphicon glyphicon-trash"></span>
 														Delete all
 													</button>
-												</td-->
+													</td-->
 												<td style="width: 100%;">
 													<ol class="breadcrumb breadcrumb-directory" id="ol_back_directory">
 														<li class="active"><span class="glyphicon glyphicon-folder-open"></span> Backups Directory</li>
@@ -2846,8 +2712,8 @@
 												</td>
 												<!--td class="hidden-xs hidden-sm hidden online-control">
 													<button class="btn btn-primary btn-upload disabled" title="Upload one or more Backup files (drag&amp;drop is supported as well)" data-type="back" data-style="btn-primary"><span class="glyphicon glyphicon-cloud-upload"></span> Upload Back File(s)</button>
-												</td>
-												<td class="hidden online-control">
+													</td>
+													<td class="hidden online-control">
 													<div class="btn-group">
 														<button type="button" class="btn btn-info dropdown-toggle online-control hidden" data-toggle="dropdown">
 															<span class="glyphicon glyphicon-plus"></span> Make new... <span class="caret"></span>
@@ -2857,12 +2723,10 @@
 															<li><a href="#" id="a_new_back_file" title="Create a new back file"><span class="glyphicon glyphicon-file"></span> Backup</a></li>
 														</ul>
 													</div>
-												</td-->
+													</td-->
 											</tr>
 										</table>
-
 										<h1 class="text-center text-muted hidden">Connect to your Duet to display Backups files</h1>
-
 										<table class="table table-bordered table-files table-hover table-striped hidden" id="table_back_files">
 											<thead>
 												<tr>
@@ -2876,14 +2740,12 @@
 												<!-- see JS -->
 											</tbody>
 										</table>
-
 										<div class="row visible-xs visible-sm">
 											<div class="col-md-12 text-center hidden online-control">
 												<button class="btn btn-primary btn-upload" title="Upload one or more Backups files (drag&amp;drop is supported as well)" data-type="back" data-style="btn-primary"><span class="glyphicon glyphicon-cloud-upload"></span> Upload Backup File(s)</button>
 											</div>
 										</div>
 									</div>
-
 									<!-- Display Editor -->
 									<div class="tab-pane" id="page_display">
 										<ol class="breadcrumb" id="ol_display_directory">
@@ -2891,9 +2753,7 @@
 											<li class="pull-right hidden online-control"><a href="#" id="a_refresh_display"><span class="glyphicon glyphicon-refresh"></span> Refresh</a></li>
 											<li class="pull-right hidden online-control"><a href="#" id="a_new_display_file"><span class="glyphicon glyphicon-file"></span> New Item</a></li>
 										</ol>
-
 										<h1 class="text-center text-muted">Connect to your Duet to show Display items</h1>
-
 										<table class="table table-bordered table-files table-hover table-striped hidden" id="table_display_files">
 											<thead>
 												<tr>
@@ -2907,14 +2767,12 @@
 												<!-- see JS -->
 											</tbody>
 										</table>
-
 										<div class="row">
 											<div class="col-md-12 text-center hidden online-control">
 												<button class="btn btn-info btn-upload" title="Upload one or more files to the /menu directory (drag&amp;drop is supported as well)" data-type="menu" data-style="btn-info"><span class="glyphicon glyphicon-cloud-upload"></span> Upload File(s)</button>
 											</div>
 										</div>
 									</div>
-
 									<!-- Machine Properties -->
 									<div class="tab-pane row" id="page_machine">
 										<div class="col-xs-12 col-sm-12 col-md-9 col-lg-10">
@@ -3093,13 +2951,11 @@
 														<dt>Motor Idle Timeout:</dt>
 														<dd id="dd_idle_timeout">n/a</dd>
 													</dl>
-
 													<button id="btn_fw_diagnostics" type="button" class="btn btn-info machine-button"><span class="glyphicon glyphicon-dashboard"></span> Firmware Diagnostics</button>
 												</div>
 											</div>
 										</div>
 									</div>
-
 									<!-- Tools -->
 									<div class="tab-pane row" id="page_tools">
 										<div class="col-md-12">
@@ -3113,75 +2969,71 @@
 															<label for="input_tool_number">Number:</label>
 															<input type="number" min="0" max="255" value="127" class="form-control" id="input_tool_number" disabled>
 														</div>
-
 														<div class="col-lg-1 col-md-6 col-sm-6">
 															<label for="input_tool_name">Name:</label>
 															<input type="text" value="" placeholder="optional" class="form-control" id="input_tool_name" disabled>
 														</div>
-
 														<div class="col-lg-4 col-md-6 col-sm-6">
 															<label>Associated Heater(s):</label>
 															<div class="btn-group btn-group-justified" data-toggle="buttons" id="check_heaters">
 																<label class="btn btn-default disabled" title="Heater 0">
-																	<input type="checkbox" name="tool_heaters" value="0" disabled> 0
+																<input type="checkbox" name="tool_heaters" value="0" disabled> 0
 																</label>
 																<label class="btn btn-primary active disabled" title="Heater 1">
-																	<input type="checkbox" name="tool_heaters" value="1" checked disabled> 1
+																<input type="checkbox" name="tool_heaters" value="1" checked disabled> 1
 																</label>
 																<label class="btn btn-default disabled" title="Heater 2">
-																	<input type="checkbox" name="tool_heaters" value="2" disabled> 2
+																<input type="checkbox" name="tool_heaters" value="2" disabled> 2
 																</label>
 																<label class="btn btn-default disabled" title="Heater 3">
-																	<input type="checkbox" name="tool_heaters" value="3" disabled> 3
+																<input type="checkbox" name="tool_heaters" value="3" disabled> 3
 																</label>
 																<label class="btn btn-default disabled" title="Heater 4">
-																	<input type="checkbox" name="tool_heaters" value="4" disabled> 4
+																<input type="checkbox" name="tool_heaters" value="4" disabled> 4
 																</label>
 																<label class="btn btn-default disabled" title="Heater 5">
-																	<input type="checkbox" name="tool_heaters" value="5" disabled> 5
+																<input type="checkbox" name="tool_heaters" value="5" disabled> 5
 																</label>
 																<label class="btn btn-default disabled" title="Heater 6">
-																	<input type="checkbox" name="tool_heaters" value="6" disabled> 6
+																<input type="checkbox" name="tool_heaters" value="6" disabled> 6
 																</label>
 																<label class="btn btn-default disabled duet-ng hidden" title="Heater 7">
-																	<input type="checkbox" name="tool_heaters" value="7" disabled> 7
+																<input type="checkbox" name="tool_heaters" value="7" disabled> 7
 																</label>
 															</div>
 														</div>
-
 														<div class="col-lg-4 col-md-6 col-sm-6">
 															<label>Associated Drive(s):</label>
 															<div class="btn-group btn-group-justified" data-toggle="buttons" id="check_drives">
 																<label class="btn btn-primary active disabled" title="Extruder 0">
-																	<input type="checkbox" name="tool_drives" value="0" checked disabled> 0
+																<input type="checkbox" name="tool_drives" value="0" checked disabled> 0
 																</label>
 																<label class="btn btn-default disabled" title="Extruder 1">
-																	<input type="checkbox" name="tool_drives" value="1" disabled> 1
+																<input type="checkbox" name="tool_drives" value="1" disabled> 1
 																</label>
 																<label class="btn btn-default disabled" title="Extruder 2">
-																	<input type="checkbox" name="tool_drives" value="2" disabled> 2
+																<input type="checkbox" name="tool_drives" value="2" disabled> 2
 																</label>
 																<label class="btn btn-default disabled" title="Extruder 3">
-																	<input type="checkbox" name="tool_drives" value="3" disabled> 3
+																<input type="checkbox" name="tool_drives" value="3" disabled> 3
 																</label>
 																<label class="btn btn-default disabled" title="Extruder 4">
-																	<input type="checkbox" name="tool_drives" value="4" disabled> 4
+																<input type="checkbox" name="tool_drives" value="4" disabled> 4
 																</label>
 																<label class="btn btn-default disabled" title="Extruder 5">
-																	<input type="checkbox" name="tool_drives" value="5" disabled> 5
+																<input type="checkbox" name="tool_drives" value="5" disabled> 5
 																</label>
 																<label class="btn btn-default disabled duet-ng hidden" title="Extruder 6">
-																	<input type="checkbox" name="tool_drives" value="6" disabled> 6
+																<input type="checkbox" name="tool_drives" value="6" disabled> 6
 																</label>
 																<label class="btn btn-default disabled duet-ng hidden" title="Extruder 7">
-																	<input type="checkbox" name="tool_drives" value="7" disabled> 7
+																<input type="checkbox" name="tool_drives" value="7" disabled> 7
 																</label>
 																<label class="btn btn-default disabled duet-ng hidden" title="Extruder 8">
-																	<input type="checkbox" name="tool_drives" value="8" disabled> 8
+																<input type="checkbox" name="tool_drives" value="8" disabled> 8
 																</label>
 															</div>
 														</div>
-
 														<div class="col-lg-2 col-md-12 col-sm-12">
 															<button class="btn btn-success disabled" id="btn_add_tool" title="Define a new tool"><span class="glyphicon glyphicon-plus"></span> Add Tool</button>
 														</div>
@@ -3191,7 +3043,6 @@
 										</div>
 									</div>
 								</div>
-
 								<div class="row" id="row_save_settings">
 									<div class="col-md-12 text-center">
 										<button type="button" class="btn btn-default app-control hidden hidden-xs" onClick="app.listDevices()"><span class="glyphicon glyphicon-arrow-left"></span> List available Devices</button>
@@ -3205,7 +3056,6 @@
 						</div>
 					</div>
 				</div>
-
 				<!-- Sidebar Overlay -->
 				<div class="row">
 					<div id="div_sidebar_overlay" class="hidden-xs hidden-sm col-md-2 col-lg-2">
@@ -3214,7 +3064,6 @@
 				</div>
 			</div>
 		</main>
-
 		<!-- Modal dialogs -->
 		<div id="modal_host_input" class="modal fade" data-backdrop="static">
 			<div class="modal-dialog modal-md">
@@ -3236,7 +3085,6 @@
 				</div>
 			</div>
 		</div>
-
 		<div id="modal_pass_input" class="modal fade" data-backdrop="static">
 			<div class="modal-dialog modal-md">
 				<div class="modal-content">
@@ -3259,7 +3107,6 @@
 				</div>
 			</div>
 		</div>
-
 		<div id="modal_reconnecting" class="modal fade" data-backdrop="static">
 			<div class="modal-dialog modal-md">
 				<div class="modal-content">
@@ -3274,7 +3121,6 @@
 				</div>
 			</div>
 		</div>
-
 		<div id="modal_change_filament" class="modal fade">
 			<div class="modal-dialog modal-sm">
 				<div class="modal-content">
@@ -3289,13 +3135,14 @@
 				</div>
 			</div>
 		</div>
-
 		<div id="modal_confirmation" class="modal fade">
 			<div class="modal-dialog modal-md">
 				<div class="modal-content">
 					<div class="modal-header">
 						<button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>
-						<h4 class="modal-title"><!-- see JS--></h4>
+						<h4 class="modal-title">
+							<!-- see JS-->
+						</h4>
 					</div>
 					<div class="modal-body">
 						<p></p>
@@ -3307,14 +3154,15 @@
 				</div>
 			</div>
 		</div>
-
 		<div id="modal_textinput" class="modal fade">
 			<div class="modal-dialog modal-sm">
 				<div class="modal-content">
 					<form>
 						<div class="modal-header">
 							<button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>
-							<h4 class="modal-title"><!-- see JS--></h4>
+							<h4 class="modal-title">
+								<!-- see JS-->
+							</h4>
 						</div>
 						<div class="modal-body">
 							<p></p>
@@ -3330,7 +3178,6 @@
 				</div>
 			</div>
 		</div>
-
 		<div id="modal_change_step" class="modal fade">
 			<div class="modal-dialog modal-md">
 				<div class="modal-content">
@@ -3355,14 +3202,15 @@
 				</div>
 			</div>
 		</div>
-
 		<input id="input_file_upload" class="hidden" type="file" multiple>
 		<div id="modal_upload" class="modal fade" data-backdrop="static">
 			<div class="modal-dialog modal-md">
 				<div class="modal-content">
 					<div class="modal-header">
 						<button type="button" class="close hidden" data-dismiss="modal"><span>&times;</span></button>
-						<h4 class="modal-title"><!-- see JS --></h4>
+						<h4 class="modal-title">
+							<!-- see JS -->
+						</h4>
 					</div>
 					<div class="modal-body">
 						<p>Please wait while the following files are being uploaded:</p>
@@ -3386,7 +3234,6 @@
 				</div>
 			</div>
 		</div>
-
 		<div id="modal_loading" class="modal fade" data-backdrop="static">
 			<div class="modal-dialog modal-md">
 				<div class="modal-content">
@@ -3395,21 +3242,24 @@
 						<h4 class="modal-title"></h4>
 					</div>
 					<div class="modal-body">
-						<p><!--see JS--> </p>
-					  <div class="loader" role="status">
-					    <span class="sr-only">Loading...</span>
-					  </div>
+						<p>
+							<!--see JS-->
+						</p>
+						<div class="loader" role="status">
+							<span class="sr-only">Loading...</span>
+						</div>
 					</div>
 				</div>
 			</div>
 		</div>
-
 		<div id="modal_edit" class="modal fade">
 			<div class="modal-dialog">
 				<div class="modal-content">
 					<div class="modal-header">
 						<button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>
-						<h4 class="modal-title"><!-- see JS --></h4>
+						<h4 class="modal-title">
+							<!-- see JS -->
+						</h4>
 					</div>
 					<div class="modal-body">
 						<textarea id="text_edit"></textarea>
@@ -3421,7 +3271,6 @@
 				</div>
 			</div>
 		</div>
-
 		<div id="modal_bed" class="modal fade">
 			<div class="modal-dialog modal-lg">
 				<div class="modal-content">
@@ -3443,18 +3292,15 @@
 								<canvas id="canvas_legend"></canvas>
 							</div>
 						</div>
-
 						<div id="row_stats" class="row">
 							<div class="hidden-xs hidden-sm col-md-3">
 								<p>Number of probe points: <span id="num_probe_points">n/a</span></p>
 								<p class="hidden delta">Probing radius: <span id="probing_radius">n/a</span></p>
 							</div>
-
 							<div class="col-xs-6 col-sm-6 col-md-4">
 								<p>Probe area: <span id="probe_area">n/a</span></p>
 								<p>Maximum deviations: <span id="max_deviations">n/a</span></p>
 							</div>
-
 							<div class="col-xs-6 col-sm-6 col-md-3">
 								<p>Mean error: <span id="mean_error">n/a</span></p>
 								<p>RMS error: <span id="rms_error">n/a</span></p>
@@ -3466,10 +3312,9 @@
 					</div>
 					<div class="modal-footer">
 						<button type="button" class="btn btn-info pull-left" data-toggle="popover" data-placement="top" data-trigger="focus" data-content="Click and hold the left mouse button for orbit controls and press and hold the right mouse button to pan around. Use the mouse wheel to zoom in and out."><span class="glyphicon glyphicon-question-sign"></span> Help</button>
-
 						<div class="dropup pull-left">
 							<button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
-								<span class="glyphicon glyphicon-cog"></span> Options <span class="caret"></span>
+							<span class="glyphicon glyphicon-cog"></span> Options <span class="caret"></span>
 							</button>
 							<ul class="dropdown-menu">
 								<li class="dropdown-header">Heightmap Colors</li>
@@ -3477,15 +3322,12 @@
 								<li><a href="#" class="color-scheme" data-scheme="heat">Heat</a></li>
 							</ul>
 						</div>
-
 						<button type="button" class="btn btn-success" data-dismiss="modal"><span class="glyphicon glyphicon-ok"></span> Close</button>
 					</div>
 				</div>
 			</div>
 		</div>
-
 		<div id="modal_backdrop" class="modal fade" data-backdrop="static"></div>
-
 		<div id="modal_scanner" class="modal fade" data-backdrop="static">
 			<div class="modal-dialog modal-md">
 				<div class="modal-content">
@@ -3499,21 +3341,18 @@
 								<span id="span_scan_progress">0%</span>
 							</div>
 						</div>
-
 						<h4 class="diabase hidden">Post-Processing Progress</h4>
 						<div class="progress diabase hidden">
 							<div id="progress_scan_postprocessing" class="progress-bar progress-bar-warning progress-bar-striped">
 								<span id="span_scan_postprocessing_progress">0%</span>
 							</div>
 						</div>
-
 						<h4>Upload Progress</h4>
 						<div class="progress">
 							<div id="progress_scan_upload" class="progress-bar progress-bar-info progress-bar-striped">
 								<span id="span_scan_upload_progress">0%</span>
 							</div>
 						</div>
-
 						<p id="p_scan_info">Please wait while a scan is being made. This may take a while...</p>
 					</div>
 					<div class="modal-footer">
@@ -3523,7 +3362,6 @@
 				</div>
 			</div>
 		</div>
-
 		<div id="modal_scanner_calibration" class="modal fade" data-backdrop="static">
 			<div class="modal-dialog modal-md">
 				<div class="modal-content">
@@ -3537,7 +3375,6 @@
 								<span id="span_calibration_progress">0%</span>
 							</div>
 						</div>
-
 						<p>Please wait while the scanner is being calibrated. This may take a while...</p>
 					</div>
 					<div class="modal-footer">
@@ -3546,7 +3383,6 @@
 				</div>
 			</div>
 		</div>
-
 		<div id="modal_calibrate" class="modal fade">
 			<div class="modal-dialog modal-md">
 				<div class="modal-content">
@@ -3564,7 +3400,6 @@
 				</div>
 			</div>
 		</div>
-
 		<div id="modal_start_scan" class="modal fade">
 			<div class="modal-dialog modal-lg">
 				<div class="modal-content">
@@ -3578,7 +3413,6 @@
 							<div class="description">
 								<input type="text" required="required" placeholder="Choose a filename..." id="input_scan_filename" class="form-control">
 							</div>
-
 							<h4>2. Specify scan details</h4>
 							<div class="description">
 								<div class="row">
@@ -3601,25 +3435,23 @@
 										<div class="btn-group btn-group-justified" data-toggle="buttons">
 											<div class="btn-group">
 												<label class="btn btn-default active">
-													<input type="radio" name="scanMode" value="0" checked>Linear
+												<input type="radio" name="scanMode" value="0" checked>Linear
 												</label>
 											</div>
 											<div class="btn-group">
 												<label class="btn btn-default">
-													<input type="radio" name="scanMode" value="1">Rotary
+												<input type="radio" name="scanMode" value="1">Rotary
 												</label>
 											</div>
 										</div>
 									</div>
 								</div>
 							</div>
-
 							<h4>3. Check alignment</h4>
 							<div class="description">
 								<p>In order to align your object you can toggle the right laser before you start:</p>
 								<button id="btn_toggle_laser" class="btn btn-info"><span class="glyphicon glyphicon-certificate"></span> <span class="content">Activate Laser</span></button>
 							</div>
-
 							<h4>4. Move the object to the center</h4>
 							<div class="description scan-move-controls">
 								<div class="btn-group btn-group-justified">
@@ -3657,7 +3489,6 @@
 										<button type="button" class="btn btn-default btn-move" data-axis-letter="X" data-amount="100"><span>+100</span> <span class="glyphicon glyphicon-chevron-right hidden-xs"></span></button>
 									</div>
 								</div>
-
 								<div class="btn-group btn-group-justified">
 									<div class="btn-group visible-xl">
 										<button type="button" class="btn btn-default btn-move" data-axis-letter="Y" data-amount="-100"><span class="glyphicon glyphicon-chevron-left hidden-xs"></span> <span>-100</span></button>
@@ -3693,7 +3524,6 @@
 										<button type="button" class="btn btn-default btn-move" data-axis-letter="Y" data-amount="100"><span>+100</span> <span class="glyphicon glyphicon-chevron-right hidden-xs"></span></button>
 									</div>
 								</div>
-
 								<div class="btn-group btn-group-justified">
 									<div class="btn-group visible-xl">
 										<button type="button" class="btn btn-default btn-move" data-axis-letter="Z" data-amount="-50"><span class="glyphicon glyphicon-chevron-left hidden-xs"></span> <span>-50</span></button>
@@ -3729,7 +3559,6 @@
 										<button type="button" class="btn btn-default btn-move" data-axis-letter="Z" data-amount="50"><span>+50</span> <span class="glyphicon glyphicon-chevron-right hidden-xs"></span></button>
 									</div>
 								</div>
-
 								<div class="btn-group btn-group-justified">
 									<div class="btn-group visible-xl">
 										<button type="button" class="btn btn-default btn-move" data-axis-letter="A" data-amount="-100"><span class="glyphicon glyphicon-chevron-left hidden-xs"></span> <span>-100</span></button>
@@ -3775,7 +3604,6 @@
 				</div>
 			</div>
 		</div>
-
 		<div id="modal_wifi_cam" class="modal fade">
 			<div class="modal-dialog modal-md">
 				<div class="modal-content">
@@ -3786,7 +3614,6 @@
 						</div>
 						<div class="modal-body">
 							<p>Before you can configure your calibration camera, please plug it into the Duet and wait at least one minute for it to start. After that you can enter the credentials of your WPA-protected WiFi below.</p>
-
 							<label for="input_cam_ssid">SSID:</label>
 							<input type="text" required="required" value="" id="input_cam_ssid" class="form-control">
 							<br/>
@@ -3801,17 +3628,19 @@
 				</div>
 			</div>
 		</div>
-
 		<div id="modal_messagebox" class="modal fade">
 			<div class="modal-dialog modal-lg">
 				<div class="modal-content">
 					<div class="modal-header">
 						<button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>
-						<h4 id="h4_messagebox_title" class="modal-title"><!-- see JS --></h4>
+						<h4 id="h4_messagebox_title" class="modal-title">
+							<!-- see JS -->
+						</h4>
 					</div>
 					<div class="modal-body">
-						<h3 id="h3_messagebox"><!-- see JS --></h3>
-
+						<h3 id="h3_messagebox">
+							<!-- see JS -->
+						</h3>
 						<div id="div_x_controls">
 							<label>Use the following controls to adjust X:</label>
 							<br/>
@@ -3938,7 +3767,6 @@
 				</div>
 			</div>
 		</div>
-
 		<div id="modal_define_mesh" class="modal fade">
 			<div class="modal-dialog modal-lg">
 				<div class="modal-content">
@@ -4019,7 +3847,6 @@
 				</div>
 			</div>
 		</div>
-
 		<div id="modal_cylinder" class="modal fade">
 			<div class="modal-dialog modal-md">
 				<div class="modal-content">
@@ -4043,7 +3870,6 @@
 				</div>
 			</div>
 		</div>
-
 		<ul id="ul_file_contextmenu" class="dropdown-menu">
 			<li class="gcode-action single file"><a tabindex="-1" href="#" id="a_context_start"><span class="glyphicon glyphicon-play"></span> Start File</a></li>
 			<li class="gcode-action single file"><a tabindex="-1" href="#" id="a_context_simulate"><span class="glyphicon glyphicon-forward"></span> Simulate File</a></li>
@@ -4065,10 +3891,9 @@
 			<li class="single"><a tabindex="-1" href="#" id="a_context_rename"><span class="glyphicon glyphicon-text-size"></span> Rename</a></li>
 			<li><a tabindex="-1" href="#" id="a_context_delete"><span class="glyphicon glyphicon-remove"></span> Delete</a></li>
 		</ul>
-
 		<div id="layer_tooltip" class="well well-sm"></div>
 		<!-- Bootstrap core JavaScript
-		================================================== -->
+			================================================== -->
 		<!-- Placed at the end of the document so the pages load faster -->
 		<script src="js/dwc.js"></script>
 	</body>
