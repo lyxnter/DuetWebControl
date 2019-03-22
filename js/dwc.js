@@ -10811,23 +10811,46 @@ $("#modal_bed").on("shown.bs.modal", function () {
 	});
 
 	// Make axis arrows
-	var xMin = -0.6, yMin = -0.6;
+	var xMin = -0.6, yMin = -0.6, xMax = 0.6, yMax = 0.6, xCen = 0, yCen = 0;
 	if (meshGeometry.hasOwnProperty("parameters") && meshGeometry.parameters.hasOwnProperty("width")) {
 		xMin = meshGeometry.parameters.width * -0.5 - 0.1;
 		yMin = meshGeometry.parameters.height * -0.5 - 0.1;
+		xMax = meshGeometry.parameters.width * 0.5 + 0.1;
+		yMax = meshGeometry.parameters.height * 0.5 + 0.1;
+		xCen = (xMax+xMin)/2;
+		yCen = (yMax+yMin)/2;
 	}
 
-	var xAxis = new THREE.ArrowHelper(new THREE.Vector3(1, 0, 0), new THREE.Vector3(xMin, yMin, 0), 0.5, 0xFF0000);
-	var yAxis = new THREE.ArrowHelper(new THREE.Vector3(0, 1, 0), new THREE.Vector3(xMin, yMin, 0), 0.5, 0x00FF00);
-	var zAxis = new THREE.ArrowHelper(new THREE.Vector3(0, 0, 1), new THREE.Vector3(xMin, yMin, 0), 0.5, 0x0000FF);
+	var xAxis = new THREE.ArrowHelper(new THREE.Vector3(1, 0, 0), new THREE.Vector3(xCen, yCen, 0), 0.5, 0xFF0000);
+	var yAxis = new THREE.ArrowHelper(new THREE.Vector3(0, 1, 0), new THREE.Vector3(xCen, yCen, 0), 0.5, 0x00FF00);
+	var zAxis = new THREE.ArrowHelper(new THREE.Vector3(0, 0, 1), new THREE.Vector3(xCen, yCen, 0), 0.5, 0x0000FF);
 	scene.add(xAxis);
 	scene.add(yAxis);
 	scene.add(zAxis);
 
-	// Make grid on XY plane
+	/*// Make grid on XY plane
 	var grid = new THREE.GridHelper(1.1, 15);
 	grid.rotation.x = -Math.PI / 2;
-	scene.add(grid);
+	scene.add(grid);*/
+
+	var gridPrimeGeo = new THREE.Geometry();
+	var gridSecGeo = new THREE.Geometry();
+
+	prepareGridBPGeoPreview(gridPrimeGeo, gridSecGeo);
+
+	scene.add(new THREE.LineSegments(gridPrimeGeo, new THREE.LineBasicMaterial({ color:  0xafafaf})));
+	scene.add(new THREE.LineSegments(gridSecGeo, new THREE.LineBasicMaterial({ color: 0x7f7f7f})));
+
+	var curve = new THREE.EllipseCurve(
+		0,  0,            // ax, aY
+		0.6, 0.6,           // xRadius, yRadius
+		0,  2 * Math.PI,  // aStartAngle, aEndAngle
+		false,            // aClockwise
+		0                 // aRotation
+	);
+
+	// Create the final object to add to the scene
+	scene.add(new THREE.Line( new THREE.BufferGeometry().setFromPoints(curve.getPoints(64)), new THREE.LineBasicMaterial( { color : 0xafafaf})));
 
 	// Make raycaster
 	raycaster = new THREE.Raycaster();
@@ -10841,6 +10864,28 @@ $("#modal_bed").on("shown.bs.modal", function () {
 	};
 	render();
 });
+
+function prepareGridBPGeoPreview(gridPrime, gridSec)
+{
+	for (var posY = -0.6; posY < 0.6; posY += 0.24)
+	{
+		var miniX = -0.6 * Math.sqrt(1 - ((posY/0.6) * (posY/0.6)));
+		var maxiX =  0.6 * Math.sqrt(1 - ((posY/0.6) * (posY/0.6)));
+		gridPrime.vertices.push(new THREE.Vector3(miniX, posY, 0));
+		gridPrime.vertices.push(new THREE.Vector3(maxiX, posY, 0));
+		gridPrime.vertices.push(new THREE.Vector3(posY, miniX, 0));
+		gridPrime.vertices.push(new THREE.Vector3(posY, maxiX, 0));
+		for (var posX = posY + 0.06; posX < posY + 0.24; posX += 0.06)
+		{
+			miniX = -0.6 * Math.sqrt(1 - ((posX/0.6) * (posX/0.6)));
+			maxiX =  0.6 * Math.sqrt(1 - ((posX/0.6) * (posX/0.6)));
+			gridSec.vertices.push(new THREE.Vector3(miniX, posX, 0));
+			gridSec.vertices.push(new THREE.Vector3(maxiX, posX, 0));
+			gridSec.vertices.push(new THREE.Vector3(posX, miniX, 0));
+			gridSec.vertices.push(new THREE.Vector3(posX, maxiX, 0));
+		}
+	}
+}
 
 $("#modal_bed").on("hidden.bs.modal", function () {
 	renderer.dispose();
@@ -12029,18 +12074,28 @@ function removeFile(result) {
 					async: false
 			});
 			//console.log("exiting : " + result.files[i].name)
+		} else {
+			//console.log("removing : " + result.files[i].name)
+			$.ajax({
+					type: "GET",
+					url: ajaxPrefix + "rr_delete?name=" + result.dir + "/" + encodeURIComponent(result.files[i].name),
+					success: function(result) {
+						if (result.err !== 0)
+							console.log("error");
+					},
+					async: false,
+			});
 		}
-		//console.log("removing : " + result.files[i].name)
-		$.ajax({
-				type: "GET",
-				url: ajaxPrefix + "rr_delete?name=" + this.url.substring(this.url.indexOf("=")+1) + "/" + encodeURIComponent(result.files[i].name),
-				success: function(result) {
-					if (result.err !== 0)
-						console.log("error");
-				},
-				async: false,
-		});
 	}
+	$.ajax({
+			type: "GET",
+			url: ajaxPrefix + "rr_delete?name=" + result.dir,
+			success: function(result) {
+				if (result.err !== 0)
+					console.log("error");
+			},
+			async: false
+	});
 }
 function SaveAs(uri, filename) {
     console.log(filename);
@@ -12057,3 +12112,46 @@ function SaveAs(uri, filename) {
 				location.replace(uri);
 		}
 }
+
+$("#a_context_delete_dir").click(function(e) {
+
+	if (contextMenuTargets.length == 1) {
+		var row = contextMenuTargets.closest("tr");
+		var file = row.data("directory");
+		showConfirmationDialog(T("Delete directory"), T("Are you sure you want to delete <b>{0}</b>?", file), function() {
+			$("#modal_loading").modal("show");
+	 	 	$("#modal_loading h4").text("Deleting directory");
+	 	 	 $("#modal_loading p").text("Please wait while we are deleting all files in <b>" + file + "</b>")
+			 console.log((getFilePath() + "/" + file).substring(3));
+			 removeAll(encodeURIComponent((getFilePath() + "/" + file).substring(3)), function(){
+				 $("#modal_loading").modal("hide");
+				updateBackFiles();
+				updateGCodeFiles();
+				updateMacroFiles();
+				updateSysFiles();
+			 });
+	 	 });
+	 } else {
+	 		showConfirmationDialog(T("Delete directories"), T("Are you sure you want to delete multiple directories?"), function() {
+				 $("#modal_loading").modal("show");
+				 $("#modal_loading h4").text("Deleting directories");
+				 $.each(contextMenuTargets, function() {
+					 var row = $(this);
+					 var directory = row.data("directory");
+					 if (directory != undefined) {
+			 	 	 	 $("#modal_loading p").text("Please wait while we are deleting all files in <b>" + directory + "</b>")
+						 console.log((getFilePath() + "/" +directory).substring(3));
+						 removeAll(encodeURIComponent((getFilePath() + "/" +directory).substring(3)), function(){
+							 $("#modal_loading").modal("hide");
+					 		updateBackFiles();
+					 		updateGCodeFiles();
+					 		updateMacroFiles();
+					 		updateSysFiles();
+						 })
+					}
+				});
+			});
+		}
+	  e.preventDefault();
+	  e.stopPropagation();
+ });
