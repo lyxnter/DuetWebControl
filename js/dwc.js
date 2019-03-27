@@ -9580,8 +9580,8 @@ $(".btn-upload").click(function(e) {
 			var type = $(this).data("type");
 			if (files.length == 1 && files[0].name.includes(".zip")){
 				date = getFormatDate("_", " ", "-");
-				showConfirmationDialog("Backup machine configuration before updating system?", "<p>Do you want to do a backup of the machine configuration <b>(gcodes, macros, system)</b> before uploading the archive</p>\
-				<p> This may take a few seconds</p>\
+				showConfirmationDialog("Backup machine configuration before updating system?", "<p>Do you want to backup the machine configuration <b>(gcodes, macros, system)</b> before uploading the archive</p>\
+				<p> This may take up to several minutes</p>\
 				<p> Your backup will be in <i>Settings > Backup Editor ></i><b> backup_" + date + "</b></p>", function() {
 					$("#modal_upload").modal("show");
 
@@ -9610,8 +9610,8 @@ $("#input_file_upload").change(function(e) {
     var type = $(this).data("type");
     if (files.length == 1 && files[0].name.includes(".zip")){
       date = getFormatDate("_", " ", "-");
-      showConfirmationDialog("Backup machine configuration before updating system?", "<p>Do you want to do a backup of the machine configuration <b>(gcodes, macros, system)</b> before uploading the archive</p>\
-      <p> This may take a few seconds</p>\
+      showConfirmationDialog("Backup machine configuration before updating system?", "<p>Do you want to backup the machine configuration <b>(gcodes, macros, system)</b> before uploading the archive</p>\
+      <p> This may take up to several minutes</p>\
       <p> Your backup will be in <i>Settings > Backup Editor ></i><b> backup_" + date + "</b></p>", function() {
         $("#modal_upload").modal("show");
 
@@ -11472,7 +11472,7 @@ function askBeforeBackup(folderList, beforeUpload)
       folList += "tem";
    }
    folList += ")</b></p><p>"
-	showConfirmationDialog("Create a backup of the " + folder + " directory ?", (beforeUpload?"<p>Do": "<p>Are you sure") + " you want to create a backup of  the " + folder + " directory " + (folderList.length>1?folList:"") + "</p>\
+	showConfirmationDialog("Create a backup of the " + folder + " directory ?", (beforeUpload?"<p>Do": "<p>Are you sure") + " you want to create a backup of the " + folder + " directory " + (folderList.length>1?folList:"") + "</p>\
 	<p> This may take a few minutes</p>\
 	<p> Your backup will be in <i>Settings > Backup Editor ></i><b> backup_" + date + "</b></p>", function() {
 
