@@ -11338,58 +11338,8 @@ function saveFile() {
 										}
 
                 },
-                xhr: function() {
-                    var xhr = new window.XMLHttpRequest();
-                    xhr.upload.addEventListener("progress", function(event) {
-                        if (isUploading && event.lengthComputable) {
-                            // Calculate current upload speed (Date is based on milliseconds)
-                            uploadSpeed = event.loaded / (((new Date()) - uploadStartTime) / 1000);
-
-                            // Update global progress
-                            uploadedTotalBytes += (event.loaded - uploadPosition);
-                            uploadPosition = event.loaded;
-
-                            var uploadTitle = T("Creating backup, {0}% Complete", ((uploadedTotalBytes / uploadTotalBytes) * 100).toFixed(0));
-                            if (uploadSpeed > 0) {
-                                uploadTitle += " (" + formatUploadSpeed(uploadSpeed) + ")";
-                            }
-                            $("#modal_upload h4").text(uploadTitle);
-
-                            // Update progress bar
-                            var progress = ((event.loaded / event.total) * 100).toFixed(0);
-                            curCol.find(".progress-bar").css("width", progress + "%");
-                            curCol.find(".progress-bar > span").text(progress + " %");
-                        }
-                    }, false);
-                    return xhr;
-                },
                 async: false,
             })
-        },
-        xhr: function() {
-            var xhr = new window.XMLHttpRequest();
-            xhr.addEventListener("progress", function(event) {
-                if (isUploading && event.lengthComputable) {
-                    // Calculate current upload speed (Date is based on milliseconds)
-                    uploadSpeed = event.loaded / (((new Date()) - uploadStartTime) / 1000);
-
-                    // Update global progress
-                    uploadedTotalBytes += (event.loaded - uploadPosition);
-                    uploadPosition = event.loaded;
-
-                    var uploadTitle = T("Creating backup, {0}% Complete", ((uploadedTotalBytes / uploadTotalBytes) * 100).toFixed(0));
-                    if (uploadSpeed > 0) {
-                        uploadTitle += " (" + formatUploadSpeed(uploadSpeed) + ")";
-                    }
-                    $("#modal_upload h4").text(uploadTitle);
-
-                    // Update progress bar
-                    var progress = ((event.loaded / event.total) * 100).toFixed(0);
-                    curCol.find(".progress-bar").css("width", progress + "%");
-                    curCol.find(".progress-bar > span").text(progress + " %");
-                }
-            }, false);
-            return xhr;
         },
         async: false,
     })
@@ -11969,32 +11919,6 @@ function restoreFile() {
 														updateSysFiles();
                         }
                     },
-                    xhr: function() {
-                        var xhr = new window.XMLHttpRequest();
-                        xhr.upload.addEventListener("progress", function(event) {
-                            if (isUploading && event.lengthComputable) {
-                                // Calculate current upload speed (Date is based on milliseconds)
-                                uploadSpeed = event.loaded / (((new Date()) - uploadStartTime) / 1000);
-
-                                // Update global progress
-                                uploadedTotalBytes += (event.loaded - uploadPosition);
-                                uploadPosition = event.loaded;
-
-                                var uploadTitle = T("Restauration, {0}% Complete", ((uploadedTotalBytes / uploadTotalBytes) * 100).toFixed(0));
-                                if (uploadSpeed > 0) {
-                                    uploadTitle += " (" + formatUploadSpeed(uploadSpeed) + ")";
-                                }
-                                $("#modal_upload h4").text(uploadTitle);
-
-                                // Update progress bar
-                                var progress = 50 + parseInt((event.loaded / event.total) * 50);
-                                //console.log(progress);
-                                rowElem.find(".progress-bar").css("width", progress + "%");
-                                rowElem.find(".progress-bar > span").text(progress + " %");
-                            }
-                        }, false);
-                        return xhr;
-                    },
                     async: false,
                 })
             }, 100, this);
@@ -12118,7 +12042,7 @@ $("#a_context_delete_dir").click(function(e) {
 	if (contextMenuTargets.length == 1) {
 		var row = contextMenuTargets.closest("tr");
 		var file = row.data("directory");
-		showConfirmationDialog(T("Delete directory"), T("Are you sure you want to delete <b>{0}</b>?", file), function() {
+		showConfirmationDialog(T("Delete directory"), T("Are you sure you want to delete {0}?", file), function() {
 			$("#modal_loading").modal("show");
 	 	 	$("#modal_loading h4").text("Deleting directory");
 	 	 	 $("#modal_loading p").text("Please wait while we are deleting all files in <b>" + file + "</b>")

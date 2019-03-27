@@ -2170,7 +2170,7 @@
 															<td id="dwc_version">1.22.5</td>
 														</tr>
 													</table>
-													<span id="span_copyright">Web Interface by Christian Hammacher and <a href="https://github.com/lyxnter/DuetWebControl" target="_blank">Lynxter</a><br/>Licensed under the terms of the <a href="https://www.gnu.org/licenses/gpl-3.0" target="blank">GPL v3</a></span>
+													<span id="span_copyright">Web Interface by Christian Hammacher updated by <a href="https://www.lynxter.fr/" target="_blank">Lynxter</a><br/>Licensed under the terms of the <a href="https://www.gnu.org/licenses/gpl-3.0" target="blank">GPL v3</a></span>
 												</div>
 											</div>
 											<div class="panel panel-default hidden-xs hidden-sm">
@@ -3245,8 +3245,104 @@
 						<p>
 							<!--see JS-->
 						</p>
-						<div class="loader" role="status">
-							<span class="sr-only">Loading...</span>
+						<div class="" role="status" style="height: 90px;margin: 0 auto;width: 250px;">
+							<style>
+								#tHead {
+									margin-top: 10px;
+									animation: movTHead 2s linear infinite;
+								}
+								#layerN {
+									position: relative;
+									margin-left: 21px;
+									margin-top: -10px;
+									background: #fdb913;
+									height: 5px;
+									width: 5px;
+									border-bottom-right-radius: 5px;
+									border-bottom-left-radius: 5px;
+									animation: layN 2s linear infinite;
+								}
+
+								#layerN1 {
+									position: relative;
+									margin-left: 21px;
+									margin-top: -3px;
+									background: #fdb913;
+									height: 5px;
+									width: 207px;
+									border-bottom-right-radius: 5px;
+									border-bottom-left-radius: 5px;
+									animation: layN1 2s linear infinite;
+								}
+
+								@keyframes movTHead {
+									0% {
+										margin-left: 0px;
+									}
+									49% {
+										margin-left: 200px;
+										margin-top: 15px;
+									}
+									50% {
+										margin-top: 10px;
+									}
+									99% {
+										margin-left: 0px;
+										margin-top: 15px;
+									}
+									100% {
+										margin-top: 10px;
+									}
+								}
+
+								@keyframes layN {
+									49% {
+										width: 207px;
+										margin-top: -10px;
+										background: #fdb913;
+									}
+									50% {
+										margin-top: 0px;
+									}
+									99% {
+										width: 207px;
+										margin-top: 0px;
+										background: #fdb91300;
+									}
+									100% {
+										margin-top: -4px;
+									}
+								}
+
+								@keyframes layN1 {
+									49% {
+										width: 207px;
+										margin-left: 20px;
+										margin-top: -3px;
+										background: #fdb91300;
+									}
+									50% {
+											width: 8px;
+											margin-left: 220px;
+											margin-top: -8px;
+											background: #fdb91300;
+									}
+									51% {
+										background: #fdb913;
+									}
+									99% {
+										width: 207px;
+										margin-left: 21px;
+										margin-top: -8px;
+										background: #fdb913;
+									}
+								}
+							</style>
+							<svg width="49" height="54" id="tHead">
+								<path d="M 12 2 h 25 v 40 l -10 10 h-5 l -10 -10 v -40 Z" fill="#fdb913" stroke="#403e3d"/>
+							</svg>
+							<div id="layerN1"></diV>
+							<div id="layerN"/></div>
 						</div>
 					</div>
 				</div>
@@ -3889,7 +3985,8 @@
 			<li class="divider"></li>
 			<li class="single file"><a tabindex="-1" href="#" id="a_context_edit"><span class="glyphicon glyphicon-pencil"></span> Edit</a></li>
 			<li class="single"><a tabindex="-1" href="#" id="a_context_rename"><span class="glyphicon glyphicon-text-size"></span> Rename</a></li>
-			<li><a tabindex="-1" href="#" id="a_context_delete"><span class="glyphicon glyphicon-remove"></span> Delete</a></li>
+			<li class="file"><a tabindex="-1" href="#" id="a_context_delete"><span class="glyphicon glyphicon-remove"></span> Delete file(s)</a></li>
+			<li class="directory"><a tabindex="-1" href="#" id="a_context_delete_dir"><span class="glyphicon glyphicon-remove"></span> Delete directory(ies)</a></li>
 		</ul>
 		<div id="layer_tooltip" class="well well-sm"></div>
 		<!-- Bootstrap core JavaScript
