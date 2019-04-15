@@ -422,9 +422,9 @@ $(document).ajaxError(function(event, jqxhr, xhrsettings, thrownError) {
 
 		// Disconnect and display the error message
 		disconnect(false);
-		$("#span_reconnect_title").text(T("Connection Lost"));
-		$("#span_reconnect_reason").text(errorToDescription(thrownError, ""));
-		$("#modal_reconnecting").modal("show");
+		$("#modal_loading h4").html('<span class="glyphicon glyphicon-exclamation-sign"></span> <span id="span_reconnect_title">Connection Lost</span>')
+		$("#modal_loading .content").html("<p>The connection between the browser and your machine has been interrupted.</p>\n<p><span>Reason:</span> <span id='span_reconnect_reason'>"+errorToDescription(thrownError, "")+"</span></p>\n<p>Please wait while a new connection is being established...</p>")
+		$("#modal_loading").modal("show");
 
 		if (response != undefined) {
 			// Bad JSON response, don't do anything else
@@ -471,10 +471,6 @@ function connect(password, regularConnect) {
 			showHostPrompt();
 			return;
 		}
-	} else {
-		$("#modal_loading").modal("show");
-		$("#modal_loading h4").text("Connecting ");
-		$("#modal_loading p").text(T("trying to connect to ") + ajaxPrefix)
 	}
 
 	$.ajax(ajaxPrefix + "rr_connect?password=" + password + "&time=" + encodeURIComponent(timeToStr(new Date())), {
@@ -494,8 +490,11 @@ function connect(password, regularConnect) {
 					$("#span_reconnect_reason").text(errorToDescription(textStatus, errorThrown));
 				}
 				if (regularConnect) {
+					$("#modal_loading h4").html('<span class="glyphicon glyphicon-exclamation-sign"></span> <span id="span_reconnect_title">Connection Lost</span>')
+					$("#modal_loading .content").html("<p>The connection between the browser and your machine has been interrupted.</p>\n<p><span>Reason:</span> <span id='span_reconnect_reason'>Unknown</span></p>\n<p>Please wait while a new connection is being established...</p>")
 					$("#span_reconnect_title").text(T("Failed to connect"));
-					$("#modal_reconnecting").modal("show");
+					$("#modal_loading").modal("show");
+
 				}
 
 				setTimeout(function() {
@@ -507,8 +506,10 @@ function connect(password, regularConnect) {
 			if (response.err == 2) {				// Looks like the firmware ran out of HTTP sessions
 				$("#span_reconnect_reason").text(T("No more HTTP sessions available"));
 				if (regularConnect) {
+					$("#modal_loading h4").html('<span class="glyphicon glyphicon-exclamation-sign"></span> <span id="span_reconnect_title">Connection Lost</span>')
+					$("#modal_loading .content").html("<p>The connection between the browser and your machine has been interrupted.</p>\n<p><span>Reason:</span> <span id='span_reconnect_reason'>Unknown</span></p>\n<p>Please wait while a new connection is being established...</p>")
 					$("#span_reconnect_title").text(T("Failed to connect"));
-					$("#modal_reconnecting").modal("show");
+					$("#modal_loading").modal("show");
 				}
 
 				setTimeout(function() {
@@ -569,6 +570,7 @@ function postConnect(response) {
 	$("a.btn-connect").removeClass("list-group-item-warning disabled").addClass("list-group-item-success");
 	$("button.btn-connect").removeClass("btn-warning disabled").addClass("btn-success");
 
+	loadM666Params();
 	enableControls();
 	validateAddTool();
 }
@@ -731,7 +733,7 @@ function updateStatus() {
 			}
 
 			// Fan Names
-			if (status.params.hasOwnProperty("fanNames") && (lastStatusResponse == undefined || !arraysEqual(status.params.fanNames, fanNames))) {
+			if (status.params !== undefined && status.params.hasOwnProperty("fanNames") && (lastStatusResponse == undefined || !arraysEqual(status.params.fanNames, fanNames))) {
 				fanNames = status.params.fanNames;
 				needGuiUpdate = true;
 			}
@@ -1591,9 +1593,11 @@ function updateStatus() {
 
 					disconnect(false);
 					reconnectingAfterUpdate = true;
+					$("#modal_loading h4").html('<span class="glyphicon glyphicon-exclamation-sign"></span> <span id="span_reconnect_title">Connection Lost</span>')
+					$("#modal_loading .content").html("<p>The connection between the browser and your machine has been interrupted.</p>\n<p><span>Reason:</span> <span id='span_reconnect_reason'>Unknown</span></p>\n<p>Please wait while a new connection is being established...</p>")
 					$("#span_reconnect_title").text(T("Connection Lost"));
 					$("#span_reconnect_reason").text(T("Firmware Update"));
-					$("#modal_reconnecting").modal("show");
+					$("#modal_loading").modal("show");
 					setStatusLabel("Reconnecting", "warning");
 
 					setTimeout(function() {
@@ -7034,7 +7038,7 @@ function showPage(name) {
 
 		if (name == "settings" && isConnected) {
 			getConfigResponse();
-			console.log($("#page_backedit").hasClass("active"))
+			//console.log($("#page_backedit").hasClass("active"))
 			if ($("#page_ui").hasClass("active")) {
 				$("#btn_clear_cache").toggleClass("disabled", $.isEmptyObject(cachedFileInfo));
 			} else if ($("#page_sysedit").hasClass("active")) {
@@ -7949,6 +7953,9 @@ var settings = {
 	babysteppingZ: 0.05,			// in mm
 	showATXControl: false,			// show ATX control
 
+	tiltX: 0,
+	tiltY: 0,
+
 	uppercaseGCode: true,			// convert G-Codes to upper-case before sending them
 
 	doTfree: true,					// tool
@@ -7983,6 +7990,8 @@ var defaultSettings = jQuery.extend(true, {}, settings);		// need to do this to 
 var themeInclude;
 
 var rememberedGCodes = ["M0", "M1", "M84", "M561"], defaultGCodes = rememberedGCodes.slice();
+
+var m666 = "";
 
 
 /* Safe wrappers for localStorage */
@@ -8138,6 +8147,8 @@ function applySettings() {
 	$("#btn_baby_down > span.content").text(T("{0} mm", (-settings.babysteppingZ)));
 	$("#btn_baby_up > span.content").text(T("{0} mm ", "+" + settings.babysteppingZ));
 	$(".babystepping").toggleClass("hidden", settings.babysteppingZ <= 0);
+	settings.tiltX = 0;
+	settings.tiltY = 0;
 
 	// Show/Hide Fan Controls
 	$(".fan-control").toggleClass("hidden", !settings.showFanControl);
@@ -9576,7 +9587,7 @@ $(".btn-upload").click(function(e) {
 		var files = e.originalEvent.dataTransfer.files;
 		if (!$(this).hasClass("disabled") && files != null && files.length > 0) {
 
-			console.log(files);
+			//console.log(files);
 			var type = $(this).data("type");
 			if (files.length == 1 && files[0].name.includes(".zip")){
 				date = getFormatDate("_", " ", "-");
@@ -11256,7 +11267,6 @@ function saveFile() {
                 index: this.index,
                 uploadCol: this.uploadCol,
                 success: function() {
-
                     speed = ((file.size / 1024) / ((new Date() - sendStart) / 1000))
                     var took = (new Date() - sendStart) / 1000
                     //console.log("\tSent " + (file.size / 1024).toFixed(2) + " Kb in " + (took > 60 ? Math.floor(took / 60) + "min " + (took % 60).toFixed(3) : took) + "sec avg speed " + speed.toFixed(2) + "Kb/s");
@@ -11338,10 +11348,10 @@ function saveFile() {
 										}
 
                 },
-                async: false,
+                //async: false,
             })
         },
-        async: false,
+        //async: false,
     })
 }
 
@@ -12079,3 +12089,289 @@ $("#a_context_delete_dir").click(function(e) {
 	  e.preventDefault();
 	  e.stopPropagation();
  });
+
+
+var B4M666 = "";
+var AFM666 = "";
+
+var xyTilt = undefined;
+
+$("#btn_x_tilt_down").click(function(e) {
+	if (isConnected) {
+		clearTimeout(xyTilt);
+		settings.tiltX -= 0.01;
+		var prct = (Math.tan((settings.tiltX*Math.PI)/180)*100).toFixed(3);
+		sendGCode("M666 A" + (prct));
+		$("#span_x_tilt").text(T("{0}°", settings.tiltX.toFixed(2)));
+		xyTilt = setTimeout(sendM666Params, 1000);
+		e.preventDefault();
+	}
+});
+$("#btn_x_tilt_up").click(function(e) {
+	if (isConnected) {
+		clearTimeout(xyTilt);
+		settings.tiltX += 0.01;
+		var prct = (Math.tan((settings.tiltX*Math.PI)/180)*100).toFixed(3);
+		sendGCode("M666 A" + (prct));
+		$("#span_x_tilt").text(T("{0}°", settings.tiltX.toFixed(2)));
+		xyTilt = setTimeout(sendM666Params, 1000);
+		e.preventDefault();
+	}
+});
+
+$("#btn_y_tilt_down").click(function(e) {
+	if (isConnected) {
+		clearTimeout(xyTilt);
+		settings.tiltY -= 0.01;
+		var prct = (Math.tan((settings.tiltY*Math.PI)/180)*100).toFixed(3);
+		sendGCode("M666 B" + (prct));
+		$("#span_y_tilt").text(T("{0}°", settings.tiltY.toFixed(2)));
+		xyTilt = setTimeout(sendM666Params, 1000);
+		e.preventDefault();
+	}
+});
+
+$("#btn_y_tilt_up").click(function(e) {
+	if (isConnected) {
+		clearTimeout(xyTilt);
+		settings.tiltY += 0.01;
+		var prct = (Math.tan((settings.tiltY*Math.PI)/180)*100).toFixed(3);
+		sendGCode("M666 B" + (prct));
+		$("#span_y_tilt").text(T("{0}°", settings.tiltY.toFixed(2)));
+		xyTilt = setTimeout(sendM666Params, 1000);
+		e.preventDefault();
+	}
+});
+
+ function loadM666Params() {
+	 B4M666 = "";
+	 AFM666 = "";
+	 $.ajax({
+			 type: "GET",
+			 url: ajaxPrefix + "rr_download?name=0:/sys/config-override.g",
+			 success: function(result) {
+						result = result.split("\n");
+						var found = false;
+						var line = -1;
+						for( var i = 0; i < result.length; i++)
+						{
+							if (result[i].includes("M666")) {
+								line = i;
+								found = true;
+							} else if (!found) {
+								B4M666 += result[i] + "\n";
+							} else {
+								AFM666 += result[i] + "\n";
+							}
+						}
+						result = result[line].split(" ");
+						for( var i = 0; i < result.length; i++)
+						{
+							if (result[i].includes("A")) {
+								//console.log(parseFloat(result[i].substring(1))+"%");
+								var prct_a = parseFloat(result[i].substring(1));
+								var deg_a = ((Math.atan(prct_a/100)*180)/Math.PI);
+								//console.log(deg_a.toFixed(2)+"°");
+								settings.tiltX = deg_a;
+								$("#span_x_tilt").text(T("{0}°", deg_a.toFixed(2)));
+							} else if (result[i].includes("B")) {
+								//console.log(parseFloat(result[i].substring(1))+"%");
+								var prct_b = parseFloat(result[i].substring(1));
+								var deg_b = ((Math.atan(prct_b/100)*180)/Math.PI);
+								//console.log(deg_b.toFixed(2)+"°");
+								settings.tiltY = deg_b;
+								$("#span_y_tilt").text(T("{0}°", deg_b.toFixed(2)));
+							} else {
+									B4M666 += result[i] + " ";
+							}
+						}
+			 },
+	 });
+ }
+
+ function sendM666Params() {
+	 $.ajax({
+			 type: "POST",
+			 url: ajaxPrefix + "rr_upload?name=0:/sys/config-override.g&time=" + encodeURIComponent(timeToStr(new Date())),
+			 data: B4M666 + "A" + (Math.tan((settings.tiltX*Math.PI)/180)*100).toFixed(3) + " B" + (Math.tan((settings.tiltY*Math.PI)/180)*100).toFixed(3) + "\n" + AFM666,
+			 success: function(result) {
+				 if (result.err === undefined || result.err === 0) {
+						 //console.log("file restored");
+				 } else {
+						 console.log("Error: " + (result.err == 1 ? "no such file" : "not mounted"));
+				 }
+			 },
+	 });
+ }
+
+function sendM666Params() {
+ 	 $.ajax({
+ 			 type: "POST",
+ 			 url: ajaxPrefix + "rr_upload?name=0:/sys/config-override.g&time=" + encodeURIComponent(timeToStr(new Date())),
+ 			 data: B4M666 + "A" + (Math.tan((settings.tiltX*Math.PI)/180)*100).toFixed(3) + " B" + (Math.tan((settings.tiltY*Math.PI)/180)*100).toFixed(3) + "\n" + AFM666,
+ 			 success: function(result) {
+ 				 if (result.err === undefined || result.err === 0) {
+ 						 //console.log("file restored");
+ 				 } else {
+ 						 console.log("Error: " + (result.err == 1 ? "no such file" : "not mounted"));
+ 				 }
+ 			 },
+ 	 });
+  }
+
+
+
+	var xyToolOffset = undefined;
+	 var b4 = [];
+	 var toolPath = {
+			 f3i3oh: "Filament_3in-3out_175/Toolmatrix_Filament_3in-3out_175_HF.g",
+			 f3i3om: "Filament_3in-3out_175/Toolmatrix_Filament_3in-3out_175_MF.g",
+		   l1i1o : "Liquid_1in-1out_ViproHead3/Toolmatrix_Liquid_1in-1out_ViproHead3.g",
+			 l2i1o : "Liquid_2in-1out_ViproHead3-3/Toolmatrix_Liquid_2in-1out_ViproHead3-3.g"
+	 }
+	 var tools = [];
+	 function loadToolMatrix(targetMatrix) {
+		 //isHF = false;
+	 	 b4 = [];
+	 	 $.ajax({
+			 type: "GET",
+			 url: ajaxPrefix + "rr_download?name=0:/macros/_Tools/" + toolPath[targetMatrix],
+			 success: function(result) {
+					data = result.split("\n");
+					b4[0] = "";
+					indexB4 = 0;
+					var lines = []
+					for( var i = 0; i < data.length; i++)
+					{
+						if (data[i].includes("G10")) {
+							lines.push(data[i]);
+							if (b4[indexB4] != "") {
+								indexB4 ++ ;
+								b4[indexB4] = "";
+							}
+						} else {
+							b4[indexB4] += data[i] + "\n";
+						}
+					}
+					for (var i = 0; i < lines.length; i++)
+					{
+						var line = lines[i].substring(0, lines[i].indexOf(";")).split(" ");
+						for( var j = 0; j < line.length; j++)
+						{
+							if (line[j].includes("P")) {
+								//console.log("tool " + parseInt(line[j].substring(1)) +" found");
+							toolNum = parseInt(line[j].substring(1));
+							if (tools[toolNum] == undefined)
+								tools[toolNum] = {};
+							} else if(line[j].includes("X")) {
+								//console.log("offset X of tool " + toolNum + " = "+ parseFloat(line[j].substring(1)));
+							tools[toolNum].x = parseFloat(line[j].substring(1));
+							} else if(line[j].includes("Y")) {
+								//console.log("offset Y of tool " + toolNum + " = "+ parseFloat(line[j].substring(1)));
+							tools[toolNum].y = parseFloat(line[j].substring(1));
+							} else if(line[j].includes("Z")) {
+								//console.log("offset Z of tool " + toolNum + " = "+ parseFloat(line[j].substring(1)));
+							tools[toolNum].z = parseFloat(line[j].substring(1));
+							} else if(line[j].includes("S")) {
+								//console.log("default active temp of tool " + toolNum + " = " + parseFloat(line[j].substring(1)));
+							tools[toolNum].s = parseFloat(line[j].substring(1));
+							} else if(line[j].includes("R")) {
+								//console.log("default stanby temp of tool " + toolNum + " = " + parseFloat(line[j].substring(1)));
+							tools[toolNum].r = parseFloat(line[j].substring(1));
+							}
+						}
+					}
+
+					var absolute = $("#relative").prop("checked");
+					$("#span_x_T0_offset").prop("value", (tools[0].x-(absolute?tools[0].x:0)))
+					$("#span_y_T0_offset").prop("value", (tools[0].y-(absolute?tools[0].y:0)))
+					$("#span_x_T1_offset").prop("value", (tools[1].x-(absolute?tools[0].x:0)))
+					$("#span_y_T1_offset").prop("value", (tools[1].y-(absolute?tools[0].y:0)))
+					$("#span_x_T2_offset").prop("value", (tools[2].x-(absolute?tools[0].x:0)))
+					$("#span_y_T2_offset").prop("value", (tools[2].y-(absolute?tools[0].y:0)))
+					//console.log(tools);
+				 },
+		 });
+	 }
+
+	function sendToolMatrix(targetMatrix) {
+		var out = "";
+		for (var i = 0; i < tools.length; i++)
+		{
+			out += b4[i];
+			out += "G10 P" + i + " X" + tools[i].x.toFixed(2) + " Y" + tools[i].y.toFixed(2) + " Z" + tools[i].z.toFixed(2) + "\t\t; Set tool " + i + " axis offsets\n"
+			out += "G10 P" + i + " R" + tools[i].r + " S" + tools[i].s + "\t\t\t\t; Set initial tool " + i + " active and standby temperatures to 0C\n"
+		}
+		out += b4[tools.length];
+ 	 $.ajax({
+ 			 type: "POST",
+ 			 url: ajaxPrefix + "rr_upload?name=0:/macros/_Tools/" + toolPath[targetMatrix] + "&time=" + encodeURIComponent(timeToStr(new Date())),
+ 			 data: out,
+ 			 success: function(result) {
+ 				 if (result.err === undefined || result.err === 0) {
+ 						 console.log("file saved");
+ 				 } else {
+ 						 console.log("Error: " + (result.err == 1 ? "no such file" : "not mounted"));
+ 				 }
+ 			 },
+ 	 });
+  }
+
+	$(".tool-name").on("click", function(e) {
+		//console.log($(this).data("tool"));
+		loadToolMatrix($(this).data("tool"));
+		$("#hname").prop("value",$(this).text());
+		$("#hname").data("tool", $(this).data("tool"));
+		//console.log($("#hname").prop("value"));
+		e.preventDefault();
+	});
+
+	$(".btn-offset").on("click", function(e) {
+		e.preventDefault();
+		if(!$(this).hasClass("disabled") && tools.length > 0)
+		{
+			var id = "span"+$(this).attr("id").substring(3,12)+"set";
+			var offset = (parseFloat($("#"+id).prop("value")) + parseFloat($(this).text()))
+			clearTimeout(xyToolOffset);
+			tools[(id.includes("T0")?0:(id.includes("T1")? 1: 2))][(id.includes("x")?"x":"y")] += parseFloat($(this).text());
+			tools[(id.includes("T0")?4:(id.includes("T1")? 3: 5))][(id.includes("x")?"x":"y")] += parseFloat($(this).text());
+			$("#"+id).prop("value", offset.toFixed(2))
+
+			sendGCode("G10 P" + (id.includes("T0")?"0":(id.includes("T1")? "1": "2")) + " " + (id.includes("x")?"X":"Y") + offset);
+			sendGCode("T" + (id.includes("T0")?"0":(id.includes("T1")? "1": "2")))
+			sendGCode("G1 X0 Y0");
+			xyToolOffset = setTimeout(sendToolMatrix, 1000, $("#hname").data("tool"))
+		}
+	});
+
+	$(".tool_offset").on("blur", function(e) {
+		e.preventDefault();
+
+		if (tools.length > 0 && this.style.border !== "none") {
+			var absolute = $("#relative").prop("checked");
+			var id = $(this).attr("id");
+			var offset = parseFloat($("#"+id).prop("value"))
+			var toolOffset = offset + (absolute?tools[0][(id.includes("x")?"x":"y")]:0)
+			clearTimeout(xyToolOffset);
+			tools[(id.includes("T0")?0:(id.includes("T1")? 1: 2))][(id.includes("x")?"x":"y")] = toolOffset;
+			tools[(id.includes("T0")?4:(id.includes("T1")? 3: 5))][(id.includes("x")?"x":"y")] = toolOffset;
+			$("#"+id).prop("value", offset.toFixed(2))
+			sendGCode("G10 P" + (id.includes("T0")?"0":(id.includes("T1")? "1": "2")) + " " + (id.includes("x")?"X":"Y") + offset);
+			sendGCode("T" + (id.includes("T0")?"0":(id.includes("T1")? "1": "2")))
+			sendGCode("G1 X0 Y0");
+			xyToolOffset = setTimeout(sendToolMatrix, 1000, $("#hname").data("tool"));
+		}
+	});
+
+$("#relative").on("click", function(e) {
+	var absolute = this.checked;
+	if (tools.length > 0) {
+		$("#span_x_T0_offset").prop("value", (tools[0].x-(absolute?tools[0].x:0)))
+		$("#span_y_T0_offset").prop("value", (tools[0].y-(absolute?tools[0].y:0)))
+		$("#span_x_T1_offset").prop("value", (tools[1].x-(absolute?tools[0].x:0)))
+		$("#span_y_T1_offset").prop("value", (tools[1].y-(absolute?tools[0].y:0)))
+		$("#span_x_T2_offset").prop("value", (tools[2].x-(absolute?tools[0].x:0)))
+		$("#span_y_T2_offset").prop("value", (tools[2].y-(absolute?tools[0].y:0)))
+	}
+	//e.preventDefault();
+})
