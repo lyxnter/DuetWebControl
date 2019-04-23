@@ -571,6 +571,7 @@ function postConnect(response) {
 	$("button.btn-connect").removeClass("btn-warning disabled").addClass("btn-success");
 
 	loadM666Params();
+	preloadToolMatrix();
 	enableControls();
 	validateAddTool();
 }
@@ -9590,7 +9591,7 @@ $(".btn-upload").click(function(e) {
 			//console.log(files);
 			var type = $(this).data("type");
 			if (files.length == 1 && files[0].name.includes(".zip")){
-				date = getFormatDate("_", " ", "-");
+				date = getFormatDate("_", " ", "-");//OK
 				showConfirmationDialog("Backup machine configuration before updating system?", "<p>Do you want to backup the machine configuration <b>(gcodes, macros, system)</b> before uploading the archive</p>\
 				<p> This may take up to several minutes</p>\
 				<p> Your backup will be in <i>Settings > Backup Editor ></i><b> backup_" + date + "</b></p>", function() {
@@ -9620,7 +9621,7 @@ $("#input_file_upload").change(function(e) {
     console.log(files);
     var type = $(this).data("type");
     if (files.length == 1 && files[0].name.includes(".zip")){
-      date = getFormatDate("_", " ", "-");
+      date = getFormatDate("_", " ", "-"); //OK
       showConfirmationDialog("Backup machine configuration before updating system?", "<p>Do you want to backup the machine configuration <b>(gcodes, macros, system)</b> before uploading the archive</p>\
       <p> This may take up to several minutes</p>\
       <p> Your backup will be in <i>Settings > Backup Editor ></i><b> backup_" + date + "</b></p>", function() {
@@ -11314,7 +11315,7 @@ function saveFile() {
                         $("#modal_upload").find(".modal-footer").removeClass("hidden");
                         isDoingBackup = false;
 												if (generateArchive) {
-					                  setTimeout(function() {
+					                  setTimeout(function() { //OK
                               showConfirmationDialog("Download the backup ?", "<p>Backup successfull<p><p> Would you like to download a copy of the backup ?</p>\
                             	<p> Your backup should be named <b> backup_" + date + ".zip</b></p>", function() {
 															$("#modal_loading").modal("show")
@@ -11348,10 +11349,10 @@ function saveFile() {
 										}
 
                 },
-                //async: false,
+                async: false,
             })
         },
-        //async: false,
+        async: false,
     })
 }
 
@@ -11475,13 +11476,13 @@ function askBeforeBackup(folderList, beforeUpload)
 	 folder  = "Configuration"
 	else
 	 folder = folderList[0].charAt(0).toUpperCase() + folderList[0].slice(1);
-   var folList = "</p><p><b>("
+   var folList = "</p><p><b>(" //OK
    for (var i = 0; i < folderList.length; i++){
      folList += (i!=0?", ":"") + folderList[i].charAt(0).toUpperCase() + folderList[i].slice(1);
      if (folderList[i] == "sys")
       folList += "tem";
    }
-   folList += ")</b></p><p>"
+   folList += ")</b></p><p>" //OK
 	showConfirmationDialog("Create a backup of the " + folder + " directory ?", (beforeUpload?"<p>Do": "<p>Are you sure") + " you want to create a backup of the " + folder + " directory " + (folderList.length>1?folList:"") + "</p>\
 	<p> This may take a few minutes</p>\
 	<p> Your backup will be in <i>Settings > Backup Editor ></i><b> backup_" + date + "</b></p>", function() {
@@ -11502,7 +11503,7 @@ $("#a_context_backup_dir").click(function(e) {
 	  var file = getFilePath() + "/" + contextMenuTargets.data("directory");
 		e.preventDefault();
     e.stopPropagation();
-		date = getFormatDate("_", " ", "-");
+		date = getFormatDate("_", " ", "-"); //OK
 		showConfirmationDialog("Create a backup of the " + file.substring(file.lastIndexOf("/")+1) + " ?", "<p>Are you sure you want to Create a backup of <b>'" + file.substring(file.lastIndexOf("/")+1) +"'</b> </p>\
 		<p> this may take a few minutes</p>\
 		<p> Your backup will be in <i>Settings > Backup Editor ></i><b> backup_" + date + file.substring(file.indexOf("/"), file.lastIndexOf("/")) + "</b></p>", function() {
@@ -11565,7 +11566,7 @@ $("#a_context_backup_file").click(function(e) {
     e.stopPropagation();
 		date = getFormatDate("_", " ", "-");
 		showConfirmationDialog("Create a backup of the file ?", "Are you sure you want to create a backup of  <b>'" + file.substring(file.lastIndexOf("/")+1) +"'</b>\
-		<p> Your backup will be in <i>Settings > Backup Editor ></i><b> backup_" + date + file.substring(file.indexOf("/"), file.lastIndexOf("/")) + "</b></p>", function() {
+		<p> Your backup will be in <i>Settings > Backup Editor ></i><b> backup_" + date + file.substring(file.indexOf("/"), file.lastIndexOf("/")) + "</b></p>", function() { //OK
 	  	stopUpdates();
 	    isUploading = true;
 	    uploadTotalBytes = uploadedTotalBytes = uploadedFileCount = 0;
@@ -11661,7 +11662,7 @@ var date;
 $("#a_context_restore_dir").click(function(e) {
 	  var file = getFilePath() + "/" + contextMenuTargets.data("directory");
 		e.preventDefault();
-    e.stopPropagation();
+    e.stopPropagation();//OK
 		showConfirmationDialog("Restore directory ?", "Are you sure you want to restore <b>'" + file.substring(11) +"'</b> </p><p> this may take a few minutes</p><p> The interface will be disabled during this operation", function() {
 	    stopUpdates();
 	    isUploading = true;
@@ -11743,7 +11744,7 @@ $("#a_context_restore_dir").click(function(e) {
 $("#a_context_restore_file").click(function(e) {
 	  var file = getFilePath() + "/" + contextMenuTargets.data("file");
 		e.preventDefault();
-    e.stopPropagation();
+    e.stopPropagation(); //OK
 		showConfirmationDialog("Restore file ?", "Are you sure you want to restore <b>'" + file.substring(11) +"'</b>", function() {
 	    stopUpdates();
 	    isUploading = true;
@@ -11771,7 +11772,7 @@ $("#a_context_restore_file").click(function(e) {
 
 			$("#modal_loading").modal("show");
 			$("#modal_loading h4").text("Preparing restauration");
-			$("#modal_loading p").text(T("Please wait while we are deleting ") + "<b>" + file.substring(38) + "</b>")
+			$("#modal_loading p").html("Please wait while we are deleting <b>" + file.substring(38) + "</b>")
 
 			$.ajax({
 	        type: "GET",
@@ -12055,7 +12056,7 @@ $("#a_context_delete_dir").click(function(e) {
 		showConfirmationDialog(T("Delete directory"), T("Are you sure you want to delete {0}?", file), function() {
 			$("#modal_loading").modal("show");
 	 	 	$("#modal_loading h4").text("Deleting directory");
-	 	 	 $("#modal_loading p").text("Please wait while we are deleting all files in <b>" + file + "</b>")
+	 	 	 $("#modal_loading p").html("Please wait while we are deleting all files in <b>" + file + "</b>")
 			 console.log((getFilePath() + "/" + file).substring(3));
 			 removeAll(encodeURIComponent((getFilePath() + "/" + file).substring(3)), function(){
 				 $("#modal_loading").modal("hide");
@@ -12073,7 +12074,7 @@ $("#a_context_delete_dir").click(function(e) {
 					 var row = $(this);
 					 var directory = row.data("directory");
 					 if (directory != undefined) {
-			 	 	 	 $("#modal_loading p").text("Please wait while we are deleting all files in <b>" + directory + "</b>")
+			 	 	 	 $("#modal_loading p").html("Please wait while we are deleting all files in <b>" + directory + "</b>")
 						 console.log((getFilePath() + "/" +directory).substring(3));
 						 removeAll(encodeURIComponent((getFilePath() + "/" +directory).substring(3)), function(){
 							 $("#modal_loading").modal("hide");
@@ -12099,21 +12100,40 @@ var xyTilt = undefined;
 $("#btn_x_tilt_down").click(function(e) {
 	if (isConnected) {
 		clearTimeout(xyTilt);
-		settings.tiltX -= 0.01;
-		var prct = (Math.tan((settings.tiltX*Math.PI)/180)*100).toFixed(3);
+		var prct;
+		var percent = $("#percent").prop("checked");
+		if(percent) {
+			prct = (Math.tan((settings.tiltX*Math.PI)/180)*100);
+			prct -= 0.01;
+			settings.tiltX = ((Math.atan(prct/100)*180)/Math.PI)
+			$("#span_x_tilt").prop("value", prct.toFixed(2));
+		} else {
+			settings.tiltX -= 0.01;
+			prct = (Math.tan((settings.tiltX*Math.PI)/180)*100).toFixed(3);
+			$("#span_x_tilt").prop("value", -settings.tiltX.toFixed(2));
+		}
 		sendGCode("M666 A" + (prct));
-		$("#span_x_tilt").text(T("{0}°", settings.tiltX.toFixed(2)));
 		xyTilt = setTimeout(sendM666Params, 1000);
 		e.preventDefault();
 	}
 });
+
 $("#btn_x_tilt_up").click(function(e) {
 	if (isConnected) {
 		clearTimeout(xyTilt);
-		settings.tiltX += 0.01;
-		var prct = (Math.tan((settings.tiltX*Math.PI)/180)*100).toFixed(3);
+		var prct;
+		var percent = $("#percent").prop("checked");
+		if(percent) {
+			prct = (Math.tan((settings.tiltX*Math.PI)/180)*100);
+			prct += 0.01;
+			settings.tiltX = ((Math.atan(prct/100)*180)/Math.PI)
+			$("#span_x_tilt").prop("value", prct.toFixed(2));
+		} else {
+			settings.tiltX += 0.01;
+			prct = (Math.tan((settings.tiltX*Math.PI)/180)*100).toFixed(3);
+			$("#span_x_tilt").prop("value", -settings.tiltX.toFixed(2));
+		}
 		sendGCode("M666 A" + (prct));
-		$("#span_x_tilt").text(T("{0}°", settings.tiltX.toFixed(2)));
 		xyTilt = setTimeout(sendM666Params, 1000);
 		e.preventDefault();
 	}
@@ -12122,10 +12142,19 @@ $("#btn_x_tilt_up").click(function(e) {
 $("#btn_y_tilt_down").click(function(e) {
 	if (isConnected) {
 		clearTimeout(xyTilt);
-		settings.tiltY -= 0.01;
-		var prct = (Math.tan((settings.tiltY*Math.PI)/180)*100).toFixed(3);
+		var prct;
+		var percent = $("#percent").prop("checked");
+		if(percent) {
+			prct = (Math.tan((settings.tiltY*Math.PI)/180)*100);
+			prct -= 0.01;
+			settings.tiltY = ((Math.atan(prct/100)*180)/Math.PI)
+			$("#span_y_tilt").prop("value", prct.toFixed(2));
+		} else {
+			settings.tiltY -= 0.01;
+			prct = (Math.tan((settings.tiltY*Math.PI)/180)*100).toFixed(3);
+			$("#span_y_tilt").prop("value", settings.tiltY.toFixed(2));
+		}
 		sendGCode("M666 B" + (prct));
-		$("#span_y_tilt").text(T("{0}°", settings.tiltY.toFixed(2)));
 		xyTilt = setTimeout(sendM666Params, 1000);
 		e.preventDefault();
 	}
@@ -12134,14 +12163,53 @@ $("#btn_y_tilt_down").click(function(e) {
 $("#btn_y_tilt_up").click(function(e) {
 	if (isConnected) {
 		clearTimeout(xyTilt);
-		settings.tiltY += 0.01;
-		var prct = (Math.tan((settings.tiltY*Math.PI)/180)*100).toFixed(3);
+		var percent = $("#percent").prop("checked");
+		var prct;
+		if(percent) {
+			prct = (Math.tan((settings.tiltY*Math.PI)/180)*100);
+			prct += 0.01;
+			settings.tiltY = ((Math.atan(prct/100)*180)/Math.PI)
+			$("#span_y_tilt").prop("value", prct.toFixed(2));
+		} else {
+			settings.tiltY += 0.01;
+			prct = (Math.tan((settings.tiltY*Math.PI)/180)*100).toFixed(3);
+			$("#span_y_tilt").prop("value", settings.tiltY.toFixed(2));
+		}
 		sendGCode("M666 B" + (prct));
-		$("#span_y_tilt").text(T("{0}°", settings.tiltY.toFixed(2)));
 		xyTilt = setTimeout(sendM666Params, 1000);
 		e.preventDefault();
 	}
 });
+
+$("#percent").on("click", function(e) {
+	var percent = this.checked;
+	var prctX = (Math.tan((settings.tiltX*Math.PI)/180)*100).toFixed(2);
+	var prctY = (Math.tan((settings.tiltY*Math.PI)/180)*100).toFixed(2);
+	if(percent) {
+		$("#btn_x_tilt_down").find('span').text("-0.01%");
+		$("#btn_x_tilt_up").find('span').text("+0.01%");
+		$("#btn_y_tilt_down").find('span').text("-0.01%");
+		$("#btn_y_tilt_up").find('span').text("+0.01%");
+		var str = $("#span_y_tilt").parent().html()
+		$("#span_y_tilt").parent().html(str.substring(0,str.indexOf("°")) + "%" + str.substring(str.indexOf("°")+1));
+		str = $("#span_x_tilt").parent().html()
+		$("#span_x_tilt").parent().html(str.substring(0,str.indexOf("°")) + "%" + str.substring(str.indexOf("°")+1));
+		$("#span_x_tilt").prop("value",  prctX);//%
+		$("#span_y_tilt").prop("value", prctY);//%
+	} else {
+		$("#btn_x_tilt_down").find('span').text("+0.01°");
+		$("#btn_x_tilt_up").find('span').text("-0.01°");
+		$("#btn_y_tilt_down").find('span').text("-0.01°");
+		$("#btn_y_tilt_up").find('span').text("+0.01°");
+		var str = $("#span_y_tilt").parent().html()
+		$("#span_y_tilt").parent().html(str.substring(0,str.indexOf("%")) + "°" + str.substring(str.indexOf("%")+1));
+		str = $("#span_x_tilt").parent().html()
+		$("#span_x_tilt").parent().html(str.substring(0,str.indexOf("%")) + "°" + str.substring(str.indexOf("%")+1));
+		$("#span_x_tilt").prop("value", -settings.tiltX.toFixed(2));
+		$("#span_y_tilt").prop("value", settings.tiltY.toFixed(2));
+	}
+	//e.preventDefault();
+})
 
  function loadM666Params() {
 	 B4M666 = "";
@@ -12173,14 +12241,14 @@ $("#btn_y_tilt_up").click(function(e) {
 								var deg_a = ((Math.atan(prct_a/100)*180)/Math.PI);
 								//console.log(deg_a.toFixed(2)+"°");
 								settings.tiltX = deg_a;
-								$("#span_x_tilt").text(T("{0}°", deg_a.toFixed(2)));
+								$("#span_x_tilt").prop("value", -deg_a.toFixed(2));
 							} else if (result[i].includes("B")) {
 								//console.log(parseFloat(result[i].substring(1))+"%");
 								var prct_b = parseFloat(result[i].substring(1));
 								var deg_b = ((Math.atan(prct_b/100)*180)/Math.PI);
 								//console.log(deg_b.toFixed(2)+"°");
 								settings.tiltY = deg_b;
-								$("#span_y_tilt").text(T("{0}°", deg_b.toFixed(2)));
+								$("#span_y_tilt").prop("value", deg_b.toFixed(2));
 							} else {
 									B4M666 += result[i] + " ";
 							}
@@ -12219,15 +12287,35 @@ function sendM666Params() {
  	 });
   }
 
+	$(".span_tilt").on("keypress", function(e) {
+		if( e.which == 13 || e.keyCode == 13 ) {
+			e.preventDefault();
+			this.blur();
+		}
+	})
 
+	$(".span_tilt").on("blur", function(e) {
+		e.preventDefault();
+			if (isConnected) {
+			clearTimeout(xyTilt);
+			var percent = $("#percent").prop("checked");
+			var prct = $(this).prop("value");
+			var id = $(this).attr("id");
+			if(percent) {
+				settings["tilt"+(id.includes("x")?"X":"Y")] = ((Math.atan(prct/100)*180)/Math.PI)
+			} else {
+				settings["tilt"+(id.includes("x")?"X":"Y")] = parseFloat(prct);
+				prct = (Math.tan((prct*Math.PI)/180)*100).toFixed(3);
+			}
+			sendGCode("M666 "+ (id.includes("x")?"A":"B") + (prct));
+			xyTilt = setTimeout(sendM666Params, 1000);
+			e.preventDefault();
+		}
+	});
 
 	var xyToolOffset = undefined;
 	 var b4 = [];
 	 var toolPath = {
-			 f3i3oh: "Filament_3in-3out_175/Toolmatrix_Filament_3in-3out_175_HF.g",
-			 f3i3om: "Filament_3in-3out_175/Toolmatrix_Filament_3in-3out_175_MF.g",
-		   l1i1o : "Liquid_1in-1out_ViproHead3/Toolmatrix_Liquid_1in-1out_ViproHead3.g",
-			 l2i1o : "Liquid_2in-1out_ViproHead3-3/Toolmatrix_Liquid_2in-1out_ViproHead3-3.g"
 	 }
 	 var tools = [];
 	 function loadToolMatrix(targetMatrix) {
@@ -12243,13 +12331,13 @@ function sendM666Params() {
 					var lines = []
 					for( var i = 0; i < data.length; i++)
 					{
-						if (data[i].includes("G10")) {
+						if (data[i].includes("G10") || data[i].includes("M563")) {
 							lines.push(data[i]);
 							if (b4[indexB4] != "") {
 								indexB4 ++ ;
 								b4[indexB4] = "";
 							}
-						} else {
+						} else if (data[i] !== "" && data[i] !== "\n"){
 							b4[indexB4] += data[i] + "\n";
 						}
 					}
@@ -12258,37 +12346,80 @@ function sendM666Params() {
 						var line = lines[i].substring(0, lines[i].indexOf(";")).split(" ");
 						for( var j = 0; j < line.length; j++)
 						{
-							if (line[j].includes("P")) {
-								//console.log("tool " + parseInt(line[j].substring(1)) +" found");
-							toolNum = parseInt(line[j].substring(1));
-							if (tools[toolNum] == undefined)
-								tools[toolNum] = {};
-							} else if(line[j].includes("X")) {
-								//console.log("offset X of tool " + toolNum + " = "+ parseFloat(line[j].substring(1)));
-							tools[toolNum].x = parseFloat(line[j].substring(1));
-							} else if(line[j].includes("Y")) {
-								//console.log("offset Y of tool " + toolNum + " = "+ parseFloat(line[j].substring(1)));
-							tools[toolNum].y = parseFloat(line[j].substring(1));
-							} else if(line[j].includes("Z")) {
-								//console.log("offset Z of tool " + toolNum + " = "+ parseFloat(line[j].substring(1)));
-							tools[toolNum].z = parseFloat(line[j].substring(1));
-							} else if(line[j].includes("S")) {
-								//console.log("default active temp of tool " + toolNum + " = " + parseFloat(line[j].substring(1)));
-							tools[toolNum].s = parseFloat(line[j].substring(1));
-							} else if(line[j].includes("R")) {
-								//console.log("default stanby temp of tool " + toolNum + " = " + parseFloat(line[j].substring(1)));
-							tools[toolNum].r = parseFloat(line[j].substring(1));
+							if (line[0] === "G10"){
+								if (line[j].includes("P")) { //Tool number
+									toolNum = parseInt(line[j].substring(1));
+									if (tools[toolNum] == undefined) {
+										//console.log("tool " + parseInt(line[j].substring(1)) +" found");
+										tools[toolNum] = {};
+									}
+								}else if(line[j].includes("U")) { // axis U-W
+									//console.log("offset X of tool " + toolNum + " = "+ parseFloat(line[j].substring(1)));
+									tools[toolNum].u = parseFloat(line[j].substring(1));
+								} else if(line[j].includes("V")) {
+									//console.log("offset Y of tool " + toolNum + " = "+ parseFloat(line[j].substring(1)));
+									tools[toolNum].v = parseFloat(line[j].substring(1));
+								} else if(line[j].includes("W")) {
+									//console.log("offset Z of tool " + toolNum + " = "+ parseFloat(line[j].substring(1)));
+									tools[toolNum].w = parseFloat(line[j].substring(1));
+								} else if(line[j].includes("X")) { // axis X-Z
+									//console.log("offset X of tool " + toolNum + " = "+ parseFloat(line[j].substring(1)));
+									tools[toolNum].x = parseFloat(line[j].substring(1));
+								} else if(line[j].includes("Y")) {
+									//console.log("offset Y of tool " + toolNum + " = "+ parseFloat(line[j].substring(1)));
+									tools[toolNum].y = parseFloat(line[j].substring(1));
+								} else if(line[j].includes("Z")) {
+									//console.log("offset Z of tool " + toolNum + " = "+ parseFloat(line[j].substring(1)));
+									tools[toolNum].z = parseFloat(line[j].substring(1));
+								} else if(line[j].includes("S")) {
+									//console.log("default active temp of tool " + toolNum + " = " + parseFloat(line[j].substring(1)));
+									tools[toolNum].s = parseFloat(line[j].substring(1));
+								} else if(line[j].includes("R")) {
+									//console.log("default stanby temp of tool " + toolNum + " = " + parseFloat(line[j].substring(1)));
+									tools[toolNum].r = parseFloat(line[j].substring(1));
+								}
+							} else if (line[0] === "M563") {
+								if (line[j].includes("P")) {
+									toolNum = parseInt(line[j].substring(1));
+									if (tools[toolNum] == undefined) {
+										//console.log("tool " + parseInt(line[j].substring(1)) +" found");
+										tools[toolNum] = {};
+									}
+								} else if ( line[j].includes("S")) {
+									var open = -1;
+									var close = -1;
+									do {
+										if (open < 0) {
+											open = line[j].indexOf("\"");
+											tools[toolNum].e = line[j].substring(open+1)
+										} else if (line[j].indexOf("\"") >= 0){
+											close  = line[j].indexOf("\"");
+											tools[toolNum].e += " " + line[j].substring(0,line[j].indexOf("\""))
+										} else {
+											tools[toolNum].e += " " + line[j]
+										}
+										j++;
+									} while (close < 0);
+									j--;
+									//console.log("tool " + parseInt(toolNum+0) +" named: " + tools[toolNum].e);
+								} else if (line[j].includes("D")) {
+									//console.log("tool " + toolNum + " drive " + parseFloat(line[j].substring(1)));
+									tools[toolNum].d = parseFloat(line[j].substring(1));
+								} else if (line[j].includes("H")) {
+									//console.log("tool " + toolNum + " heater " + parseFloat(line[j].substring(1)));
+									tools[toolNum].h = parseFloat(line[j].substring(1));
+								} else if (line[j].includes("F")) {
+									//console.log("fan " + parseFloat(line[j].substring(1)) + "maped to tool " + toolNum);
+									tools[toolNum].f = parseFloat(line[j].substring(1));
+								} else if (line[j].includes("L")) {
+									tools[toolNum].l = parseFloat(line[j].substring(1));
+								}
 							}
 						}
 					}
 
-					var absolute = $("#relative").prop("checked");
-					$("#span_x_T0_offset").prop("value", (tools[0].x-(absolute?tools[0].x:0)))
-					$("#span_y_T0_offset").prop("value", (tools[0].y-(absolute?tools[0].y:0)))
-					$("#span_x_T1_offset").prop("value", (tools[1].x-(absolute?tools[0].x:0)))
-					$("#span_y_T1_offset").prop("value", (tools[1].y-(absolute?tools[0].y:0)))
-					$("#span_x_T2_offset").prop("value", (tools[2].x-(absolute?tools[0].x:0)))
-					$("#span_y_T2_offset").prop("value", (tools[2].y-(absolute?tools[0].y:0)))
+					makeTools();
+
 					//console.log(tools);
 				 },
 		 });
@@ -12298,11 +12429,12 @@ function sendM666Params() {
 		var out = "";
 		for (var i = 0; i < tools.length; i++)
 		{
-			out += b4[i];
+			out += (b4[i] == undefined?"":b4[i]);
+			out += "M563 P"+ i + " S\"" + tools[i].e + "\" D" + tools[i].d + " H" + tools[i].h + "\t\t\t; Define tool " + i + "\n";
 			out += "G10 P" + i + " X" + tools[i].x.toFixed(2) + " Y" + tools[i].y.toFixed(2) + " Z" + tools[i].z.toFixed(2) + "\t\t; Set tool " + i + " axis offsets\n"
-			out += "G10 P" + i + " R" + tools[i].r + " S" + tools[i].s + "\t\t\t\t; Set initial tool " + i + " active and standby temperatures to 0C\n"
+			out += "G10 P" + i + " R" + tools[i].r + " S" + tools[i].s + "\t\t\t\t; Set initial tool " + i + " active and standby temperatures to " + tools[i].s + "/" + tools[i].r + "°C\n";
 		}
-		out += b4[tools.length];
+		out += (b4[tools.length] == undefined? "" : b4[tools.length] );
  	 $.ajax({
  			 type: "POST",
  			 url: ajaxPrefix + "rr_upload?name=0:/macros/_Tools/" + toolPath[targetMatrix] + "&time=" + encodeURIComponent(timeToStr(new Date())),
@@ -12326,27 +12458,29 @@ function sendM666Params() {
 		e.preventDefault();
 	});
 
-	$(".btn-offset").on("click", function(e) {
+	function handleBtnOffsetEvent(e) {
 		e.preventDefault();
 		if(!$(this).hasClass("disabled") && tools.length > 0)
 		{
-			var id = "span"+$(this).attr("id").substring(3,12)+"set";
-			var offset = (parseFloat($("#"+id).prop("value")) + parseFloat($(this).text()))
+			var input = $(this).parent().parent().find("input[off="+$(this).attr("off")+"]")
+			var offset = (parseFloat(input.prop("value")) + parseFloat($(this).text()))
 			clearTimeout(xyToolOffset);
-			tools[(id.includes("T0")?0:(id.includes("T1")? 1: 2))][(id.includes("x")?"x":"y")] += parseFloat($(this).text());
-			tools[(id.includes("T0")?4:(id.includes("T1")? 3: 5))][(id.includes("x")?"x":"y")] += parseFloat($(this).text());
-			$("#"+id).prop("value", offset.toFixed(2))
-
-			sendGCode("G10 P" + (id.includes("T0")?"0":(id.includes("T1")? "1": "2")) + " " + (id.includes("x")?"X":"Y") + offset);
-			sendGCode("T" + (id.includes("T0")?"0":(id.includes("T1")? "1": "2")))
-			sendGCode("G1 X0 Y0");
+			tools[$(this).attr("tnum").includes("T0")?0:(($(this).attr("tnum").includes("T1")? 1: 2))][($(this).attr("off").includes("X")?"x":"y")] += parseFloat($(this).text());
+			tools[$(this).attr("tnum").includes("T0")?4:(($(this).attr("tnum").includes("T1")? 3: 5))][($(this).attr("off").includes("X")?"x":"y")] += parseFloat($(this).text());
+			input.prop("value", offset.toFixed(2))
+			sendGCode("T999");
+			for (var i = 0; i < tools.length; i++)
+			{
+				sendGCode("G10 P" + i + " X" + tools[i].x + " Y" + tools[i].y);
+			}
+			//sendGCode("T" + (id.includes("T0")?"0":(id.includes("T1")? "1": "2")))
+			//sendGCode("G1 X0 Y0");
 			xyToolOffset = setTimeout(sendToolMatrix, 1000, $("#hname").data("tool"))
 		}
-	});
+	}
 
-	$(".tool_offset").on("blur", function(e) {
+function handleToolOffsetBlurEvent(e) {
 		e.preventDefault();
-
 		if (tools.length > 0 && this.style.border !== "none") {
 			var absolute = $("#relative").prop("checked");
 			var id = $(this).attr("id");
@@ -12356,22 +12490,106 @@ function sendM666Params() {
 			tools[(id.includes("T0")?0:(id.includes("T1")? 1: 2))][(id.includes("x")?"x":"y")] = toolOffset;
 			tools[(id.includes("T0")?4:(id.includes("T1")? 3: 5))][(id.includes("x")?"x":"y")] = toolOffset;
 			$("#"+id).prop("value", offset.toFixed(2))
-			sendGCode("G10 P" + (id.includes("T0")?"0":(id.includes("T1")? "1": "2")) + " " + (id.includes("x")?"X":"Y") + offset);
-			sendGCode("T" + (id.includes("T0")?"0":(id.includes("T1")? "1": "2")))
-			sendGCode("G1 X0 Y0");
+			sendGCode("T999");
+			for (var i = 0; i < tools.length; i++)
+			{
+				sendGCode("G10 P" + i + " X" + tools[i].x + " Y" + tools[i].y);
+			}
 			xyToolOffset = setTimeout(sendToolMatrix, 1000, $("#hname").data("tool"));
 		}
-	});
+	}
 
 $("#relative").on("click", function(e) {
 	var absolute = this.checked;
 	if (tools.length > 0) {
-		$("#span_x_T0_offset").prop("value", (tools[0].x-(absolute?tools[0].x:0)))
-		$("#span_y_T0_offset").prop("value", (tools[0].y-(absolute?tools[0].y:0)))
-		$("#span_x_T1_offset").prop("value", (tools[1].x-(absolute?tools[0].x:0)))
-		$("#span_y_T1_offset").prop("value", (tools[1].y-(absolute?tools[0].y:0)))
-		$("#span_x_T2_offset").prop("value", (tools[2].x-(absolute?tools[0].x:0)))
-		$("#span_y_T2_offset").prop("value", (tools[2].y-(absolute?tools[0].y:0)))
+		$(".toff").find("input")
+		$(".toff").find("input[off=X]").each(function(index){
+			$(this).prop("value",(tools[index].x-(absolute?tools[0].x:0)))
+		});
+		$(".toff").find("input[off=Y]").each(function(index){
+			$(this).prop("value",(tools[index].y-(absolute?tools[0].y:0)))
+		});
 	}
 	//e.preventDefault();
 })
+
+function preloadToolMatrix(){
+	$.get(ajaxPrefix + "rr_filelist?dir=0:/macros/_Tools/Filament_3in-3out_175",
+		function(result) {
+			if(result.err){
+				return;
+			}
+			for (var i = 0; i < result.files.length; i++) {
+				var file = result.files[i]
+				if(file.name.includes("Toolmatrix")){
+					var toolName = file.name.substring(11,file.name.indexOf("."));
+					if(toolPath[toolName] === undefined)
+					{
+						li = $('<li><a href="#" class="tool-name" data-tool="' + toolName + '">'+ toolName +'</a></li>')
+						li.on("click", function(e) {
+							loadToolMatrix($(this.firstElementChild).data("tool"));
+							$("#hname").prop("value",$(this.firstElementChild).text());
+							$("#hname").data("tool", $(this.firstElementChild).data("tool"));
+							e.preventDefault();
+						});
+						$("#tname").append(li);
+					}
+					toolPath[toolName] = toolName.substring(0,toolName.lastIndexOf("_"))+"/"+file.name
+					if(result.files.length === 1) {
+						loadToolMatrix(toolName);
+						$("#hname").prop("value", toolName);
+						$("#hname").data("tool" , toolName);
+					}
+				}
+			}
+		})
+}
+
+function makeTools() {
+	while ($(".toff").length > 1) {
+		$(".toff").last().remove();
+	}
+	var axes = ["X","Y"]
+	var head = "<div>Offset <strong>{0}</strong> <span style=\"color: darkgray;\">({1})</span></div><br>";
+	var axisHTML = "Offset {0} <input style=\"width: 50px; height: 20px; text-align: center;\" class=\"tool_offset\" autocomplete=\"off\" type=\"number\" value=\"0.00\" step=\"0.01\" off=\"{0}\" tnum=\"{1}\"/> mm"
+	var btn = "<div class=\"btn-group\"> <button off=\"{0}\" tnum=\"{1}\" dir=\"{2}\" class=\"btn btn-default btn-sm btn-offset\" title=\"Offsets the tool head by a tiny amount in the  direction (G10 Px {0}yy)\"><span class=\"glyphicon glyphicon-chevron-{3}\"></span> <span class=\"content\">{4}</span> </button></div>"
+	var isSec = [];
+	var absolute = $("#relative").prop("checked");
+	for(var i = 0; i < tools.length; i++) {
+		if (isSec[i] === undefined) {
+			var heater = tools[i].h;
+			var tnum = "T"+i;
+			var tsec = "";
+			for (var j = i+1; j < tools.length; j++) {
+				if (tools[j].h === heater) {
+					tsec += (tsec.length?" ":"")+"T"+j
+					isSec[j] = true;
+				}
+			}
+
+			var toff = document.createElement("div");
+			toff.classList.add("toff");
+			toff.innerHTML = T(head,tnum, tsec);
+			for(var axis in axes) {
+				toff.innerHTML += T(axisHTML, axes[axis], tnum, tsec)
+				toff.innerHTML += "<div class=\"btn-group btn-group-justified\">"
+				toff.innerHTML += T(btn, axes[axis], tnum, (axis?"down":"up"),"left","-0.01mm")
+				toff.innerHTML += T(btn, axes[axis], tnum, (axis?"up":"down"),"right","+0.01mm")
+				toff.innerHTML += "</div><br>";
+			}
+			$(".toff").last().after(toff);
+			$(toff).find("input").first().prop("value", (tools[i].x-(absolute?tools[0].x:0)))
+			$(toff).find("input").last().prop("value", (tools[i].y-(absolute?tools[0].y:0)))
+		}
+	}
+	$(".toff").first().remove();
+	$(".toff").prop("style", "width:"+Math.floor(((1/($(".toff").length))*100))+"%");
+	$(".btn-offset").on("click",handleBtnOffsetEvent);
+	$(".tool_offset").on("blur", handleToolOffsetBlurEvent);
+	$(".tool_offset").on("keypress", function(e) {
+		if( e.which == 13 || e.keyCode == 13 ) {
+			e.preventDefault();
+			this.blur();
+		}
+	})
+}
