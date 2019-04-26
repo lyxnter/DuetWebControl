@@ -2482,6 +2482,10 @@ function getGCodeFiles(first) {
 						if (response.next) {
 							getGCodeFiles(response.next);
 						} else {
+							if(knownGCodeFiles.length === 0)
+							{
+								gcodeUpdateFinished();								
+							}
 							// got everything, start fileinfo requests
 							updateGCodeFiles();
 						}
