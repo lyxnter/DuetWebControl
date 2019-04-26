@@ -36,10 +36,40 @@
 				animation: spin 1s ease-in-out infinite;
 				margin: auto;
 			}
+
+			#tHead {
+				margin-top: 10px;
+				animation: movTHead 2s linear infinite;
+			}
+			#layerN {
+				position: relative;
+				margin-left: 21px;
+				margin-top: -10px;
+				background: #fdb913;
+				height: 5px;
+				width: 5px;
+				border-bottom-right-radius: 5px;
+				border-bottom-left-radius: 5px;
+				animation: layN 2s linear infinite;
+			}
+
+			#layerN1 {
+				position: relative;
+				margin-left: 21px;
+				margin-top: -3px;
+				background: #fdb913;
+				height: 5px;
+				width: 207px;
+				border-bottom-right-radius: 5px;
+				border-bottom-left-radius: 5px;
+				animation: layN1 2s linear infinite;
+			}
+
 			@keyframes spin {
 				0% { transform: rotate(0deg);}
 				100% { transform: rotate(360deg);}
 			}
+
 			@keyframes spin-lynx {
 				0% { transform: rotate(0deg);
 					border-top-color: #fdb913;
@@ -58,6 +88,69 @@
 					border-bottom-color: #fdb913;
 					border-left-color: #2d4ea2;
 					border-right-color: #2d4ea2;
+				}
+			}
+
+			@keyframes movTHead {
+				0% {
+					margin-left: 0px;
+				}
+				49% {
+					margin-left: 200px;
+					margin-top: 15px;
+				}
+				50% {
+					margin-top: 10px;
+				}
+				99% {
+					margin-left: 0px;
+					margin-top: 15px;
+				}
+				100% {
+					margin-top: 10px;
+				}
+			}
+
+			@keyframes layN {
+				49% {
+					width: 207px;
+					margin-top: -10px;
+					background: #fdb913;
+				}
+				50% {
+					margin-top: 0px;
+				}
+				99% {
+					width: 207px;
+					margin-top: 0px;
+					background: #fdb91300;
+				}
+				100% {
+					margin-top: -4px;
+				}
+			}
+
+			@keyframes layN1 {
+				49% {
+					width: 207px;
+					margin-left: 20px;
+					margin-top: -3px;
+					background: #fdb91300;
+				}
+				50% {
+						width: 8px;
+						margin-left: 220px;
+						margin-top: -8px;
+						background: #fdb91300;
+				}
+				51% {
+					background: #fdb913;
+				}
+				99% {
+					width: 207px;
+					margin-left: 21px;
+					margin-top: -8px;
+					background: #fdb913;
 				}
 			}
 
@@ -125,7 +218,7 @@
     		text-align: center;
     		border-right: 1px solid darkgray;
     		display: inline-block;
-				min-width: 160px;
+				min-width: 200px;
 			}
 			.toff input {
 				width: 50px;
@@ -3392,98 +3485,6 @@
 							</p>
 						</div>
 						<div class="" role="status" style="height: 90px;margin: 0 auto;width: 250px;">
-							<style>
-								#tHead {
-									margin-top: 10px;
-									animation: movTHead 2s linear infinite;
-								}
-								#layerN {
-									position: relative;
-									margin-left: 21px;
-									margin-top: -10px;
-									background: #fdb913;
-									height: 5px;
-									width: 5px;
-									border-bottom-right-radius: 5px;
-									border-bottom-left-radius: 5px;
-									animation: layN 2s linear infinite;
-								}
-
-								#layerN1 {
-									position: relative;
-									margin-left: 21px;
-									margin-top: -3px;
-									background: #fdb913;
-									height: 5px;
-									width: 207px;
-									border-bottom-right-radius: 5px;
-									border-bottom-left-radius: 5px;
-									animation: layN1 2s linear infinite;
-								}
-
-								@keyframes movTHead {
-									0% {
-										margin-left: 0px;
-									}
-									49% {
-										margin-left: 200px;
-										margin-top: 15px;
-									}
-									50% {
-										margin-top: 10px;
-									}
-									99% {
-										margin-left: 0px;
-										margin-top: 15px;
-									}
-									100% {
-										margin-top: 10px;
-									}
-								}
-
-								@keyframes layN {
-									49% {
-										width: 207px;
-										margin-top: -10px;
-										background: #fdb913;
-									}
-									50% {
-										margin-top: 0px;
-									}
-									99% {
-										width: 207px;
-										margin-top: 0px;
-										background: #fdb91300;
-									}
-									100% {
-										margin-top: -4px;
-									}
-								}
-
-								@keyframes layN1 {
-									49% {
-										width: 207px;
-										margin-left: 20px;
-										margin-top: -3px;
-										background: #fdb91300;
-									}
-									50% {
-											width: 8px;
-											margin-left: 220px;
-											margin-top: -8px;
-											background: #fdb91300;
-									}
-									51% {
-										background: #fdb913;
-									}
-									99% {
-										width: 207px;
-										margin-left: 21px;
-										margin-top: -8px;
-										background: #fdb913;
-									}
-								}
-							</style>
 							<svg width="49" height="54" id="tHead">
 								<path d="M 12 2 h 25 v 40 l -10 10 h-5 l -10 -10 v -40 Z" fill="#fdb913" stroke="#403e3d"/>
 							</svg>

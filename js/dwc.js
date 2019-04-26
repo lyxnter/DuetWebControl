@@ -571,7 +571,7 @@ function postConnect(response) {
 	$("button.btn-connect").removeClass("btn-warning disabled").addClass("btn-success");
 
 	loadM666Params();
-	preloadToolMatrix();
+	preloadToolMatrices();
 	enableControls();
 	validateAddTool();
 }
@@ -9601,7 +9601,7 @@ $(".btn-upload").click(function(e) {
 					$("#modal_upload").find(".modal-footer").addClass("hidden")
 
 					stopUpdates();
-					tryBackup([/*"filaments",*/ "gcodes", "macros", "sys", /*"www"*/], startUpload.bind(this, type, files, false));
+					tryBackup([/*"filaments",*/ "gcodes", "macros", /*"sys", /*"www"*/], startUpload.bind(this, type, files, false));
           generateArchive = true;
 
 				},
@@ -9631,7 +9631,7 @@ $("#input_file_upload").change(function(e) {
         $("#modal_upload").find(".modal-footer").addClass("hidden")
 
         stopUpdates();
-        tryBackup([/*"filaments",*/ "gcodes", "macros", "sys", /*"www"*/], startUpload.bind(this, type, files, false));
+        tryBackup([/*"filaments",*/ "gcodes", "macros",/* "sys", /*"www"*/], startUpload.bind(this, type, files, false));
         generateArchive = true;
 
       },
@@ -12321,6 +12321,7 @@ function sendM666Params() {
 	 function loadToolMatrix(targetMatrix) {
 		 //isHF = false;
 	 	 b4 = [];
+		 tools = [];
 	 	 $.ajax({
 			 type: "GET",
 			 url: ajaxPrefix + "rr_download?name=0:/macros/_Tools/" + toolPath[targetMatrix],
@@ -12391,10 +12392,15 @@ function sendM666Params() {
 									do {
 										if (open < 0) {
 											open = line[j].indexOf("\"");
-											tools[toolNum].e = line[j].substring(open+1)
+											if (open < line[j].lastIndexOf("\"")){ // IE there is a second " after the first one ex( "A+B")
+												close = line[j].lastIndexOf("\"");
+												tools[toolNum].e = line[j].substring(open+1, close)
+											} else {
+												tools[toolNum].e = line[j].substring(open+1);
+											}
 										} else if (line[j].indexOf("\"") >= 0){
 											close  = line[j].indexOf("\"");
-											tools[toolNum].e += " " + line[j].substring(0,line[j].indexOf("\""))
+											tools[toolNum].e += " " + line[j].substring(0,close)
 										} else {
 											tools[toolNum].e += " " + line[j]
 										}
@@ -12404,10 +12410,16 @@ function sendM666Params() {
 									//console.log("tool " + parseInt(toolNum+0) +" named: " + tools[toolNum].e);
 								} else if (line[j].includes("D")) {
 									//console.log("tool " + toolNum + " drive " + parseFloat(line[j].substring(1)));
-									tools[toolNum].d = parseFloat(line[j].substring(1));
+									var drives = line[j].substring(1).split(":")
+									for(var k = 0; k < drives.length; k++)
+										drives[k] = parseFloat(drives[k]);
+									tools[toolNum].d = drives;
 								} else if (line[j].includes("H")) {
 									//console.log("tool " + toolNum + " heater " + parseFloat(line[j].substring(1)));
-									tools[toolNum].h = parseFloat(line[j].substring(1));
+									var heaters = line[j].substring(1).split(":")
+									for(var k = 0; k < heaters.length; k++)
+										heaters[k] = parseFloat(heaters[k]);
+									tools[toolNum].h = heaters;
 								} else if (line[j].includes("F")) {
 									//console.log("fan " + parseFloat(line[j].substring(1)) + "maped to tool " + toolNum);
 									tools[toolNum].f = parseFloat(line[j].substring(1));
@@ -12512,17 +12524,35 @@ $("#relative").on("click", function(e) {
 	}
 	//e.preventDefault();
 })
-
-function preloadToolMatrix(){
-	$.get(ajaxPrefix + "rr_filelist?dir=0:/macros/_Tools/Filament_3in-3out_175",
+function preloadToolMatrices() {
+	$.get(ajaxPrefix + "rr_filelist?dir=0:/macros/_Tools",
 		function(result) {
 			if(result.err){
+				console.error(result);
+				return;
+			}
+			for (var i = 0; i < result.files.length; i++) {
+				var file = result.files[i];
+				if (file.type === "d")
+				{
+					preloadToolMatrix(result.dir+"/"+file.name)
+				}
+			}
+		});
+}
+function preloadToolMatrix(path){
+	$.get(ajaxPrefix + "rr_filelist?dir=" + path,
+		function(result) {
+			if(result.err){
+				console.error(result);
 				return;
 			}
 			for (var i = 0; i < result.files.length; i++) {
 				var file = result.files[i]
 				if(file.name.includes("Toolmatrix")){
-					var toolName = file.name.substring(11,file.name.indexOf("."));
+					var toolName = file.name.substring(11);
+					if (toolName.includes("."))
+						toolName = toolName.substring(0, toolName.indexOf("."));
 					if(toolPath[toolName] === undefined)
 					{
 						li = $('<li><a href="#" class="tool-name" data-tool="' + toolName + '">'+ toolName +'</a></li>')
@@ -12534,7 +12564,8 @@ function preloadToolMatrix(){
 						});
 						$("#tname").append(li);
 					}
-					toolPath[toolName] = toolName.substring(0,toolName.lastIndexOf("_"))+"/"+file.name
+					toolPath[toolName] = path.substring(path.lastIndexOf("/")+1)+"/"+file.name
+					console.log(toolPath[toolName])
 					if(result.files.length === 1) {
 						loadToolMatrix(toolName);
 						$("#hname").prop("value", toolName);
@@ -12556,15 +12587,34 @@ function makeTools() {
 	var isSec = [];
 	var absolute = $("#relative").prop("checked");
 	for(var i = 0; i < tools.length; i++) {
-		if (isSec[i] === undefined) {
-			var heater = tools[i].h;
+		if (tools[i] !== undefined && isSec[i] === undefined) {
+			var heaters = tools[i].h;
+			var drives = tools[i].d;
 			var tnum = "T"+i;
 			var tsec = "";
 			for (var j = i+1; j < tools.length; j++) {
-				if (tools[j].h === heater) {
-					tsec += (tsec.length?" ":"")+"T"+j
-					isSec[j] = true;
-				}
+				if (tools[j] === undefined)
+					break;
+				var wasSec = false;
+				if (tools[j].h !== undefined) {
+					for( var a = 0; a < tools[j].h.length; a++) {
+							if (heaters.includes(tools[j].h[a])) {
+									tsec += (tsec.length?" ":"")+"T"+j
+									isSec[j] = true;
+									wasSec = true;
+								}
+						}
+					}
+					if (wasSec)
+						break;
+					if (tools[j].d !== undefined) {
+						for( var a = 0; a < tools[j].d.length; a++) {
+								if (drives.includes(tools[j].d[a])) {
+										tsec += (tsec.length?" ":"")+"T"+j
+										isSec[j] = true;
+								}
+						}
+					}
 			}
 
 			var toff = document.createElement("div");
@@ -12584,6 +12634,7 @@ function makeTools() {
 	}
 	$(".toff").first().remove();
 	$(".toff").prop("style", "width:"+Math.floor(((1/($(".toff").length))*100))+"%");
+	$(".toff").last()[0].style["border-right"] = "0px solid black"
 	$(".btn-offset").on("click",handleBtnOffsetEvent);
 	$(".tool_offset").on("blur", handleToolOffsetBlurEvent);
 	$(".tool_offset").on("keypress", function(e) {
