@@ -569,9 +569,10 @@ function postConnect(response) {
 	$(".btn-connect > span.glyphicon").removeClass("glyphicon-transfer").addClass("glyphicon-log-out");
 	$("a.btn-connect").removeClass("list-group-item-warning disabled").addClass("list-group-item-success");
 	$("button.btn-connect").removeClass("btn-warning disabled").addClass("btn-success");
-
-	loadM666Params();
-	preloadToolMatrices();
+	setTimeout(function(){
+		loadM666Params();
+		preloadToolMatrices();
+	}, 1000);
 	enableControls();
 	validateAddTool();
 }
@@ -2484,7 +2485,7 @@ function getGCodeFiles(first) {
 						} else {
 							if(knownGCodeFiles.length === 0)
 							{
-								gcodeUpdateFinished();								
+								gcodeUpdateFinished();
 							}
 							// got everything, start fileinfo requests
 							updateGCodeFiles();
@@ -12100,122 +12101,77 @@ var B4M666 = "";
 var AFM666 = "";
 
 var xyTilt = undefined;
+var zOffset = undefined;
 
-$("#btn_x_tilt_down").click(function(e) {
+$(".btn_tilt").click(function(e) {
+	e.preventDefault();
 	if (isConnected) {
 		clearTimeout(xyTilt);
 		var prct;
 		var percent = $("#percent").prop("checked");
+		var that = $(this);
+		var axis = that.attr("axis");
+		var dir = that.attr("dir");
+		//console.log($(this))
 		if(percent) {
-			prct = (Math.tan((settings.tiltX*Math.PI)/180)*100);
-			prct -= 0.01;
-			settings.tiltX = ((Math.atan(prct/100)*180)/Math.PI)
-			$("#span_x_tilt").prop("value", prct.toFixed(2));
+			//console.log("prct: " + axis + ", " + dir)
+			prct = (Math.tan((settings["tilt"+axis.toUpperCase()]*Math.PI)/180)*100);
+			prct += dir=="u" ? 0.01 : -0.01;
+			settings["tilt"+axis.toUpperCase()] = ((Math.atan(prct/100)*180)/Math.PI)
+			$(".span_tilt[axis=" + axis + "]").prop("value", prct.toFixed(2));
 		} else {
-			settings.tiltX -= 0.01;
-			prct = (Math.tan((settings.tiltX*Math.PI)/180)*100).toFixed(3);
-			$("#span_x_tilt").prop("value", -settings.tiltX.toFixed(2));
+			//console.log("deg: " + axis + ", " + dir)
+			settings["tilt"+(axis=="b"?"X":"Y")] += (axis=="a" && dir=="u" || axis=="b" && dir=="d")? 0.01 : -0.01;
+			prct = (Math.tan((settings["tilt"+(axis=="b"?"X":"Y")]*Math.PI)/180)*100).toFixed(3);
+			$(".span_tilt[axis="+axis+"]").prop("value", (axis=="b"?-1:1)*settings["tilt"+(axis=="b"?"X":"Y")].toFixed(2));
 		}
-		sendGCode("M666 A" + (prct));
+		sendGCode("M666 "+(axis=="x" || axis=="b" ? "A" : "B" ) + prct);
 		xyTilt = setTimeout(sendM666Params, 1000);
-		e.preventDefault();
 	}
 });
 
-$("#btn_x_tilt_up").click(function(e) {
+$(".btn_probe_offset").click(function(e) {
+	e.preventDefault();
 	if (isConnected) {
-		clearTimeout(xyTilt);
-		var prct;
-		var percent = $("#percent").prop("checked");
-		if(percent) {
-			prct = (Math.tan((settings.tiltX*Math.PI)/180)*100);
-			prct += 0.01;
-			settings.tiltX = ((Math.atan(prct/100)*180)/Math.PI)
-			$("#span_x_tilt").prop("value", prct.toFixed(2));
-		} else {
-			settings.tiltX += 0.01;
-			prct = (Math.tan((settings.tiltX*Math.PI)/180)*100).toFixed(3);
-			$("#span_x_tilt").prop("value", -settings.tiltX.toFixed(2));
-		}
-		sendGCode("M666 A" + (prct));
-		xyTilt = setTimeout(sendM666Params, 1000);
-		e.preventDefault();
+		clearTimeout(zOffset);
+		var that = $(this);
+		var axis = that.attr("axis");
+		var dir = that.attr("dir");
+		probeOffset += (dir == "d"? -0.01 : 0.01);
+		$(".span_probe_offset")[0].value = probeOffset.toFixed(2);
+		zOffset = setTimeout(sendToolOffset, 1000);
 	}
-});
+})
 
-$("#btn_y_tilt_down").click(function(e) {
-	if (isConnected) {
-		clearTimeout(xyTilt);
-		var prct;
-		var percent = $("#percent").prop("checked");
-		if(percent) {
-			prct = (Math.tan((settings.tiltY*Math.PI)/180)*100);
-			prct -= 0.01;
-			settings.tiltY = ((Math.atan(prct/100)*180)/Math.PI)
-			$("#span_y_tilt").prop("value", prct.toFixed(2));
-		} else {
-			settings.tiltY -= 0.01;
-			prct = (Math.tan((settings.tiltY*Math.PI)/180)*100).toFixed(3);
-			$("#span_y_tilt").prop("value", settings.tiltY.toFixed(2));
-		}
-		sendGCode("M666 B" + (prct));
-		xyTilt = setTimeout(sendM666Params, 1000);
-		e.preventDefault();
-	}
-});
-
-$("#btn_y_tilt_up").click(function(e) {
-	if (isConnected) {
-		clearTimeout(xyTilt);
-		var percent = $("#percent").prop("checked");
-		var prct;
-		if(percent) {
-			prct = (Math.tan((settings.tiltY*Math.PI)/180)*100);
-			prct += 0.01;
-			settings.tiltY = ((Math.atan(prct/100)*180)/Math.PI)
-			$("#span_y_tilt").prop("value", prct.toFixed(2));
-		} else {
-			settings.tiltY += 0.01;
-			prct = (Math.tan((settings.tiltY*Math.PI)/180)*100).toFixed(3);
-			$("#span_y_tilt").prop("value", settings.tiltY.toFixed(2));
-		}
-		sendGCode("M666 B" + (prct));
-		xyTilt = setTimeout(sendM666Params, 1000);
-		e.preventDefault();
-	}
-});
+function toPrct(rev) {
+  var elems = document.getElementsByClassName("flip-box-inner");
+	for(var i = 0; i < elems.length; i++)
+		elems[i].style.transform = "rotateX("+(rev?0:180) + 'deg)';
+	$(".btn_tilt[axis=a]").prop("disabled", !rev)
+	$(".btn_tilt[axis=b]").prop("disabled", !rev)
+	$(".btn_tilt[axis=x]").prop("disabled", rev)
+	$(".btn_tilt[axis=y]").prop("disabled", rev)
+}
 
 $("#percent").on("click", function(e) {
 	var percent = this.checked;
 	var prctX = (Math.tan((settings.tiltX*Math.PI)/180)*100).toFixed(2);
 	var prctY = (Math.tan((settings.tiltY*Math.PI)/180)*100).toFixed(2);
 	if(percent) {
-		$("#btn_x_tilt_down").find('span').text("-0.01%");
-		$("#btn_x_tilt_up").find('span').text("+0.01%");
-		$("#btn_y_tilt_down").find('span').text("-0.01%");
-		$("#btn_y_tilt_up").find('span').text("+0.01%");
-		var str = $("#span_y_tilt").parent().html()
-		$("#span_y_tilt").parent().html(str.substring(0,str.indexOf("°")) + "%" + str.substring(str.indexOf("°")+1));
-		str = $("#span_x_tilt").parent().html()
-		$("#span_x_tilt").parent().html(str.substring(0,str.indexOf("°")) + "%" + str.substring(str.indexOf("°")+1));
-		$("#span_x_tilt").prop("value",  prctX);//%
-		$("#span_y_tilt").prop("value", prctY);//%
+		$(".span_tilt[axis=x]").prop("value",  prctX);//%
+		$(".span_tilt[axis=y]").prop("value", prctY);//%
 	} else {
-		$("#btn_x_tilt_down").find('span').text("+0.01°");
-		$("#btn_x_tilt_up").find('span').text("-0.01°");
-		$("#btn_y_tilt_down").find('span').text("-0.01°");
-		$("#btn_y_tilt_up").find('span').text("+0.01°");
-		var str = $("#span_y_tilt").parent().html()
-		$("#span_y_tilt").parent().html(str.substring(0,str.indexOf("%")) + "°" + str.substring(str.indexOf("%")+1));
-		str = $("#span_x_tilt").parent().html()
-		$("#span_x_tilt").parent().html(str.substring(0,str.indexOf("%")) + "°" + str.substring(str.indexOf("%")+1));
-		$("#span_x_tilt").prop("value", -settings.tiltX.toFixed(2));
-		$("#span_y_tilt").prop("value", settings.tiltY.toFixed(2));
+		$(".span_tilt[axis=b]").prop("value", -settings.tiltX.toFixed(2));
+		$(".span_tilt[axis=a]").prop("value", settings.tiltY.toFixed(2));
 	}
+	toPrct(!percent);
+
+	$(".span_tilt").on("keypress", keypressTiltEvent)
+	$(".span_tilt").on("blur", blurTiltEvent)
 	//e.preventDefault();
 })
 
- function loadM666Params() {
+function loadM666Params() {
 	 B4M666 = "";
 	 AFM666 = "";
 	 $.ajax({
@@ -12236,24 +12192,26 @@ $("#percent").on("click", function(e) {
 								AFM666 += result[i] + "\n";
 							}
 						}
-						result = result[line].split(" ");
+						result = result[line];
+						result = (result.indexOf(";") > 0 ? result.substring(0,result.indexOf(";")):result);
+						result = result.split(" ");
 						for( var i = 0; i < result.length; i++)
 						{
 							if (result[i].includes("A")) {
 								//console.log(parseFloat(result[i].substring(1))+"%");
 								var prct_a = parseFloat(result[i].substring(1));
 								var deg_a = ((Math.atan(prct_a/100)*180)/Math.PI);
-								//console.log(deg_a.toFixed(2)+"°");
+								//console.log(-deg_a.toFixed(2)+"°");
 								settings.tiltX = deg_a;
-								$("#span_x_tilt").prop("value", -deg_a.toFixed(2));
+								$(".span_tilt[axis=b]").prop("value", -deg_a.toFixed(2));
 							} else if (result[i].includes("B")) {
 								//console.log(parseFloat(result[i].substring(1))+"%");
 								var prct_b = parseFloat(result[i].substring(1));
 								var deg_b = ((Math.atan(prct_b/100)*180)/Math.PI);
 								//console.log(deg_b.toFixed(2)+"°");
 								settings.tiltY = deg_b;
-								$("#span_y_tilt").prop("value", deg_b.toFixed(2));
-							} else {
+								$(".span_tilt[axis=a]").prop("value", deg_b.toFixed(2));
+							} else if (result[i].length > 0){
 									B4M666 += result[i] + " ";
 							}
 						}
@@ -12261,187 +12219,182 @@ $("#percent").on("click", function(e) {
 	 });
  }
 
- function sendM666Params() {
-	 $.ajax({
-			 type: "POST",
-			 url: ajaxPrefix + "rr_upload?name=0:/sys/config-override.g&time=" + encodeURIComponent(timeToStr(new Date())),
-			 data: B4M666 + "A" + (Math.tan((settings.tiltX*Math.PI)/180)*100).toFixed(3) + " B" + (Math.tan((settings.tiltY*Math.PI)/180)*100).toFixed(3) + "\n" + AFM666,
-			 success: function(result) {
-				 if (result.err === undefined || result.err === 0) {
-						 //console.log("file restored");
-				 } else {
-						 console.log("Error: " + (result.err == 1 ? "no such file" : "not mounted"));
-				 }
+function sendM666Params() {
+ $.ajax({
+		 type: "POST",
+		 url: ajaxPrefix + "rr_upload?name=0:/sys/config-override.g&time=" + encodeURIComponent(timeToStr(new Date())),
+		 data: B4M666 + "A" + (Math.tan((settings.tiltX*Math.PI)/180)*100).toFixed(3) + " B" + (Math.tan((settings.tiltY*Math.PI)/180)*100).toFixed(3) + " ; ! A and B axis are reverted to the X-Y Tilt interface (A=B and B=A) \n" + AFM666,
+		 success: function(result) {
+			 if (result.err === undefined || result.err === 0) {
+					 console.log("file saved");
+			 } else {
+					 console.log("Error: " + (result.err == 1 ? "no such file" : "not mounted"));
+			 }
+		 },
+ });
+}
+
+function keypressTiltEvent(e) {
+	console.log(e.keyCode);
+	if( e.which == 13 || e.keyCode == 13 ) {
+		this.blur()
+		e.preventDefault();
+	}
+}
+
+function blurTiltEvent(e) {
+		e.preventDefault();
+		if (isConnected) {
+			clearTimeout(xyTilt);
+			var percent = $("#percent").prop("checked");
+			var prct = $(this).prop("value");
+			var axis = $(this).attr("axis");
+			if(percent) {
+				//console.log("prct: " +  axis)
+				settings["tilt"+axis.toUpperCase()] = ((Math.atan(prct/100)*180)/Math.PI)
+			} else {
+				//console.log("deg: " + axis)
+				settings["tilt"+(axis.includes("b")?"X":"Y")] = (axis.includes("b")?-1:1)*parseFloat(prct);
+				prct = (axis.includes("b")?-1:1)*(Math.tan((prct*Math.PI)/180)*100).toFixed(3);
+			}
+			sendGCode("M666 "+ (percent?(axis.includes("x")?"A":"B"):(axis.includes("a")?"B":"A")) + prct);
+			//console.log("M666 "+ (percent?(axis.includes("x")?"A":"B"):(axis.includes("a")?"B":"A")) + prct)
+			xyTilt = setTimeout(sendM666Params, 1000);
+			e.preventDefault();
+		}
+	};
+
+$(".span_tilt").on("keypress", keypressTiltEvent)
+$(".span_tilt").on("blur", blurTiltEvent)
+
+var xyToolOffset = undefined;
+var b4 = [];
+var toolPath = {}
+var tools = [];
+
+var probeOffset;
+
+function loadToolMatrix(targetMatrix) {
+	 //isHF = false;
+ 	 b4 = [];
+	 tools = [];
+	 console.log(toolPath[targetMatrix])
+ 	 $.ajax({
+		 type: "GET",
+		 url: ajaxPrefix + "rr_download?name=0:/macros/_Tools/" + toolPath[targetMatrix].matrix,
+		 success: function(result) {
+				data = result.split("\n");
+				b4[0] = "";
+				indexB4 = 0;
+				var lines = []
+				for( var i = 0; i < data.length; i++)
+				{
+					if (data[i].includes("G10") || data[i].includes("M563")) {
+						lines.push(data[i]);
+						if (b4[indexB4] != "") {
+							indexB4 ++ ;
+							b4[indexB4] = "";
+						}
+					} else if (data[i] !== "" && data[i] !== "\n"){
+						b4[indexB4] += data[i] + "\n";
+					}
+				}
+				for (var i = 0; i < lines.length; i++)
+				{
+					var line = lines[i].substring(0, lines[i].indexOf(";")).split(" ");
+					for( var j = 0; j < line.length; j++)
+					{
+						if (line[0] === "G10"){
+							if (line[j].includes("P")) { //Tool number
+								toolNum = parseInt(line[j].substring(1));
+								if (tools[toolNum] == undefined) {
+									//console.log("tool " + parseInt(line[j].substring(1)) +" found");
+									tools[toolNum] = {};
+								}
+							}else if(line[j].includes("U")) { // axis U-W
+								//console.log("offset X of tool " + toolNum + " = "+ parseFloat(line[j].substring(1)));
+								tools[toolNum].u = parseFloat(line[j].substring(1));
+							} else if(line[j].includes("V")) {
+								//console.log("offset Y of tool " + toolNum + " = "+ parseFloat(line[j].substring(1)));
+								tools[toolNum].v = parseFloat(line[j].substring(1));
+							} else if(line[j].includes("W")) {
+								//console.log("offset Z of tool " + toolNum + " = "+ parseFloat(line[j].substring(1)));
+								tools[toolNum].w = parseFloat(line[j].substring(1));
+							} else if(line[j].includes("X")) { // axis X-Z
+								//console.log("offset X of tool " + toolNum + " = "+ parseFloat(line[j].substring(1)));
+								tools[toolNum].x = parseFloat(line[j].substring(1));
+							} else if(line[j].includes("Y")) {
+								//console.log("offset Y of tool " + toolNum + " = "+ parseFloat(line[j].substring(1)));
+								tools[toolNum].y = parseFloat(line[j].substring(1));
+							} else if(line[j].includes("Z")) {
+								//console.log("offset Z of tool " + toolNum + " = "+ parseFloat(line[j].substring(1)));
+								tools[toolNum].z = parseFloat(line[j].substring(1));
+							} else if(line[j].includes("S")) {
+								//console.log("default active temp of tool " + toolNum + " = " + parseFloat(line[j].substring(1)));
+								tools[toolNum].s = parseFloat(line[j].substring(1));
+							} else if(line[j].includes("R")) {
+								//console.log("default stanby temp of tool " + toolNum + " = " + parseFloat(line[j].substring(1)));
+								tools[toolNum].r = parseFloat(line[j].substring(1));
+							}
+						} else if (line[0] === "M563") {
+							if (line[j].includes("P")) {
+								toolNum = parseInt(line[j].substring(1));
+								if (tools[toolNum] == undefined) {
+									//console.log("tool " + parseInt(line[j].substring(1)) +" found");
+									tools[toolNum] = {};
+								}
+							} else if ( line[j].includes("S")) {
+								var open = -1;
+								var close = -1;
+								do {
+									if (open < 0) {
+										open = line[j].indexOf("\"");
+										if (open < line[j].lastIndexOf("\"")){ // IE there is a second " after the first one ex( "A+B")
+											close = line[j].lastIndexOf("\"");
+											tools[toolNum].e = line[j].substring(open+1, close)
+										} else {
+											tools[toolNum].e = line[j].substring(open+1);
+										}
+									} else if (line[j].indexOf("\"") >= 0){
+										close  = line[j].indexOf("\"");
+										tools[toolNum].e += " " + line[j].substring(0,close)
+									} else {
+										tools[toolNum].e += " " + line[j]
+									}
+									j++;
+								} while (close < 0);
+								j--;
+								//console.log("tool " + parseInt(toolNum+0) +" named: " + tools[toolNum].e);
+							} else if (line[j].includes("D")) {
+								//console.log("tool " + toolNum + " drive " + parseFloat(line[j].substring(1)));
+								var drives = line[j].substring(1).split(":")
+								for(var k = 0; k < drives.length; k++)
+									drives[k] = parseFloat(drives[k]);
+								tools[toolNum].d = drives;
+							} else if (line[j].includes("H")) {
+								//console.log("tool " + toolNum + " heater " + parseFloat(line[j].substring(1)));
+								var heaters = line[j].substring(1).split(":")
+								for(var k = 0; k < heaters.length; k++)
+									heaters[k] = parseFloat(heaters[k]);
+								tools[toolNum].h = heaters;
+							} else if (line[j].includes("F")) {
+								//console.log("fan " + parseFloat(line[j].substring(1)) + "maped to tool " + toolNum);
+								tools[toolNum].f = parseFloat(line[j].substring(1));
+							} else if (line[j].includes("L")) {
+								tools[toolNum].l = parseFloat(line[j].substring(1));
+							}
+						}
+					}
+				}
+
+				makeTools();
+
+				//console.log(tools);
 			 },
 	 });
  }
 
-function sendM666Params() {
- 	 $.ajax({
- 			 type: "POST",
- 			 url: ajaxPrefix + "rr_upload?name=0:/sys/config-override.g&time=" + encodeURIComponent(timeToStr(new Date())),
- 			 data: B4M666 + "A" + (Math.tan((settings.tiltX*Math.PI)/180)*100).toFixed(3) + " B" + (Math.tan((settings.tiltY*Math.PI)/180)*100).toFixed(3) + "\n" + AFM666,
- 			 success: function(result) {
- 				 if (result.err === undefined || result.err === 0) {
- 						 //console.log("file restored");
- 				 } else {
- 						 console.log("Error: " + (result.err == 1 ? "no such file" : "not mounted"));
- 				 }
- 			 },
- 	 });
-  }
-
-	$(".span_tilt").on("keypress", function(e) {
-		if( e.which == 13 || e.keyCode == 13 ) {
-			e.preventDefault();
-			this.blur();
-		}
-	})
-
-	$(".span_tilt").on("blur", function(e) {
-		e.preventDefault();
-			if (isConnected) {
-			clearTimeout(xyTilt);
-			var percent = $("#percent").prop("checked");
-			var prct = $(this).prop("value");
-			var id = $(this).attr("id");
-			if(percent) {
-				settings["tilt"+(id.includes("x")?"X":"Y")] = ((Math.atan(prct/100)*180)/Math.PI)
-			} else {
-				settings["tilt"+(id.includes("x")?"X":"Y")] = parseFloat(prct);
-				prct = (Math.tan((prct*Math.PI)/180)*100).toFixed(3);
-			}
-			sendGCode("M666 "+ (id.includes("x")?"A":"B") + (prct));
-			xyTilt = setTimeout(sendM666Params, 1000);
-			e.preventDefault();
-		}
-	});
-
-	var xyToolOffset = undefined;
-	 var b4 = [];
-	 var toolPath = {
-	 }
-	 var tools = [];
-	 function loadToolMatrix(targetMatrix) {
-		 //isHF = false;
-	 	 b4 = [];
-		 tools = [];
-	 	 $.ajax({
-			 type: "GET",
-			 url: ajaxPrefix + "rr_download?name=0:/macros/_Tools/" + toolPath[targetMatrix],
-			 success: function(result) {
-					data = result.split("\n");
-					b4[0] = "";
-					indexB4 = 0;
-					var lines = []
-					for( var i = 0; i < data.length; i++)
-					{
-						if (data[i].includes("G10") || data[i].includes("M563")) {
-							lines.push(data[i]);
-							if (b4[indexB4] != "") {
-								indexB4 ++ ;
-								b4[indexB4] = "";
-							}
-						} else if (data[i] !== "" && data[i] !== "\n"){
-							b4[indexB4] += data[i] + "\n";
-						}
-					}
-					for (var i = 0; i < lines.length; i++)
-					{
-						var line = lines[i].substring(0, lines[i].indexOf(";")).split(" ");
-						for( var j = 0; j < line.length; j++)
-						{
-							if (line[0] === "G10"){
-								if (line[j].includes("P")) { //Tool number
-									toolNum = parseInt(line[j].substring(1));
-									if (tools[toolNum] == undefined) {
-										//console.log("tool " + parseInt(line[j].substring(1)) +" found");
-										tools[toolNum] = {};
-									}
-								}else if(line[j].includes("U")) { // axis U-W
-									//console.log("offset X of tool " + toolNum + " = "+ parseFloat(line[j].substring(1)));
-									tools[toolNum].u = parseFloat(line[j].substring(1));
-								} else if(line[j].includes("V")) {
-									//console.log("offset Y of tool " + toolNum + " = "+ parseFloat(line[j].substring(1)));
-									tools[toolNum].v = parseFloat(line[j].substring(1));
-								} else if(line[j].includes("W")) {
-									//console.log("offset Z of tool " + toolNum + " = "+ parseFloat(line[j].substring(1)));
-									tools[toolNum].w = parseFloat(line[j].substring(1));
-								} else if(line[j].includes("X")) { // axis X-Z
-									//console.log("offset X of tool " + toolNum + " = "+ parseFloat(line[j].substring(1)));
-									tools[toolNum].x = parseFloat(line[j].substring(1));
-								} else if(line[j].includes("Y")) {
-									//console.log("offset Y of tool " + toolNum + " = "+ parseFloat(line[j].substring(1)));
-									tools[toolNum].y = parseFloat(line[j].substring(1));
-								} else if(line[j].includes("Z")) {
-									//console.log("offset Z of tool " + toolNum + " = "+ parseFloat(line[j].substring(1)));
-									tools[toolNum].z = parseFloat(line[j].substring(1));
-								} else if(line[j].includes("S")) {
-									//console.log("default active temp of tool " + toolNum + " = " + parseFloat(line[j].substring(1)));
-									tools[toolNum].s = parseFloat(line[j].substring(1));
-								} else if(line[j].includes("R")) {
-									//console.log("default stanby temp of tool " + toolNum + " = " + parseFloat(line[j].substring(1)));
-									tools[toolNum].r = parseFloat(line[j].substring(1));
-								}
-							} else if (line[0] === "M563") {
-								if (line[j].includes("P")) {
-									toolNum = parseInt(line[j].substring(1));
-									if (tools[toolNum] == undefined) {
-										//console.log("tool " + parseInt(line[j].substring(1)) +" found");
-										tools[toolNum] = {};
-									}
-								} else if ( line[j].includes("S")) {
-									var open = -1;
-									var close = -1;
-									do {
-										if (open < 0) {
-											open = line[j].indexOf("\"");
-											if (open < line[j].lastIndexOf("\"")){ // IE there is a second " after the first one ex( "A+B")
-												close = line[j].lastIndexOf("\"");
-												tools[toolNum].e = line[j].substring(open+1, close)
-											} else {
-												tools[toolNum].e = line[j].substring(open+1);
-											}
-										} else if (line[j].indexOf("\"") >= 0){
-											close  = line[j].indexOf("\"");
-											tools[toolNum].e += " " + line[j].substring(0,close)
-										} else {
-											tools[toolNum].e += " " + line[j]
-										}
-										j++;
-									} while (close < 0);
-									j--;
-									//console.log("tool " + parseInt(toolNum+0) +" named: " + tools[toolNum].e);
-								} else if (line[j].includes("D")) {
-									//console.log("tool " + toolNum + " drive " + parseFloat(line[j].substring(1)));
-									var drives = line[j].substring(1).split(":")
-									for(var k = 0; k < drives.length; k++)
-										drives[k] = parseFloat(drives[k]);
-									tools[toolNum].d = drives;
-								} else if (line[j].includes("H")) {
-									//console.log("tool " + toolNum + " heater " + parseFloat(line[j].substring(1)));
-									var heaters = line[j].substring(1).split(":")
-									for(var k = 0; k < heaters.length; k++)
-										heaters[k] = parseFloat(heaters[k]);
-									tools[toolNum].h = heaters;
-								} else if (line[j].includes("F")) {
-									//console.log("fan " + parseFloat(line[j].substring(1)) + "maped to tool " + toolNum);
-									tools[toolNum].f = parseFloat(line[j].substring(1));
-								} else if (line[j].includes("L")) {
-									tools[toolNum].l = parseFloat(line[j].substring(1));
-								}
-							}
-						}
-					}
-
-					makeTools();
-
-					//console.log(tools);
-				 },
-		 });
-	 }
-
-	function sendToolMatrix(targetMatrix) {
+function sendToolMatrix(targetMatrix) {
 		var out = "";
 		for (var i = 0; i < tools.length; i++)
 		{
@@ -12465,7 +12418,7 @@ function sendM666Params() {
  	 });
   }
 
-	$(".tool-name").on("click", function(e) {
+$(".tool-name").on("click", function(e) {
 		//console.log($(this).data("tool"));
 		loadToolMatrix($(this).data("tool"));
 		$("#hname").prop("value",$(this).text());
@@ -12474,56 +12427,92 @@ function sendM666Params() {
 		e.preventDefault();
 	});
 
-	function handleBtnOffsetEvent(e) {
-		e.preventDefault();
-		if(!$(this).hasClass("disabled") && tools.length > 0)
-		{
-			var input = $(this).parent().parent().find("input[off="+$(this).attr("off")+"]")
-			var offset = (parseFloat(input.prop("value")) + parseFloat($(this).text()))
-			clearTimeout(xyToolOffset);
-			tools[$(this).attr("tnum").includes("T0")?0:(($(this).attr("tnum").includes("T1")? 1: 2))][($(this).attr("off").includes("X")?"x":"y")] += parseFloat($(this).text());
-			tools[$(this).attr("tnum").includes("T0")?4:(($(this).attr("tnum").includes("T1")? 3: 5))][($(this).attr("off").includes("X")?"x":"y")] += parseFloat($(this).text());
-			input.prop("value", offset.toFixed(2))
-			sendGCode("T999");
-			for (var i = 0; i < tools.length; i++)
-			{
-				sendGCode("G10 P" + i + " X" + tools[i].x + " Y" + tools[i].y);
-			}
-			//sendGCode("T" + (id.includes("T0")?"0":(id.includes("T1")? "1": "2")))
-			//sendGCode("G1 X0 Y0");
-			xyToolOffset = setTimeout(sendToolMatrix, 1000, $("#hname").data("tool"))
+function handleBtnOffsetEvent(e) {
+	e.preventDefault();
+	if(!$(this).hasClass("disabled") && tools.length > 0)
+	{
+		var first = 0;
+		while (tools[first] === undefined){
+			first++;
 		}
+		var input = $(".tool_offset[off="+$(this).attr("off")+"][tnum="+$(this).attr("tnum")+"]")
+		console.log(input);
+		var offset = (parseFloat(input.prop("value")) + parseFloat($(this).text()))
+		clearTimeout(xyToolOffset);
+		tools[$(this).attr("tnum").includes("T0")?0:(($(this).attr("tnum").includes("T1")? 1: 2))][($(this).attr("off").includes("X")?"x":"y")] += parseFloat($(this).text());
+		tools[$(this).attr("tnum").includes("T0")?4:(($(this).attr("tnum").includes("T1")? 3: 5))][($(this).attr("off").includes("X")?"x":"y")] += parseFloat($(this).text());
+		input.prop("value", offset.toFixed(2))
+		sendGCode("T999");
+		for (var i = 0; i < tools.length; i++)
+		{
+			sendGCode("G10 P" + i + " X" + tools[i].x + " Y" + tools[i].y);
+		}
+		//sendGCode("T" + (id.includes("T0")?"0":(id.includes("T1")? "1": "2")))
+		//sendGCode("G1 X0 Y0");
+		xyToolOffset = setTimeout(sendToolMatrix, 1000, $("#hname").data("tool"))
 	}
+}
 
 function handleToolOffsetBlurEvent(e) {
 		e.preventDefault();
 		if (tools.length > 0 && this.style.border !== "none") {
 			var absolute = $("#relative").prop("checked");
-			var id = $(this).attr("id");
-			var offset = parseFloat($("#"+id).prop("value"))
-			var toolOffset = offset + (absolute?tools[0][(id.includes("x")?"x":"y")]:0)
-			clearTimeout(xyToolOffset);
-			tools[(id.includes("T0")?0:(id.includes("T1")? 1: 2))][(id.includes("x")?"x":"y")] = toolOffset;
-			tools[(id.includes("T0")?4:(id.includes("T1")? 3: 5))][(id.includes("x")?"x":"y")] = toolOffset;
-			$("#"+id).prop("value", offset.toFixed(2))
-			sendGCode("T999");
-			for (var i = 0; i < tools.length; i++)
+			var off = $(this).attr('off');
+			var tnum = $(this).attr('tnum');
+			var tsec = [];
+			var first = 0;
+			while(tools[first] === undefined)
 			{
-				sendGCode("G10 P" + i + " X" + tools[i].x + " Y" + tools[i].y);
+				first++;
 			}
+			$(this).attr('tsec').split(",").forEach(tool => tsec.push(parseInt(tool.substring(tool.indexOf("T")+1))));
+			var offset = parseFloat($(this).prop("value"))
+			var toolOffset = offset + (absolute?tools[first][(off.includes("X")?"x":"y")]:0)
+			console.log(toolOffset);
+			clearTimeout(xyToolOffset);
+			tools[parseFloat(tnum.substring(1))][off.includes("X")?"x":"y"] = toolOffset;
+			tsec.forEach(tool => tools[tool][off.includes("X")?"x":"y"] = toolOffset )
+			$(this).prop("value", offset.toFixed(2))
+			tools.forEach((tool, i) => sendGCode("G10 P" + i + " X" + tool.x.toFixed(2) + " Y" + tool.y.toFixed(2)));
 			xyToolOffset = setTimeout(sendToolMatrix, 1000, $("#hname").data("tool"));
 		}
 	}
+
+function animateNumber(element, to) {
+	var up;
+ 	for( var i = 0; i < element.length; i++ ){
+		if (up === undefined) {
+			up = parseFloat(element[i].value) < to
+		}
+ 		if ( up && element[i].value >= (to - 1) || !up && element[i].value <= (to + 1)) {
+ 			element[i].value = parseFloat(to).toFixed(2);
+ 			return;
+ 		} else if(up){
+			console.log(parseFloat(element[i].value) + 1);
+ 			element[i].value = (parseFloat(element[i].value) + 1).toFixed(2);
+ 		} else if(!up) {
+			console.log(parseFloat(element[i].value) - 1);
+ 			element[i].value = (parseFloat(element[i].value) - 1).toFixed(2);
+		}
+ 	}
+ 	setTimeout(animateNumber, 5, element, to);
+}
 
 $("#relative").on("click", function(e) {
 	var absolute = this.checked;
 	if (tools.length > 0) {
 		$(".toff").find("input")
+		var first = 0;
+		while (tools[first] === undefined)
+		{
+			first++;
+		}
 		$(".toff").find("input[off=X]").each(function(index){
-			$(this).prop("value",(tools[index].x-(absolute?tools[0].x:0)))
+			$(this).prop("value",(tools[first+index].x-(absolute?tools[first].x:0)))
 		});
 		$(".toff").find("input[off=Y]").each(function(index){
-			$(this).prop("value",(tools[index].y-(absolute?tools[0].y:0)))
+			animateNumber($(this), (tools[first+index].y-(absolute?tools[first].y:0)))
+			//$(this).prop("value",(tools[first+index].y-(absolute?tools[first].y:0)))
 		});
 	}
 	//e.preventDefault();
@@ -12558,7 +12547,8 @@ function preloadToolMatrix(path){
 					if (toolName.includes("."))
 						toolName = toolName.substring(0, toolName.indexOf("."));
 					if(toolPath[toolName] === undefined)
-					{
+						toolPath[toolName] = {};
+					if(toolPath[toolName].matrix === undefined) {
 						li = $('<li><a href="#" class="tool-name" data-tool="' + toolName + '">'+ toolName +'</a></li>')
 						li.on("click", function(e) {
 							loadToolMatrix($(this.firstElementChild).data("tool"));
@@ -12568,28 +12558,199 @@ function preloadToolMatrix(path){
 						});
 						$("#tname").append(li);
 					}
-					toolPath[toolName] = path.substring(path.lastIndexOf("/")+1)+"/"+file.name
-					console.log(toolPath[toolName])
+					toolPath[toolName].matrix = path.substring(path.lastIndexOf("/")+1)+"/"+file.name
 					if(result.files.length === 1) {
 						loadToolMatrix(toolName);
 						$("#hname").prop("value", toolName);
 						$("#hname").data("tool" , toolName);
 					}
+				} else if(file.name.includes("Nozzle")) {
+						var toolName = path.substring(path.lastIndexOf("/")+1);
+						console.log(toolName)
+						console.log(toolPath[toolName]);
+						console.log(path+"/"+file.name);
+						if(file.name.includes("HF")) {
+							if(toolPath[toolName+"_HF"] === undefined)
+								toolPath[toolName+"_HF"] = {};
+							toolPath[toolName+"_HF"].calibration = toolName+"/"+file.name;
+							loadToolOffset(toolName+"_HF");
+						} else if(file.name.includes("MF")) {
+							if(toolPath[toolName+"_MF"] === undefined)
+								toolPath[toolName+"_MF"] = {};
+							toolPath[toolName+"_MF"].calibration = toolName+"/"+file.name;
+							loadToolOffset(toolName+"_MF");
+						} else {
+							if(toolPath[toolName] === undefined)
+								toolPath[toolName] = {};
+							toolPath[toolName].calibration = toolName+"/"+file.name;
+							loadToolOffset(toolName);
+						}
 				}
 			}
 		})
 }
+
+function loadToolOffset(toolName){
+	$.ajax({
+		type: "GET",
+		url: ajaxPrefix + "rr_download?name=0:/macros/_Tools/" + toolPath[toolName].calibration,
+		success: function(result) {
+			 data = result.split("\n");
+			 toolPath[toolName].fileContent = [];
+			 var indexB4 = 0;
+			 var lines = [];
+			 var offsets = [];
+			 var toolNum;
+			 var tools = [];
+			 var tHeadPos = {x: undefined, y: undefined, z: undefined};
+			 toolPath[toolName].fileContent[0] = "";
+			 for( var i = 0; i < data.length; i++) {
+				 if ( data[i].startsWith("M585")) {
+					 lines.push(data[i]);
+					 if (toolPath[toolName].fileContent[indexB4] != "") {
+						 indexB4 ++ ;
+						 toolPath[toolName].fileContent[indexB4] = "";
+					 }
+				} else if (data[i].startsWith("G1") || data[i].startsWith("G10")) {
+					lines.push(data[i]);
+					toolPath[toolName].fileContent[indexB4] += data[i] + "\n";
+				} else if (i < data.length-1 || data[i] !== ""){
+					 toolPath[toolName].fileContent[indexB4] += data[i] + "\n";
+				 }
+			 }
+			 for (var i = 0; i < lines.length; i++)
+			 {
+				 var line = lines[i].substring(0, lines[i].indexOf(";")).split(" ");
+				 for( var j = 0; j < line.length; j++)
+				 {
+					 if (line[0] === "G1"){
+						 switch (line[j][0]) {
+							 case "X":
+							 	tHeadPos.x = parseFloat(line[j].substring(1));
+								break;
+							 case "Y":
+							 	tHeadPos.y = parseFloat(line[j].substring(1));
+								break;
+							 case "Z":
+							 	tHeadPos.z = parseFloat(line[j].substring(1));
+								break;
+							 default:
+							 	break;
+						 }
+					 } else if (line[0] === "G10"){
+						 if (line[j].includes("P")) { //Tool number
+							 toolNum = parseInt(line[j].substring(1));
+							 if (tools[toolNum] == undefined) {
+								 //console.log("tool " + parseInt(line[j].substring(1)) +" found");
+								 tools[toolNum] = {};
+							 }
+						 }else if(line[j].includes("U")) { // axis U-W
+							 //console.log("offset X of tool " + toolNum + " = "+ parseFloat(line[j].substring(1)));
+							 tools[toolNum].u = parseFloat(line[j].substring(1));
+						 } else if(line[j].includes("V")) {
+							 //console.log("offset Y of tool " + toolNum + " = "+ parseFloat(line[j].substring(1)));
+							 tools[toolNum].v = parseFloat(line[j].substring(1));
+						 } else if(line[j].includes("W")) {
+							 //console.log("offset Z of tool " + toolNum + " = "+ parseFloat(line[j].substring(1)));
+							 tools[toolNum].w = parseFloat(line[j].substring(1));
+						 } else if(line[j].includes("X")) { // axis X-Z
+							 //console.log("offset X of tool " + toolNum + " = "+ parseFloat(line[j].substring(1)));
+							 tools[toolNum].x = parseFloat(line[j].substring(1));
+						 } else if(line[j].includes("Y")) {
+							 //console.log("offset Y of tool " + toolNum + " = "+ parseFloat(line[j].substring(1)));
+							 tools[toolNum].y = parseFloat(line[j].substring(1));
+						 } else if(line[j].includes("Z")) {
+							 //console.log("offset Z of tool " + toolNum + " = "+ parseFloat(line[j].substring(1)));
+							 tools[toolNum].z = parseFloat(line[j].substring(1));
+						 } else if(line[j].includes("S")) {
+							 //console.log("default active temp of tool " + toolNum + " = " + parseFloat(line[j].substring(1)));
+							 tools[toolNum].s = parseFloat(line[j].substring(1));
+						 } else if(line[j].includes("R")) {
+							 //console.log("default stanby temp of tool " + toolNum + " = " + parseFloat(line[j].substring(1)));
+							 tools[toolNum].r = parseFloat(line[j].substring(1));
+						 }
+					 } else if (line[0] === "M585") {
+						 if (line[j].includes("Z")) {
+						 	console.log("T"+toolNum+": "+tHeadPos.toSource());
+							console.log("probe offset = " + (tHeadPos.z + parseFloat(line[j].substring(1))) + "mm");
+							probeOffset = (tHeadPos.z + parseFloat(line[j].substring(1)));
+							//console.log($(".span_probe_offset")[0])
+							$(".span_probe_offset")[0].value = probeOffset;
+							$(".btn_probe_offset").prop("disabled", false);
+						 }
+					 }
+				 }
+			 }
+			 //makeTools();
+			},
+			async: false,
+	 });
+}
+
+function sendToolOffset() {
+		var keys = Object.keys(toolPath);
+		console.log(keys);
+		for (var key = 0; key < keys.length; key++){
+			var out = "";
+			var toolName = keys[key];
+			console.log(toolName);
+			var fileContent = toolPath[toolName].fileContent;
+			for (var i = 0; i < fileContent.length; i++)
+			{
+				var from = Math.max(fileContent[i].lastIndexOf("\nG1 ")+1, 0);
+				var g10 = fileContent[i].substring(from);
+				var to = fileContent[i].substring(from).indexOf("\n");
+				out += fileContent[i];
+				if (from > 0 && to > 0) {
+					console.log(from + ", " + (from+to));
+					console.log(fileContent[i].substr(from, to+1));
+					g10 =  fileContent[i].substr(from, to+1);
+					var end = (	g10.substring(g10.indexOf("Z")).indexOf(" ") > 0 ?
+							g10.substring(g10.indexOf("Z")).indexOf(" ") :
+							g10.substring(g10.indexOf("Z")).indexOf("\t")) - 1;
+					//console.log(end)
+					console.log(g10.substr(g10.indexOf("Z")+1, end))
+					var myZ = parseFloat(g10.substr(g10.indexOf("Z")+1, end));
+					//console.log(myZ);
+					if(!isNaN(myZ)) {
+						//console.log((probeOffset-myZ).toFixed(2));
+						out += "M585 Z"+ (probeOffset-myZ).toFixed(2) +" E8 L0 F100 S1	; Move the tool down (Z-) until triggering the probing tool\n";
+					}
+				}
+			}
+			out += (fileContent[fileContent.length-1] == undefined? "" : fileContent[fileContent.length-1] );
+			//console.log(out);
+			$.ajax({
+		 		type: "POST",
+		 		url: ajaxPrefix + "rr_upload?name=0:/macros/_Tools/" + toolPath[toolName].calibration + ".txt&time=" + encodeURIComponent(timeToStr(new Date())),
+		 		data: out,
+		 		success: function(result) {
+		 			if (result.err === undefined || result.err === 0) {
+		 				console.log("file saved");
+		 			} else {
+		 				 console.log("Error: " + (result.err == 1 ? "no such file" : "not mounted"));
+		 			}
+		 		},
+				async: false
+		 	});
+		}
+  }
 
 function makeTools() {
 	while ($(".toff").length > 1) {
 		$(".toff").last().remove();
 	}
 	var axes = ["X","Y"]
-	var head = "<div>Offset <strong>{0}</strong> <span style=\"color: darkgray;\">({1})</span></div><br>";
-	var axisHTML = "Offset {0} <input style=\"width: 50px; height: 20px; text-align: center;\" class=\"tool_offset\" autocomplete=\"off\" type=\"number\" value=\"0.00\" step=\"0.01\" off=\"{0}\" tnum=\"{1}\"/> mm"
+	var head = "<div>Offset <strong>{0}</strong> <span style=\"color: darkgray;\">{1}</span></div><br>";
+	var axisHTML = "Offset {0} <input class=\"tool_offset\" autocomplete=\"off\" type=\"number\" value=\"0.00\" step=\"0.01\" off=\"{0}\" tnum=\"{1}\" tsec=\"{2}\"/> mm"
 	var btn = "<div class=\"btn-group\"> <button off=\"{0}\" tnum=\"{1}\" dir=\"{2}\" class=\"btn btn-default btn-sm btn-offset\" title=\"Offsets the tool head by a tiny amount in the  direction (G10 Px {0}yy)\"><span class=\"glyphicon glyphicon-chevron-{3}\"></span> <span class=\"content\">{4}</span> </button></div>"
 	var isSec = [];
 	var absolute = $("#relative").prop("checked");
+	var first = 0;
+	while (tools[first] === undefined)
+	{
+		first++;
+	}
 	for(var i = 0; i < tools.length; i++) {
 		if (tools[i] !== undefined && isSec[i] === undefined) {
 			var heaters = tools[i].h;
@@ -12603,7 +12764,7 @@ function makeTools() {
 				if (tools[j].h !== undefined) {
 					for( var a = 0; a < tools[j].h.length; a++) {
 							if (heaters.includes(tools[j].h[a])) {
-									tsec += (tsec.length?" ":"")+"T"+j
+									tsec += (tsec.length?" ":"(")+"T"+j
 									isSec[j] = true;
 									wasSec = true;
 								}
@@ -12614,31 +12775,37 @@ function makeTools() {
 					if (tools[j].d !== undefined) {
 						for( var a = 0; a < tools[j].d.length; a++) {
 								if (drives.includes(tools[j].d[a])) {
-										tsec += (tsec.length?" ":"")+"T"+j
+										tsec += (tsec.length?" ":"(")+"T"+j
 										isSec[j] = true;
 								}
 						}
 					}
 			}
-
+			if(tsec.length)
+				tsec += ")";
 			var toff = document.createElement("div");
 			toff.classList.add("toff");
 			toff.innerHTML = T(head,tnum, tsec);
 			for(var axis in axes) {
 				toff.innerHTML += T(axisHTML, axes[axis], tnum, tsec)
 				toff.innerHTML += "<div class=\"btn-group btn-group-justified\">"
-				toff.innerHTML += T(btn, axes[axis], tnum, (axis?"down":"up"),"left","-0.01mm")
-				toff.innerHTML += T(btn, axes[axis], tnum, (axis?"up":"down"),"right","+0.01mm")
-				toff.innerHTML += "</div><br>";
+				+ T(btn, axes[axis], tnum, (axis?"down":"up"),"left","-0.01mm")
+				+ T(btn, axes[axis], tnum, (axis?"up":"down"),"right","+0.01mm")
+				+ "</div><br/>";
 			}
 			$(".toff").last().after(toff);
-			$(toff).find("input").first().prop("value", (tools[i].x-(absolute?tools[0].x:0)))
-			$(toff).find("input").last().prop("value", (tools[i].y-(absolute?tools[0].y:0)))
+			$(toff).find("input").first().prop("value", (tools[i].x-(absolute?tools[first].x:0)))
+			$(toff).find("input").last().prop("value", (tools[i].y-(absolute?tools[first].y:0)))
 		}
 	}
 	$(".toff").first().remove();
+	$(".toff").first().find("button").addClass("disabled");
+	$(".toff").first().find("input").prop("disabled",true);
+	$(".toff").first().find("input").prop("style", "background:#ffffffd0");
+
 	$(".toff").prop("style", "width:"+Math.floor(((1/($(".toff").length))*100))+"%");
-	$(".toff").last()[0].style["border-right"] = "0px solid black"
+	$(".toff").last()[0].style["border-right"] = "0px solid black";
+	$("#firstTool").text("T"+first);
 	$(".btn-offset").on("click",handleBtnOffsetEvent);
 	$(".tool_offset").on("blur", handleToolOffsetBlurEvent);
 	$(".tool_offset").on("keypress", function(e) {
