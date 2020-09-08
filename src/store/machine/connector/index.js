@@ -5,9 +5,11 @@ import { LoginError, LoadAddressesError, OperationFailedError } from '../../../u
 import BaseConnector from './BaseConnector.js'
 import PollConnector from './PollConnector.js'
 import RestConnector from './RestConnector.js'
+import ApiConnector from './ApiConnector.js'
 
-const connectors = [PollConnector, RestConnector]
-export const MachineActions = ['disconnect', 'sendCode', 'upload', 'delete', 'move', 'makeDirectory', 'download', 'getFileList', 'getFileInfo']
+
+const connectors = [ApiConnector]
+export const MachineActions = ['disconnect', 'sendCode', 'upload', 'delete', 'move', 'makeDirectory', 'download', 'getFileList', 'getFileInfo', 'getFileHistory', 'getConfigTools']
 
 export function mapConnectorActions(connector, toIgnore = []) {
 	let actions = {}

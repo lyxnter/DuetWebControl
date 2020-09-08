@@ -102,6 +102,12 @@ class BaseConnector {
 	// Get G-code file info and return an instance of FileInfo
 	async getFileInfo(filename) { throw new NotImplementedError('getFileInfo'); }
 
+	// Get G-code file history info
+	async getFileHistory(id) { throw new NotImplementedError('getFileHistory'); }
+
+	// Get tools config
+	async getConfigTools(id) { throw new NotImplementedError('getConfigTools'); }
+
 	/* eslint-enable no-unused-vars */
 }
 

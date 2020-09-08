@@ -130,6 +130,7 @@ export class FileInfo {
 	fileName = null
 	size = 0
 	lastModified = null
+	id = null
 	height = 0.0
 	firstLayerHeight = 0.0
 	layerHeight = 0.0
@@ -138,6 +139,21 @@ export class FileInfo {
 	generatedBy = ''
 	printTime = 0
 	simulatedTime = 0
+}
+
+export class FileHistory {
+	constructor(initData) {
+		if (initData) {
+			quickPatch(this, initData);
+		}
+	}
+	id = null
+	execFile = null
+	execDate = null
+	result = null
+	reason = null
+	timelapsePath = null
+	logFolder = null
 }
 
 export class Firmware {

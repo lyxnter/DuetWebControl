@@ -265,7 +265,7 @@ export default {
 						withCredentials: true,
 					});
 				}
-				const response = await this.axios.get('pc_getip', {
+				const response = await this.axios.get('api/duet/action/pc_getip', {
 					withCredentials: true,
 					params: params
 				});
@@ -321,7 +321,7 @@ export default {
 					withCredentials: true,
 				});
 			}
-			const response = await this.axios.get('pc_getip', {
+			const response = await this.axios.get('api/duet/action/pc_getip', {
 				withCredentials: true,
 				params: {restart: true}
 			});

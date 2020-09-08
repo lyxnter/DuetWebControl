@@ -248,7 +248,7 @@ export default {
 										dir = item.name;
 									}
 									dir = dir.replace(/ /g, "_");
-									item.ico = "http://" + that.selectedMachine + "/img/GCodePreview/" + (item.directory.substring(10).length > 0 ? item.directory.substring(10).replace(/ /g, "_") + "/" : "") + dir + "/" + dir + "_ico.jpg";//fileIco;
+									item.ico = "https://" + that.selectedMachine + "/img/GCodePreview/" + (item.directory.substring(10).length > 0 ? item.directory.substring(10).replace(/ /g, "_") + "/" : "") + dir + "/" + dir + "_ico.jpg";//fileIco;
 									//console.log(item.name+": "+item.lastModified);
 								} else {
 									item.treated = false;

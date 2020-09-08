@@ -8,7 +8,7 @@ var devUser = false;
 $(".btn-login").click(function(e) {
 	if(usersList.length == 0)
 	{
-		$.get(ajaxPrefix + "rr_download?name=0:/sys/usersList.json", function(res){
+		$.get(ajaxPrefix + "api/duet/action/rr_download?name=0:/sys/usersList.json", function(res){
 			usersList = JSON.parse(res);
 		})
 	}
@@ -382,7 +382,7 @@ $("#btn_new_material").click(function() {
 	showTextInput(T("New material"), T("Please enter a name:"), function(value) {
 		if (filenameValid(value)) {
 			if (materialsExist) {
-				$.ajax(ajaxPrefix + "rr_mkdir?dir=" + encodeURIComponent("0:/materials/" + value), {
+				$.ajax(ajaxPrefix + "api/duet/action/rr_mkdir?dir=" + encodeURIComponent("0:/materials/" + value), {
 					dataType: "json",
 					success: function(response) {
 						if (response.err == 0) {
@@ -395,11 +395,11 @@ $("#btn_new_material").click(function() {
 					}
 				});
 			} else {
-				$.ajax(ajaxPrefix + "rr_mkdir?dir=0:/materials", {
+				$.ajax(ajaxPrefix + "api/duet/action/rr_mkdir?dir=0:/materials", {
 					dataType: "json",
 					success: function(response) {
 						if (response.err == 0) {
-							$.ajax(ajaxPrefix + "rr_mkdir?dir=" + encodeURIComponent("0:/materials/" + value), {
+							$.ajax(ajaxPrefix + "api/duet/action/rr_mkdir?dir=" + encodeURIComponent("0:/materials/" + value), {
 								dataType: "json",
 								success: function(response) {
 									if (response.err == 0) {
@@ -443,7 +443,7 @@ function updateMaterials() {
 function getMaterials(first) {
 	if(first === undefined)
 		return;
-	$.ajax(ajaxPrefix + "rr_filelist?dir=0:/materials&first=" + (first != undefined ?first:0), {
+	$.ajax(ajaxPrefix + "api/duet/action/rr_filelist?dir=0:/materials&first=" + (first != undefined ?first:0), {
 		dataType: "json",
 		success: function(response) {
 			if (isConnected) {
@@ -537,7 +537,7 @@ $("#btn_new_filament").click(function() {
 	showTextInput(T("New filament"), T("Please enter a name:"), function(value) {
 		if (filenameValid(value)) {
 			if (filamentsExist) {
-				$.ajax(ajaxPrefix + "rr_mkdir?dir=" + encodeURIComponent("0:/materials/filaments/" + value), {
+				$.ajax(ajaxPrefix + "api/duet/action/rr_mkdir?dir=" + encodeURIComponent("0:/materials/filaments/" + value), {
 					dataType: "json",
 					success: function(response) {
 						if (response.err == 0) {
@@ -550,11 +550,11 @@ $("#btn_new_filament").click(function() {
 					}
 				});
 			} else {
-				$.ajax(ajaxPrefix + "rr_mkdir?dir=0:/materials/filaments", {
+				$.ajax(ajaxPrefix + "api/duet/action/rr_mkdir?dir=0:/materials/filaments", {
 					dataType: "json",
 					success: function(response) {
 						if (response.err == 0) {
-							$.ajax(ajaxPrefix + "rr_mkdir?dir=" + encodeURIComponent("0:/materials/filaments/" + value), {
+							$.ajax(ajaxPrefix + "api/duet/action/rr_mkdir?dir=" + encodeURIComponent("0:/materials/filaments/" + value), {
 								dataType: "json",
 								success: function(response) {
 									if (response.err == 0) {
@@ -598,7 +598,7 @@ function updateFilaments() {
 function getFilaments(first) {
 	if(first === undefined)
 		return;
-	$.ajax(ajaxPrefix + "rr_filelist?dir=0:/materials/filaments&first=" + (first != undefined ?first:0), {
+	$.ajax(ajaxPrefix + "api/duet/action/rr_filelist?dir=0:/materials/filaments&first=" + (first != undefined ?first:0), {
 		dataType: "json",
 		success: function(response) {
 			if (isConnected) {
@@ -680,7 +680,7 @@ $("#btn_new_liquid").click(function() {
 	showTextInput(T("New liquid"), T("Please enter a name:"), function(value) {
 		if (filenameValid(value)) {
 			if (liquidsExist) {
-				$.ajax(ajaxPrefix + "rr_mkdir?dir=" + encodeURIComponent("0:/materials/liquids/" + value), {
+				$.ajax(ajaxPrefix + "api/duet/action/rr_mkdir?dir=" + encodeURIComponent("0:/materials/liquids/" + value), {
 					dataType: "json",
 					success: function(response) {
 						if (response.err == 0) {
@@ -693,11 +693,11 @@ $("#btn_new_liquid").click(function() {
 					}
 				});
 			} else {
-				$.ajax(ajaxPrefix + "rr_mkdir?dir=0:/materials/liquids", {
+				$.ajax(ajaxPrefix + "api/duet/action/rr_mkdir?dir=0:/materials/liquids", {
 					dataType: "json",
 					success: function(response) {
 						if (response.err == 0) {
-							$.ajax(ajaxPrefix + "rr_mkdir?dir=" + encodeURIComponent("0:/materials/liquids/" + value), {
+							$.ajax(ajaxPrefix + "api/duet/action/rr_mkdir?dir=" + encodeURIComponent("0:/materials/liquids/" + value), {
 								dataType: "json",
 								success: function(response) {
 									if (response.err == 0) {
@@ -741,7 +741,7 @@ function updateLiquids() {
 function getLiquids(first) {
 	if(first === undefined)
 		return;
-	$.ajax(ajaxPrefix + "rr_filelist?dir=0:/materials/liquids&first=" + (first != undefined ?first:0), {
+	$.ajax(ajaxPrefix + "api/duet/action/rr_filelist?dir=0:/materials/liquids&first=" + (first != undefined ?first:0), {
 		dataType: "json",
 		success: function(response) {
 			if (isConnected) {

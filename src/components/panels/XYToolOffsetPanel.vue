@@ -699,14 +699,14 @@ export default {
 			if (!this.axios) {
 				//let protocol = location.protocol;
 				this.axios = await axios.create({
-					baseURL:`http://`+this.selectedMachine+`/`,
+					baseURL:`https://`+this.selectedMachine+`/`,
 					//cancelToken: BaseConnector.getCancelSource().token,
 					timeout: 8000,	// default session timeout in RepRapFirmware
 					withCredentials: true,
 				});
 			}
 
-			let result = await this.axios.get('/pc_webcam', {
+			let result = await this.axios.get('/api/duet/action/pc_webcam', {
 				withCredentials: true,
 				params: {
 					info: "",
@@ -739,7 +739,7 @@ export default {
 
 		xhr.onload = function() {
 			let img = new Image()
-			img.src = 'http://'+that.selectedMachine+':8080/?action=snapshot&dummy='+Math.random()
+			img.src = 'https://'+that.selectedMachine+':8080/?action=snapshot&dummy='+Math.random()
 			img.onload = () => {
 				if(document.getElementById('scaleableDiv') && document.getElementById('webcam')) {
 					console.log(img.width + 'x' + img.height);
@@ -749,7 +749,7 @@ export default {
 			}
 			if (document.getElementById('scaleableDiv') && document.getElementById('webcam')) {
 				document.getElementById('webcam').style.transform = "rotate(180deg) scale(1, -1)";
-				document.getElementById('webcam').src = 'http://'+that.selectedMachine+':8080/?action=stream&dummy=' + Math.random()
+				document.getElementById('webcam').src = 'https://'+that.selectedMachine+':8080/?action=stream&dummy=' + Math.random()
 			}
 			that.showTarget = true;
 		}
@@ -770,14 +770,14 @@ export default {
 					if (!that.axios) {
 						//let protocol = location.protocol;
 						that.axios = await axios.create({
-							baseURL:`http://`+that.selectedMachine+`/`,
+							baseURL:`https://`+that.selectedMachine+`/`,
 							//cancelToken: BaseConnector.getCancelSource().token,
 							timeout: 8000,	// default session timeout in RepRapFirmware
 							withCredentials: true,
 						});
 					}
 
-					let rep = await that.axios.get('/pc_webcam', {
+					let rep = await that.axios.get('/api/duet/action/pc_webcam', {
 						withCredentials: true,
 						//params: {fra: 5, res: that.resolutions16_9['480p']}
 					});
@@ -787,7 +787,7 @@ export default {
 					that.webcam.active++
 				}
 			}
-			xhr.open('GET', 'http://'+that.selectedMachine+':8080/?action=snapshot&dummy='+Math.random(), true);
+			xhr.open('GET', 'htts://'+that.selectedMachine+':8080/?action=snapshot&dummy='+Math.random(), true);
 			xhr.send(null);
 		}, 5000, that);
 
@@ -858,7 +858,7 @@ value: ((this.exposure.max - this.exposure.min) - this.exposure.value)
 					if (!this.axios) {
 						//let protocol = location.protocol;
 						this.axios = await axios.create({
-							baseURL:`http://`+this.selectedMachine+`/`,
+							baseURL:`https://`+this.selectedMachine+`/`,
 							//cancelToken: BaseConnector.getCancelSource().token,
 							timeout: 8000,	// default session timeout in RepRapFirmware
 							withCredentials: true,
@@ -866,7 +866,7 @@ value: ((this.exposure.max - this.exposure.min) - this.exposure.value)
 					}
 
 					await this.focus.auto.forEach((item) => {
-						this.axios.get('/pc_webcam', {
+						this.axios.get('/api/duet/action/pc_webcam', {
 							withCredentials: true,
 							params: {
 								action: "command",
@@ -879,7 +879,7 @@ value: ((this.exposure.max - this.exposure.min) - this.exposure.value)
 						})
 					});
 
-					this.axios.get('pc_webcam', {
+					this.axios.get('api/duet/action/pc_webcam', {
 						withCredentials: true,
 						params: {
 							action: "command",
@@ -900,13 +900,13 @@ value: ((this.exposure.max - this.exposure.min) - this.exposure.value)
 				if (this.webcam.devs[this.webcam.active] && document.getElementById('scaleableDiv') && document.getElementById('webcam')){
 					if (!this.axios){
 						this.axios = await axios.create({
-							baseURL:`http://`+this.selectedMachine+`/`,
+							baseURL:`https://`+this.selectedMachine+`/`,
 							//cancelToken: BaseConnector.getCancelSource().token,
 							timeout: 8000,	// default session timeout in RepRapFirmware
 							withCredentials: true,
 						});
 					}
-					this.axios.get('/pc_webcam', {
+					this.axios.get('/api/duet/action/pc_webcam', {
 						withCredentials: true,
 						params: {
 							dev: this.webcam.devs[this.webcam.active],
@@ -928,7 +928,7 @@ value: ((this.exposure.max - this.exposure.min) - this.exposure.value)
 				let event = document.getElementById('scaleableDiv')
 				if (!this.axios){
 					this.axios = await axios.create({
-						baseURL:`http://`+this.selectedMachine+`/`,
+						baseURL:`https://`+this.selectedMachine+`/`,
 						//cancelToken: BaseConnector.getCancelSource().token,
 						timeout: 8000,	// default session timeout in RepRapFirmware
 						withCredentials: true,

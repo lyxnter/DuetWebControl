@@ -460,6 +460,14 @@ export default {
 			run: 'Lancer gcode',
 			root: 'Source'
 		},
+		history: {
+			id: 'id',
+			date: 'Date',
+			result: 'Resultat',
+			reasons: 'Commentaire',
+			timelapse: 'Timelapse',
+			logs: 'Logs',
+		},
 		jobs: {
 			height: 'Hauteur objet',
 			layerHeight: 'Hauteur de couche',
@@ -470,7 +478,8 @@ export default {
 
 			noJobs: 'Aucun gcode',
 			start: 'Lancer fichier',
-			simulate: 'Simuler fichier'
+			simulate: 'Simuler fichier',
+			history: 'Voir l\'historique'
 		},
 		sys: {
 			noFiles: 'Aucun fichier système',

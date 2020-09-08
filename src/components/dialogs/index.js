@@ -3,6 +3,7 @@
 import Vue from 'vue'
 
 import ConfirmDialog from './ConfirmDialog.vue'
+import HistoryDialog from './HistoryDialog.vue'
 import ConnectDialog from './ConnectDialog.vue'
 import ConnectionDialog from './ConnectionDialog.vue'
 import FilamentDialog from './FilamentDialog.vue'
@@ -18,6 +19,7 @@ import TempEditDialog from './TempEditDialog.vue'
 import ToolDialog from './ToolDialog.vue'
 
 Vue.component('confirm-dialog', ConfirmDialog)
+Vue.component('history-dialog', HistoryDialog)
 Vue.component('connect-dialog', ConnectDialog)
 Vue.component('connection-dialog', ConnectionDialog)
 Vue.component('filament-dialog', FilamentDialog)
@@ -34,6 +36,7 @@ Vue.component('tool-load-dialog', ToolDialog)
 
 export default {
 	ConfirmDialog,
+	HistoryDialog,
 	ConnectDialog,
 	ConnectionDialog,
 	FilamentDialog,

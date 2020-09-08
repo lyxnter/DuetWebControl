@@ -283,7 +283,7 @@ export default {
 	},
 	methods: {
 		...mapActions(['connect','shutdown','setToolLoading','loadAddresses']),
-		...mapActions('machine', ['sendCode', 'getFileList', 'download']),
+		...mapActions('machine', ['sendCode', 'getFileList', 'download', 'getConfigTools']),
 		enableTool: function() {
 			this.showToolDialog = true;
 		},
@@ -297,15 +297,12 @@ export default {
 			this.loading = true;
 			try {
 				this.tools = [];
-				await this.download({filename: Path.sys + "/selectedTools.json", showSuccess: false, showProgress: false}).then((result) => {
-					//const json = JSON.parse(result)
-					this.tools = result
-					if (this.tools.length > 0) {
-						this.calibrationTool = this.tools.filter(tool => tool.tech == "CAL")[0].tools[0];
-						//console.log(this.calibrationTool)
-					}
-					//this.$forceUpdate();
-				})
+				this.tools = await this.getConfigTools({ showSuccess: false, showProgress: false});
+
+				if (this.tools.length > 0) {
+					this.calibrationTool = this.tools.filter(tool => tool.tech == "CAL")[0].tools[0];
+					console.log(this.calibrationTool)
+				}
 				//clearTimeout(this.timeout);
 				this.timeout = setTimeout(() => {this.waited = true}, 1000);
 			} catch (e) {
@@ -439,14 +436,14 @@ export default {
 			if (!that.axios) {
 				//let protocol = location.protocol;
 				that.axios = await axios.create({
-					baseURL:`http://`+that.selectedMachine+`/`,
+					baseURL:`https://192.168.1.243:8000/`,
 					//cancelToken: BaseConnector.getCancelSource().token,
 					timeout: 8000,	// default session timeout in RepRapFirmware
 					withCredentials: true,
 				});
 			}
 
-			let result = await that.axios.get('/pc_configmachine', {
+			let result = await that.axios.get('api/duet/action/pc_configmachine', {
 				withCredentials: true,
 			});
 
@@ -482,14 +479,14 @@ export default {
 				if (!this.axios) {
 					//let protocol = location.protocol;
 					this.axios = await axios.create({
-						baseURL:`http://`+this.selectedMachine+`/`,
+						baseURL:`https://192.168.1.243:8000/`,
 						//cancelToken: BaseConnector.getCancelSource().token,
 						timeout: 8000,	// default session timeout in RepRapFirmware
 						withCredentials: true,
 					});
 				}
 
-				this.axios.get('/pc_configmachine', {
+				this.axios.get('api/duet/action/pc_configmachine', {
 					withCredentials: true,
 					params: {
 						params: JSON.stringify(this.lastConfig)

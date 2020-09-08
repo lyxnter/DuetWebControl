@@ -53,6 +53,9 @@
 		<v-list-tile v-show="isFile && !state.isPrinting" @click="simulate">
 			<v-icon class="mr-1">fast_forward</v-icon> {{ $t('list.jobs.simulate') }}
 		</v-list-tile>
+		<v-list-tile  v-show="isFile && !state.isPrinting " @click="history">
+			<v-icon class="mr-1">history</v-icon> {{ $t('list.jobs.history') }}
+		</v-list-tile>
 	</template>
 </base-file-list>
 
@@ -69,6 +72,8 @@
 
 <new-directory-dialog :shown.sync="showNewDirectory" :directory="directory"></new-directory-dialog>
 <confirm-dialog :shown.sync="startJobDialog.shown" :question="startJobDialog.question" :prompt="startJobDialog.prompt" @confirmed="start(startJobDialog.item)" :item="startJobDialog.item"></confirm-dialog>
+<history-dialog :shown.sync="historyDialog.shown" :title="historyDialog.title" :prompt="historyDialog.prompt" :item="historyDialog.item" :list="historyDialog.list"></history-dialog>
+
 </div>
 </template>
 
@@ -153,6 +158,12 @@ export default {
 					value: 'generatedBy'
 				}
 			],
+			historyDialog: {
+				title: '',
+				prompt: '',
+				item: undefined,
+				shown: false
+			},
 			loadingValue: false,
 			fileinfoDirectory: undefined,
 			fileinfoProgress: -1,
@@ -168,7 +179,7 @@ export default {
 		}
 	},
 	methods: {
-		...mapActions('machine', ['sendCode', 'getFileInfo']),
+		...mapActions('machine', ['sendCode', 'getFileInfo', 'getFileHistory']),
 		...mapMutations('machine/cache', ['clearFileInfo', 'setFileInfo']),
 		async selectStorage(index) {
 			const storage = this.storages[index];
@@ -222,6 +233,8 @@ export default {
 							}
 
 							// Set file info
+							
+							id= file.id;
 							height = fileInfo.height;
 							layerHeight = fileInfo.layerHeight;
 							filament = fileInfo.filament;
@@ -245,6 +258,8 @@ export default {
 					file.layerHeight = layerHeight;
 					file.filament = filament;
 					file.generatedBy = generatedBy;
+				
+					file.id = id;
 					file.printTime = printTime;
 					file.simulatedTime = simulatedTime;
 					file.dir = directory;
@@ -254,7 +269,7 @@ export default {
 						//file.name =  dir;
 						while(dir.includes(" "))
 						dir = dir.replace(/ /g, "_");
-						file.ico = "http://" + this.selectedMachine + "/img/GCodePreview/"+directory.substring(10).replace(/ /g, "_") + "/" + dir + "/" + dir + "_ico.jpg";//fileIco;
+						file.ico = "https://" + this.selectedMachine + "/img/GCodePreview/"+directory.substring(10).replace(/ /g, "_") + "/" + dir + "/" + dir + "_ico.jpg";//fileIco;
 					} else {
 						file.dir += '/'+file.name
 						//console.log(file.dir);
@@ -297,6 +312,18 @@ export default {
 		},
 		simulate(item) {
 			this.sendCode(`M37 P"${Path.combine(this.directory, (item && item.name) ? item.name : this.selection[0].name)}"`);
+		},
+		history(item) {
+			console.log(this.selection[0]);
+			if (this.selection[0].id) {
+					this.historyDialog.title = this.selection[0].name;
+					this.historyDialog.prompt = i18n.t('dialog.delete.prompt');
+					this.historyDialog.item = this.selection[0];
+					this.historyDialog.shown = true;
+
+			} else {
+				console.error("no id");
+			}
 		},
 		filterSearch(e) {
 			this.filteredList = e

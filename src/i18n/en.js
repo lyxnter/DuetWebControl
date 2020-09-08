@@ -474,6 +474,14 @@ export default {
 			run: 'Run Gcode',
 			root: 'Root'
 		},
+		history: {
+			id: 'id',
+			date: 'Date',
+			result: 'Result',
+			reasons: 'Reasons',
+			timelapse: 'Timelapse',
+			logs: 'Logs',
+		},
 		jobs: {
 			height: 'Object Height',
 			layerHeight: 'Layer Height',
@@ -484,7 +492,8 @@ export default {
 
 			noJobs: 'No Jobs',
 			start: 'Start File',
-			simulate: 'Simulate File'
+			simulate: 'Simulate File',
+			history: 'File history'
 		},
 		sys: {
 			noFiles: 'No System Files',

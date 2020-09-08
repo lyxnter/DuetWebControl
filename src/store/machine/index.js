@@ -48,7 +48,7 @@ export default function(hostname, connector) {
 			connector: () => connector ? connector.type : null
 		},
 		actions: {
-			...mapConnectorActions(connector, ['reconnect', 'sendCode', 'upload', 'download', 'getFileInfo']),
+			...mapConnectorActions(connector, ['reconnect', 'sendCode', 'upload', 'download', 'getFileInfo', 'getFileHistory', 'getConfigTools']),
 
 			// Reconnect after a connection error
 			async reconnect({ commit }) {
@@ -187,6 +187,15 @@ export default function(hostname, connector) {
 			const fileInfo = await connector.getFileInfo(filename);
 			commit('cache/setFileInfo', { filename, fileInfo });
 			return fileInfo;
+		},
+
+
+		async getFileHistory({ state, commit },id) {
+			return connector.getFileHistory(id);
+		},
+
+		async getConfigTools({ state, commit }) {
+			return connector.getConfigTools();
 		},
 
 		// Update machine mode. Reserved for the machine connector!

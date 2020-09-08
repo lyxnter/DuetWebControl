@@ -124,7 +124,7 @@ export default {
 							//this.filteredList[fileIndex].name =  dir;
 							while(dir.includes(" "))
 							dir = dir.replace(/ /g, "_");
-							this.files[fileIndex].ico = "http://" + this.selectedMachine + "/img/GCodePreview/"+file.directory.substring(10).replace(/ /g, "_") + "/" + dir + "/" + dir + "_ico.jpg";//fileIco;
+							this.files[fileIndex].ico = "https://" + this.selectedMachine + "/img/GCodePreview/"+file.directory.substring(10).replace(/ /g, "_") + "/" + dir + "/" + dir + "_ico.jpg";//fileIco;
 						}
 					}
 				} catch (e) {

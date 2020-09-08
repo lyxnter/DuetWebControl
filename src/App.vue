@@ -152,7 +152,7 @@ a:hover {
 					<v-list-tile class="pa-2" v-if="isLocal" >
 						<div style="width: max-content; margin: auto" :style="isLocal?'font-size: large':''">
 							<v-btn icon onclick="window.history.back()"><v-icon>arrow_back</v-icon></v-btn>
-							<v-btn icon onclick="location.href = 'http://' + location.host"><v-icon>refresh</v-icon></v-btn>
+							<v-btn icon onclick="location.href = 'https://' + location.host"><v-icon>refresh</v-icon></v-btn>
 							<v-btn icon onclick="window.history.forward()"><v-icon>arrow_forward</v-icon></v-btn>
 						</div>
 					</v-list-tile>
@@ -441,7 +441,7 @@ export default {
 		window.addEventListener('unload', this.disconnectAll);
 
 		if(((location.port === "8080") || (location.port === "8081") || (location.port === "8082"))){
-			this.connect({hostname: "192.168.1.55"});
+			this.connect({hostname: "192.168.1.243", protocol: "https", port: "8000"});
 		} else if (!this.isLocal || (location.port === "80") || (location.port === "")) {
 			this.connect();
 		}
@@ -458,7 +458,7 @@ export default {
 					setTimeout(() => {
 						console.log(location.host)
 						if(((location.port === "8080") || (location.port === "8081") || (location.port === "8082"))){
-							that.connect({hostname: "192.168.1.55"});
+							that.connect({hostname: "192.168.1.243", protocol: "https", port: "8000"});
 						} else if (!that.isLocal || (location.port === "80") || (location.port === "")) {
 							that.connect();
 						}
@@ -472,14 +472,14 @@ export default {
 			if (!that.axios) {
 				//let protocol = location.protocol;
 				that.axios = await axios.create({
-					baseURL:`http://`+that.selectedMachine+`/`,
+					baseURL:`https://192.168.1.243:8000/`,
 					//cancelToken: BaseConnector.getCancelSource().token,
 					timeout: 8000,	// default session timeout in RepRapFirmware
 					withCredentials: true,
 				});
 			}
 
-			let result = await that.axios.get('/pc_configmachine', {
+			let result = await that.axios.get('api/duet/action/pc_configmachine', {
 				withCredentials: true,
 			});
 
@@ -580,14 +580,14 @@ export default {
 			if (!this.axios) {
 				//let protocol = location.protocol;
 				this.axios = await axios.create({
-					baseURL:`http://`+this.selectedMachine+`/`,
+					baseURL:`https://192.168.1.243:8000/`,
 					//cancelToken: BaseConnector.getCancelSource().token,
 					timeout: 8000,	// default session timeout in RepRapFirmware
 					withCredentials: true,
 				});
 			}
 
-			this.axios.get('/pc_configmachine', {
+			this.axios.get('api/duet/action/pc_configmachine', {
 				withCredentials: true,
 				params: {
 					params: JSON.stringify(this.lastConfig)
