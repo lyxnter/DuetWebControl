@@ -5,6 +5,9 @@ p {
 p:last-child {
 	margin-bottom: 0;
 }
+	.local {
+		font-size: large;
+	}
 </style>
 
 <template>
@@ -14,7 +17,7 @@ p:last-child {
 		</v-card-title>
 
 		<v-card-text class="pt-0">
-			<v-layout column class="list">
+			<v-layout :class="(isLocal?'column':'row')" class="list">
 				<v-flex tag="p">
 					<strong>{{ $t('panel.jobInfo.height') }}</strong> {{ $displayZ(jobFile.height) }}
 				</v-flex>
@@ -40,6 +43,7 @@ import { mapState } from 'vuex'
 
 export default {
 	computed: {
+		...mapState(['isLocal']),
 		...mapState('machine/model', {
 			mode: state => state.state.mode,
 			jobFile: state => state.job.file

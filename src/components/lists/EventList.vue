@@ -23,13 +23,18 @@ td.title-cell {
 	-ms-user-select: none;
 	user-select: none;
 }
+
+th:last-child {
+	padding-right: 0 !important;
+	width: 1%;
+}
 </style>
 
 <template>
 	<div class="component">
 		<v-data-table :headers="headers" :items="events" :pagination.sync="pagination" hide-actions class="elevation-3 no-selection" :class="{ 'empty-table-fix' : !events.length }">
 			<template slot="no-data">
-				<v-alert :value="true" type="info" class="ma-0" @contextmenu.prevent="">
+				<v-alert :value="true" type="primary" class="ma-0" @contextmenu.prevent="">
 					{{ $t('list.eventLog.noEvents') }}
 				</v-alert>
 			</template>
@@ -45,10 +50,10 @@ td.title-cell {
 
 			<template slot="items" slot-scope="{ item }">
 				<tr :class="getClassByEvent(item.type)" @touchstart="onItemTouchStart(item, $event)" @touchend="onItemTouchEnd" @contextmenu.prevent="onItemContextmenu(item, $event)" v-tab-control.contextmenu>
-					<td class="log-cell title-cell">
+					<td class="log-cell title-cell" style="width: 15%">
 						{{ item.date.toLocaleString() }}
 					</td>
-					<td class="log-cell content-cell">
+					<td class="log-cell content-cell" style="width: 75%">
 						<strong>{{ item.title }}</strong>
 						<br v-if="item.title && item.message"/>
 						<span v-if="item.message" class="message" v-html="formatMessage(item.message)"></span>
@@ -59,16 +64,16 @@ td.title-cell {
 
 		<v-menu v-model="contextMenu.shown" :position-x="contextMenu.x" :position-y="contextMenu.y" absolute offset-y v-tab-control.contextmenu>
 			<v-list>
-				<v-list-tile v-show="contextMenu.item" @click="copy" tabindex="0">
+				<v-list-tile v-show="contextMenu.item && !isLocal" @click="copy" tabindex="0">
 					<v-icon class="mr-1">assignment</v-icon> {{ $t('list.eventLog.copy') }}
 				</v-list-tile>
 				<v-list-tile @click="clearLog" tabindex="0">
 					<v-icon class="mr-1">clear_all</v-icon> {{ $t('list.eventLog.clear') }}
 				</v-list-tile>
-				<v-list-tile :disabled="!events.length" @click="downloadText" tabindex="0">
+				<v-list-tile :disabled="!events.length" v-show="!isLocal" @click="downloadText" tabindex="0">
 					<v-icon class="mr-1">font_download</v-icon> {{ $t('list.eventLog.downloadText') }}
 				</v-list-tile>
-				<v-list-tile :disabled="!events.length" @click="downloadCSV" tabindex="0">
+				<v-list-tile :disabled="!events.length" v-show="!isLocal" @click="downloadCSV" tabindex="0">
 					<v-icon class="mr-1">cloud_download</v-icon> {{ $t('list.eventLog.downloadCSV') }}
 				</v-list-tile>
 			</v-list>
@@ -88,7 +93,8 @@ export default {
 	computed: {
 		...mapState('machine', ['events']),
 		...mapState('machine/cache', ['sorting']),
-		...mapState('settings', ['darkTheme'])
+		...mapState('settings', ['darkTheme']),
+		...mapState(['isLocal']),
 	},
 	data() {
 		return {
@@ -193,11 +199,11 @@ export default {
 			saveAs(file);
 		},
 		downloadCSV() {
-			var csvContent = '"date","time","title","message"\r\n';
+			var csvContent = '"date";"time";"title";"message"\r\n';
 			this.events.forEach(function(e) {
 				const title = e.title.replace(/"/g, '""').replace(/\n/g, '\r\n');
 				const message = e.message ? e.message.replace(/"/g, '""').replace(/\n/g, '\r\n') : '';
-				csvContent += `"${e.date.toLocaleDateString()}","${e.date.toLocaleTimeString()}","${title}","${message}"\r\n`;
+				csvContent += `"${e.date.toLocaleDateString()}";"${e.date.toLocaleTimeString()}";"${title}";"${message}"\r\n`;
 			});
 
 			const file = new File([csvContent], "console.csv", {type: "text/csv;charset=utf-8"});

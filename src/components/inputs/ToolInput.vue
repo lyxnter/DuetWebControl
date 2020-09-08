@@ -1,11 +1,17 @@
+<style scoped>
+.tool-input {
+	min-width: 5rem;
+}
+</style>
+
 <template>
-	<v-combobox v-if="!isLocal" ref="input" type="number" min="-273" max="1999" step="any" v-model.number="value" :items="items" @keydown.native="onkeydown" @keyup.enter="apply" @change="onchange" @blur="onblur" :label="label" :loading="applying" :disabled="uiFrozen" :menu-props="$vuetify.breakpoint.xsOnly ? { maxHeight: 125 } : undefined">
+	<v-combobox v-if="!isLocal" ref="input" type="number" min="-273" max="1999" step="any" v-model.number="value" :items="items" @keydown.native="onkeydown" @keyup.enter="apply" @change="onchange" @blur="onblur" :label="label" :loading="applying" :disabled="uiFrozen || (['tuning', 'changingTool'].indexOf(state.status) !== -1)" class="tool-input" :menu-props="$vuetify.breakpoint.xsOnly ? { maxHeight: 125 } : undefined">
 	</v-combobox>
 	<div v-else class="control number">
-		<number-control v-model.number="value" ref="input" :min="0" :max="1999" :step="5" @keydown.native="onkeydown" @keyup.enter="apply" @change="onnumchange" @blur="onblur" :title="title" :loading="applying" :disabled="uiFrozen" v-if="shown">
+		<number-control v-model.number="value" ref="input" :min="0" :max="1999" :step="1" @keydown.native="onkeydown" @keyup.enter="apply" @change="onnumchange" @blur="onblur" :title="title" :prompt="$t('dialog.temperature.title')" :loading="applying" :disabled="uiFrozen || (['tuning', 'changingTool'].indexOf(state.status) !== -1)" :precision="precision" v-if="shown">
 		</number-control>
 		<span v-else>
-		 {{ value +" C" }}
+			{{ (tool ? (active?tool.active[heaterIndex]:tool.standby[heaterIndex]) : (bed? (active?bed.active[heaterIndex]:bed.standby[heaterIndex]): chamber.active[heaterIndex])) + " C"}}
 		</span>
 	</div>
 </template>
@@ -19,7 +25,7 @@ export default {
 	computed: {
 		...mapState({isLocal: state => state.isLocal}),
 		...mapGetters(['uiFrozen']),
-		...mapState('machine/model', ['heat', 'tools']),
+		...mapState('machine/model', ['heat', 'tools', 'state']),
 		...mapState('machine/settings', ['spindleRPM', 'temperatures']),
 		items() {
 			const key = this.active ? 'active' : 'standby';
@@ -41,7 +47,10 @@ export default {
 		},
 		title()
 		{
-			return this.tool ? "Select T" + this.tool.number + " " + (this.active ? "Active": "Standby" ) + " temperature" : undefined
+			return this.$t('dialog.temperature.prompt', [
+				this.tool ? 'T' + this.tool.number :
+					(this.bed ? this.$t('panel.tools.bed', ['']) : this.$t('panel.tools.chamber', [''])),
+					(this.active ? this.$t('panel.tools.active'): this.$t('panel.tools.standby'))])
 		},
 	},
 	data() {
@@ -72,13 +81,14 @@ export default {
 			type: Boolean,
 			required: true
 		},
+		precision:Number
 	},
 	methods: {
 		...mapActions('machine', ['sendCode']),
 		async apply() {
 			this.$refs.input.isMenuActive = false;			// FIXME There must be a better solution than this
 			if (this.$refs.input.currentValue)
-				this.value = this.$refs.input.currentValue;
+				this.value = parseFloat(this.$refs.input.currentValue);
 			if (!this.applying && this.isNumber(this.value)) {
 				this.applying = true;
 				try {
@@ -154,8 +164,10 @@ export default {
 		onnumchange(value) {
 			// Note that value is of type String when a user enters a value and then leaves it without confirming...
 			if (value.constructor === Number) {
-				console.log(value)
 				this.value = value;
+				this.apply();
+			} else if((value.constructor === String && !isNaN(value) && value.length > 0)) {
+				this.value = parseFloat(value);
 				this.apply();
 			}
 		},

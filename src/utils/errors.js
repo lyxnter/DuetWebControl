@@ -63,8 +63,10 @@ export class DirectoryNotFoundError extends NetworkError {
 }
 
 // Login Errors
-
 export class LoginError extends Error {}
+
+// Addresses Errors
+export class LoadAddressesError extends Error {}
 
 export class InvalidPasswordError extends LoginError {
 	constructor() {

@@ -26,11 +26,16 @@
 <script>
 'use strict'
 
-import { mapState, mapMutations } from 'vuex'
+import { mapState, mapGetters, mapMutations } from 'vuex'
 
 export default {
 	computed: {
 		...mapState('machine', ['settings']),
+		...mapGetters('machine', ['connector']),
+		pingInterval: {
+			get() { return this.settings.pingInterval; },
+			set(value) { if (this.isNumber(value) && value >= 0) { this.update({ pingInterval: value }); } }
+		},
 		ajaxRetries: {
 			get() { return this.settings.ajaxRetries; },
 			set(value) { if (this.isNumber(value) && value >= 0) { this.update({ ajaxRetries: value }); } }
@@ -46,6 +51,10 @@ export default {
 		fileTransferRetryThreshold: {
 			get() { return Math.round(this.settings.fileTransferRetryThreshold / 1024); },
 			set(value) { if (this.isNumber(value) && value > 0) { this.update({ fileTransferRetryThreshold: Math.round(value * 1024) }); } }
+		},
+		crcUploads: {
+			get() { return this.settings.crcUploads; },
+			set(value) { this.update({ crcUploads: value }); }
 		}
 	},
 	methods: mapMutations('machine/settings', ['update'])

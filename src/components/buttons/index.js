@@ -9,6 +9,7 @@ import LoginBtn from './LoginBtn.vue'
 import LoadToolBtn from './LoadToolBtn.vue'
 import SDCardBtn from './SDCardBtn.vue'
 import UploadBtn from './UploadBtn.vue'
+import UploadZipBtn from './UploadZipBtn.vue'
 
 Vue.component('code-btn', CodeBtn)
 Vue.component('connect-btn', ConnectBtn)
@@ -17,6 +18,7 @@ Vue.component('login-btn', LoginBtn)
 Vue.component('loadtool-btn', LoadToolBtn)
 Vue.component('sd-card-btn', SDCardBtn)
 Vue.component('upload-btn', UploadBtn)
+Vue.component('upload-zip-btn', UploadZipBtn)
 
 export default {
 	CodeBtn,
@@ -25,5 +27,6 @@ export default {
 	LoginBtn,
 	LoadToolBtn,
 	SDCardBtn,
-	UploadBtn
+	UploadBtn,
+	UploadZipBtn
 }

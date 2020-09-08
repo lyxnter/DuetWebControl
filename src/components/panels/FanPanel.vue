@@ -12,30 +12,30 @@
 </style>
 
 <template>
-	<v-card>
+	<v-card v-show="canControlFans">
 		<v-card-title class="pb-0" v-bind:class="{local: isLocal}">
 			<v-icon small class="mr-1">ac_unit</v-icon> {{ $t('panel.fan.caption') }}
 		</v-card-title>
 
-		<v-layout row wrap align-start class="px-3 py-1">
-			<v-flex order-sm2 order-md1 class="ma-1">
+		<v-layout :class="isLocal?'column':'row'" wrap align-start class="px-3 py-1">
+			<v-flex order-sm2 order-md1 class="ma-1" :style="{width:(isLocal?'100%':'')}">
 				<p class="mb-1" v-bind:class="{local: isLocal}">
 					{{ $t('panel.fan.selection') }}
 				</p>
 				<v-btn-toggle v-model="fan" mandatory>
-					<v-btn flat :value="-1" :disabled="!canControlFans" color="HERE" v-bind:class="{local: isLocal}">
+					<!--v-btn flat :value="-1" :disabled="!canControlFans" color="HERE" v-bind:class="{local: isLocal}">
 						{{ $t('panel.fan.toolFan') }}
-					</v-btn>
+					</v-btn-->
 					<template v-for="(fan, index) in fans">
-						<v-btn flat v-if="!fan.thermostatic.control" :key="index" :value="index" :disabled="uiFrozen" color="primary" v-bind:class="{local: isLocal}">
+						<v-btn flat v-if="!fan.thermostatic.control && index != 1" :key="index" :value="index" :disabled="uiFrozen" v-bind:class="{local: isLocal}">
 							{{ fan.name ? fan.name : $t('panel.fan.fan', [index]) }}
 						</v-btn>
 					</template>
 				</v-btn-toggle>
 			</v-flex>
 
-			<v-flex order-sm1 order-md2 class="ma-1">
-				<slider v-model="fanValue" :disabled="!canControlFans"></slider>
+			<v-flex order-sm1 order-md2 class="ma-1" :style="{width:(isLocal?'100%':'')}">
+				<slider v-model="fanValue" :disabled="!canControlFans" :fan="fan" thumb-label="always"></slider>
 			</v-flex>
 		</v-layout>
 	</v-card>
@@ -48,13 +48,15 @@ import { mapState, mapGetters, mapActions } from 'vuex'
 
 export default {
 	computed: {
+		...mapState('machine/model', ['fans', 'tools']),
 		...mapGetters(['uiFrozen']),
-		...mapState('machine/model', ['fans']),
 		...mapGetters('machine/model', ['currentTool']),
 		...mapState({
 			isLocal: state => state.isLocal,
 		}),
-		canControlFans() { return !this.uiFrozen && this.fans.length; },
+		canControlFans() {
+			return !this.uiFrozen && ((this.currentTool && this.currentTool.fans.length > 0) || (this.fans.some(fan => fan && !fan.thermostatic.control)));
+		},
 		fanValue: {
 			get() {
 				if (this.canControlFans) {
@@ -67,7 +69,9 @@ export default {
 						}
 						return Math.round(this.fans[toolFan].value * 100);
 					}
-					return Math.round(this.fans[this.fan].value * 100);
+					if (this.fan < this.fans.length && this.fans[this.fan]) {
+						return Math.round(this.fans[this.fan].value * 100);
+					}
 				}
 				return 0;
 			},
@@ -83,9 +87,25 @@ export default {
 	},
 	data() {
 		return {
-			fan: -1
+			fan: 0
 		}
 	},
-	methods: mapActions('machine', ['sendCode'])
+	methods: {
+		...mapActions('machine', ['sendCode']),
+		updateFanSelection() {
+			if ((this.fan === -1 && !this.currentTool) ||
+				(this.fan !== -1 && (this.fans.length < this.fan || this.fans[this.fan].thermostatic.control))) {
+				this.fan = this.fans.findIndex(fan => fan && !fan.thermostatic.control);
+			}
+		}
+	},
+	watch: {
+		currentTool() {
+			this.updateFanSelection();
+		},
+		fans() {
+			this.updateFanSelection();
+		}
+	}
 }
 </script>

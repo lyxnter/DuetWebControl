@@ -13,6 +13,7 @@ export default {
 		lastHostname: location.host,
 		darkTheme: true,
 		useBinaryPrefix: true,
+		disableAutoComplete: false,
 		settingsStorageLocal: false,
 		settingsSaveDelay: 2000,						// ms - how long to wait before settings updates are saved
 		cacheStorageLocal: localStorageSupported,
@@ -27,7 +28,21 @@ export default {
 			useFix: false,								// do not append extra HTTP qualifier when reloading images
 			embedded: false,							// use iframe to embed webcam stream
 			rotation: 0,
-			flip: 'none'
+			flip: 'none',
+			resolution: '360x240',
+			framerate: 30,
+		},
+		timelapse: {
+			url: '',
+			onInterval: false,
+			updateInterval: 5,
+			onLayer: false,
+			resolution: '360x240',
+			framerate: {
+				min: 5,
+				max: 60
+			},
+			targetDuration: 5,
 		}
 	},
 	mutations: {

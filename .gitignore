@@ -1,6 +1,10 @@
 .DS_Store
 node_modules
 /dist
+/html
+/public/pc
+/public/rr
+/public/.*
 
 # local env files
 .env.local
@@ -23,7 +27,5 @@ yarn-error.log*
 # Backup files
 *.bak
 
-webserver backup
-html/*
-public/cs*
-public/font*
+#webserver backup
+html/

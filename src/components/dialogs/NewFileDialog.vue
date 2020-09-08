@@ -1,6 +1,7 @@
 <template>
 	<div>
-		<input-dialog :shown.sync="showFilenameDialog" :title="$t('dialog.newFile.title')" :prompt="$t('dialog.newFile.prompt')" @cancelled="cancelled" @confirmed="showEditor"></input-dialog>
+		<input-dialog :shown.sync="showFilenameDialog" :title="$t('dialog.newFile.title')" :prompt="$t('dialog.newFile.prompt')"
+		:files="files" @cancelled="cancelled" @confirmed="showEditor"></input-dialog>
 		<file-edit-dialog :shown.sync="showEditorDialog" :filename="filename"></file-edit-dialog>
 	</div>
 </template>
@@ -30,11 +31,12 @@ export default {
 
 			filename: '',
 			content: '',
-			showEditorDialog: false
+			showEditorDialog: false,
+			files: []
 		}
 	},
 	methods: {
-		...mapActions('machine', ['upload']),
+		...mapActions('machine', ['upload', 'getFileList']),
 		cancelled() {
 			this.$emit('update:shown', false);
 		},
@@ -42,6 +44,10 @@ export default {
 			this.filename = Path.combine(this.directory, filename);
 			this.content = '';
 			this.showEditorDialog = true;
+		},
+		async loadDirectory(directory) {
+			this.files = await this.getFileList(directory);
+			console.log(this.files)
 		}
 	},
 	watch: {
@@ -60,6 +66,7 @@ export default {
 		shown(to) {
 			if (to) {
 				this.showFilenameDialog = true;
+				this.loadDirectory(this.directory)
 			} else {
 				this.showFilenameDialog = false;
 				this.showEditorDialog = false;

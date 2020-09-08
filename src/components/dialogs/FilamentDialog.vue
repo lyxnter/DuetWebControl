@@ -18,7 +18,7 @@
 
 			<v-card-actions>
 				<v-spacer></v-spacer>
-				<v-btn color="blue darken-1" flat @click="hide">{{ $t('generic.cancel') }}</v-btn>
+				<v-btn color="primary darken-1" flat @click="hide">{{ $t('generic.cancel') }}</v-btn>
 				<v-spacer></v-spacer>
 			</v-card-actions>
 		</v-card>

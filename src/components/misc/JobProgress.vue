@@ -8,7 +8,7 @@
 					<span>{{ printDetails }}</span>
 				</v-layout>
 			</v-flex>
-
+			
 			<v-flex>
 				<v-progress-linear :value="jobProgress * 100" class="my-1"></v-progress-linear>
 			</v-flex>

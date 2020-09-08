@@ -11,15 +11,15 @@
 			<v-btn class="hidden-sm-and-down" v-show="isRootDirectory" :disabled="uiFrozen" @click="showNewLiquid = true">
 				<v-icon class="mr-1">create_new_folder</v-icon> {{ $t('button.newLiquid.caption') }}
 			</v-btn>
-			<v-btn class="hidden-sm-and-down" color="info" :loading="loading" :disabled="uiFrozen" @click="refresh">
+			<v-btn class="hidden-sm-and-down" color="grey darken-3" :loading="loading" :disabled="uiFrozen" @click="refresh">
 				<v-icon class="mr-1">refresh</v-icon> {{ $t('button.refresh.caption') }}
 			</v-btn>
-			<upload-btn class="hidden-sm-and-down" target="liquids" color="primary"></upload-btn>
+			<upload-btn class="hidden-sm-and-down" target="liquids" color="primary darken-1"></upload-btn>
 		</v-toolbar>
 
 		<base-file-list ref="filelist" v-model="selection" :directory.sync="directory" :loading.sync="loading" :doingFileOperation="doingFileOperation" sort-table="liquids" @fileClicked="fileClicked" :no-delete="isRootDirectory" :no-rename="liquidSelected" no-drag-drop>
 			<template slot="no-data">
-				<v-alert :value="true" type="info" class="ma-0" @contextmenu.prevent="">
+				<v-alert :value="true" type="primary darken-1" class="ma-0" @contextmenu.prevent="">
 					{{ isRootDirectory ? $t('list.liquid.noLiquids') : $t('list.baseFileList.noFiles') }}
 				</v-alert>
 			</template>
@@ -44,10 +44,10 @@
 			<v-btn v-show="isRootDirectory" :disabled="uiFrozen" @click="showNewLiquid = true">
 				<v-icon class="mr-1">create_new_folder</v-icon> {{ $t('button.newFilament.caption') }}
 			</v-btn>
-			<v-btn color="info" :loading="loading" :disabled="uiFrozen" @click="refresh">
+			<v-btn color="primary darken-1" :loading="loading" :disabled="uiFrozen" @click="refresh">
 				<v-icon class="mr-1">refresh</v-icon> {{ $t('button.refresh.caption') }}
 			</v-btn>
-			<upload-btn target="liquids" color="primary"></upload-btn>
+			<upload-btn target="liquids" color="primary darken-1"></upload-btn>
 		</v-layout>
 
 		<new-directory-dialog :shown.sync="showNewLiquid" :directory="directory" :title="$t('dialog.newLiquid.title')" :prompt="$t('dialog.newLiquid.prompt')" :showSuccess="false" :showError="false" @directoryCreationFailed="directoryCreationFailed" @directoryCreated="createLiquidFiles"></new-directory-dialog>

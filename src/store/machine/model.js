@@ -8,6 +8,7 @@ import {
 	Drive,
 	ExtraHeater,
 	Extruder,
+	Fan,
 	FileInfo,
 	Firmware,
 	Heater,
@@ -25,12 +26,21 @@ export default function(connector) {
 			channels: {
 				main: new Channel(),
 				serial: new Channel(),
-				file: new Channel(),
 				http: new Channel(),
-				telnet: new Channel()
+				telnet: new Channel(),
+				file: new Channel(),
+				usb: new Channel(),
+				aux: new Channel(),
+				daemon: new Channel(),
+				codeQueue: new Channel(),
+				lcd: new Channel(),
+				spi: new Channel(),
+				autoPause: new Channel()
 			},
 			electronics: {
+				version: null,
 				type: defaultBoardName,
+				shortName: null,
 				name: null,
 				revision: null,
 				firmware: new Firmware(),
@@ -45,12 +55,26 @@ export default function(connector) {
 					min: null,
 					max: null
 				},
+				cpuTemp: {
+					current: null,
+					min: null,
+					max: null
+				},
 				expansionBoards: []
 			},
-			fans: [],
+			fans: [
+				new Fan({
+					thermostatic: {
+						control: false
+					},
+					value: 0
+				})
+			],
 			heat: {
 				beds: [									// may contain null items
 					new BedOrChamber({
+						active: [0],
+						standby: [0],
 						heaters: [0]
 					})
 				],
@@ -73,6 +97,8 @@ export default function(connector) {
 				filePosition: null,
 
 				lastFileName: null,
+				lastFileAborted: false,
+				lastFileCancelled: false,
 				lastFileSimulated: false,
 
 				extrudedRaw: [],						// virtual amount extruded without any modifiers like mixing or extrusion factors
@@ -89,12 +115,14 @@ export default function(connector) {
 					layer: null
 				}
 			},
+			lasers: [],
 			messageBox: {
 				mode: null,
 				title: null,
 				message: null,
-				timeout: null,
-				axisControls: []						// provides axis indices
+				axisControls: [],						// provides axis indices
+				seq: -1,
+				timeout: null							// deprecated - will be dropped in a future version
 			},
 			move: {
 				axes: [
@@ -117,12 +145,12 @@ export default function(connector) {
 						visible: true
 					})
 				],
-				babystepZ: null,
+				babystepZ: 0.0,
 				currentMove: {
-					requestedSpeed: null,
-					topSpeed: null
+					requestedSpeed: 0.0,
+					topSpeed: 0.0
 				},
-				compensation: null,
+				compensation: "None",
 				drives: [
 					new Drive(),
 					new Drive(),
@@ -135,23 +163,33 @@ export default function(connector) {
 					new Extruder()
 				],
 				geometry: {
-					type: null
-					// TODO Expand this for delta/corexy/corexz
+					type: 'cartesian',
+					anchors: [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+					printRadius: 0.0,
+					diagonals: [0.0, 0.0, 0.0],
+					radius: 0.0,
+					homedHeight: 0.0,
+					angleCorrections: [0.0, 0.0, 0.0],
+					endstopAdjustments: [0.0, 0.0, 0.0],
+					tilt: [0.0, 0.0]
 				},
 				idle: {
-					timeout: null,
-					factor: null
+					timeout: 30.0,
+					factor: 0.3
 				},
-				speedFactor: 1.0
+				speedFactor: 1.0,
+				currentWorkplace: 0,
+				workplaceCoordinates: []
 			},
 			network: {
+				hostname: connector ? connector.hostname : 'duet',
 				name: connector ? `(${connector.hostname})` : 'Duet Web Control 2',
-				password: null,
+				password: 'reprap',
 				interfaces: []
 			},
 			scanner: {
-				progress: null,
-				status: null
+				progress: 0.0,
+				status: 'D'
 			},
 			sensors: {
 				endstops: [],
@@ -166,10 +204,17 @@ export default function(connector) {
 				isSimulating: false,					// auto-evaluated on update
 
 				atxPower: null,
-				currentTool: null,
-				mode: null,								// one of ['FFF', 'CNC', 'Laser', null]
-				status: null							// one of the following:
+				beep: {
+					frequency: 0,
+					duration: 0
+				},
+				currentTool: -1,
+				displayMessage: null,
+				logFile: null,
+				mode: null,								// one of ['FFF', 'CNC', 'Laser', null (exclusive in DWC)]
+				status: null,							// one of the following:
 				// ['updating', 'off', 'halted', 'pausing', 'paused', 'resuming', 'processing', 'simulating', 'busy', 'changingTool', 'idle', null]
+				heightmap: null,
 			},
 			storages: [],
 			tools: [
@@ -187,18 +232,20 @@ export default function(connector) {
 					heaters: [2],
 					extruders: [1]
 				})
-			]
+			],
+			userVariables: []
 		},
 		getters: {
 			board: state => getBoardDefinition(state.electronics.type),
 			currentTool(state) {
 				if (state.state.currentTool >= 0) {
-					return state.tools[state.state.currentTool];
+					return state.tools.filter(tool => tool.number == state.state.currentTool)[0];
 				}
 				return null;
 			},
 			fractionPrinted: state => (state.job.filePosition && state.job.file.size) ? state.job.filePosition / state.job.file.size : 0,
 			isPrinting: state => ['pausing', 'paused', 'resuming', 'processing', 'simulating'].indexOf(state.state.status) !== -1,
+			isSimulating: state => state.state.status === 'simulating',
 			isPaused: state => ['pausing', 'paused', 'resuming'].indexOf(state.state.status) !== -1,
 			maxHeaterTemperature(state) {
 				let maxTemp

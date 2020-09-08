@@ -14,12 +14,16 @@
 .content > canvas {
 	position: absolute;
 }
+
+.local {
+	font-size: large;
+}
 </style>
 
 <template>
 	<v-card class="card">
 		<v-card-title>
-			<span>
+			<span :class="{local: isLocal}">
 				<v-icon small class="mr-1">timeline</v-icon> {{ $t('chart.layer.caption') }}
 			</span>
 			<v-spacer></v-spacer>
@@ -44,13 +48,14 @@ import { mapState } from 'vuex'
 import { display, displayZ, displayTime } from '../../plugins/display.js'
 
 let layers;
-var maxLayerTime = 30;
-var maxLastLayerTime = 30;
+var maxLayerTime = 3;
+var maxLastLayerTime = 3;
 
 export default {
 	computed: {
 		...mapState('machine/model', ['job']),
-		...mapState('settings', ['darkTheme', 'language'])
+		...mapState('settings', ['darkTheme', 'language']),
+		...mapState(['isLocal']),
 	},
 	data() {
 		return {
@@ -59,6 +64,9 @@ export default {
 		}
 	},
 	methods: {
+		logN: function(base, value) {
+			return Math.log(value) / Math.log(base);
+		},
 		updateChart() {
 			layers = this.job.layers;
 			this.chart.data.labels = layers.map((dummy, index) => index + 1);
@@ -66,7 +74,7 @@ export default {
 			if (layers.length > 2) {
 				layers.forEach((layer) => {
 					if (layer.duration > maxLayerTime)
-						maxLayerTime = layer.duration;
+					maxLayerTime = layer.duration;
 				});
 				maxLastLayerTime = 0;
 				for(var i = Math.max(0, layers.length-30); i < layers.length; i++) {
@@ -78,23 +86,23 @@ export default {
 				maxLayerTime = 0;
 				layers.forEach((layer) => {
 					if (layer.duration > maxLayerTime)
-						maxLayerTime = layer.duration;
+					maxLayerTime = layer.duration;
 				});
 			}
-			console.log(maxLayerTime + "s");
-			console.log(maxLastLayerTime + "s");
+			//console.log(maxLayerTime + "s");
+			//console.log(maxLastLayerTime + "s");
 			if (this.showAllLayers) {
 				this.chart.config.options.scales.xAxes[0].ticks.min = 1;
 				this.chart.config.options.scales.xAxes[0].ticks.max = layers.length;
 				this.chart.config.options.scales.xAxes[0].ticks.stepSize = 5;
-				this.chart.config.options.scales.yAxes[0].ticks.max = (maxLayerTime > 30? (Math.ceil(maxLayerTime/60)*60) : 30);
-				this.chart.config.options.scales.yAxes[0].ticks.stepSize = (maxLayerTime <= 60? 10 : (maxLayerTime <= 600? 60 : (maxLayerTime <= 1200 ? 120 : 300)));
+				this.chart.config.options.scales.yAxes[0].ticks.max = (60*Math.ceil(maxLayerTime / Math.pow(60,Math.floor(this.logN(60, maxLayerTime)))));
+				this.chart.config.options.scales.yAxes[0].ticks.stepSize = (10*Math.ceil(maxLastLayerTime / Math.pow(60,Math.floor(this.logN(60, maxLastLayerTime)))));
 			} else {
 				this.chart.config.options.scales.xAxes[0].ticks.min = Math.max((layers.length > 2) ? 2 : 1, layers.length - 30);
 				this.chart.config.options.scales.xAxes[0].ticks.max = Math.max(30, layers.length);
 				this.chart.config.options.scales.xAxes[0].ticks.stepSize = 1;
-				this.chart.config.options.scales.yAxes[0].ticks.max = (maxLastLayerTime > 30? (Math.ceil(maxLastLayerTime/60)*60) : 30);
-				this.chart.config.options.scales.yAxes[0].ticks.stepSize = (maxLastLayerTime <= 60 ? 10 : (maxLastLayerTime <= 600? 60 : (maxLastLayerTime <= 1200 ? 120 : 300)));
+				this.chart.config.options.scales.yAxes[0].ticks.max = (60*Math.ceil(maxLastLayerTime / Math.pow(60,Math.floor(this.logN(60, maxLastLayerTime)))));
+				this.chart.config.options.scales.yAxes[0].ticks.stepSize = (10*Math.ceil(maxLastLayerTime / Math.pow(60,Math.floor(this.logN(60, maxLastLayerTime)))));
 			}
 			this.chart.update();
 		},
@@ -196,8 +204,8 @@ export default {
 			options: this.options,
 			data: {
 				datasets: [{
-					borderColor: 'rgba(0, 129, 214, 0.8)',
-					backgroundColor: 'rgba(0, 129, 214, 0.8)',
+					borderColor: 'rgba(253, 189, 28, 0.8)', //'rgba(0, 129, 214, 0.8)',
+					backgroundColor: 'rgba(253, 189, 28, 0.8)', //'rgba(0, 129, 214, 0.8)',
 					fill: false,
 					label: this.$t('chart.layer.layerTime')
 				}]

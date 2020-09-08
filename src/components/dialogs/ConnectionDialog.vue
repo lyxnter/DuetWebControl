@@ -91,11 +91,13 @@
 </style>
 
 <template>
-	<v-dialog :value="isConnecting || isReconnecting || isDisconnecting || isLoggingIn || isLoggingOut" persistent width="480">
-		<v-card color="primary" dark style="height: 150px;">
+	<v-dialog :value="isConnecting || isReconnecting || isDisconnecting || isLoggingIn || isLoggingOut || isLoadingTool" persistent width="480">
+		<v-card style="height: 200px; background: #403E3D" dark>
+			<v-card-title class="subtitle-1">
+				{{ message }}
+			</v-card-title>
+
 			<v-card-text>
-				{{ message }}<br/>
-				<v-progress-linear indeterminate color="white" class="mb-0" v-if="false"></v-progress-linear>
 				<div style="margin: 0px auto;width: 230px;">
 					<svg width="49" height="54" id="tHead">
 						<path d="M 12 2 h 25 v 40 l -10 10 h-5 l -10 -10 v -40 Z" fill="#fdb913" stroke="#403e3d"/>
@@ -115,14 +117,14 @@ import { mapState } from 'vuex'
 
 export default {
 	computed: {
-		...mapState(['isConnecting', 'isDisconnecting', 'isLoggingIn', 'isLoggingOut']),
+		...mapState(['isConnecting', 'isDisconnecting', 'isLoggingIn', 'isLoggingOut', 'isLoadingTool', 'isUnloadingTool']),
 		...mapState('machine', ['isReconnecting']),
 		message() {
 			if (this.isConnecting) {
 				return this.$t('dialog.connection.connecting');
 			}
 			if (this.isReconnecting) {
-				return this.$t('dialog.connection.reconnecting');
+				return this.$t((this.status === 'updating') ? 'dialog.connection.updating' : 'dialog.connection.reconnecting');
 			}
 			if (this.isDisconnecting) {
 				return this.$t('dialog.connection.disconnecting');
@@ -132,8 +134,13 @@ export default {
 			}
 			if (this.isLoggingOut) {
 				return this.$t('dialog.connection.loggingout');
+			} if (this.isLoadingTool) {
+				return this.$t('dialog.connection.loadingtool');
 			}
 			return this.$t('dialog.connection.standBy');
+		},
+		shown() {
+			return this.isConnecting || this.isReconnecting || this.isDisconnecting || this.isLoggingIn || this.isLoggingOut || this.isLoadingTool || this.isUnloadingTool;
 		}
 	}
 }

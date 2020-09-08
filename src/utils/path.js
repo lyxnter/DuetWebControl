@@ -90,6 +90,7 @@ export default {
 	materials: '0:/materials',
 	filaments: '0:/materials/filaments',
 	liquids: '0:/materials/liquids',
+	pastes: '0:/materials/pastes',
 	pellets: '0:/materials/pellets',
 	fibers: '0:/materials/fibers',
 	hybrids: '0:/materials/hybrids',

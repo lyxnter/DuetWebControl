@@ -20,7 +20,7 @@
 				</v-list>
 			</v-menu>
 		</v-card-title>
-		
+
 		<v-layout v-if="!!visibleExtruders.length" column class="px-3">
 			<v-flex v-for="extruder in visibleExtruders" :key="extruder">
 				<v-flex class="pt-2">
@@ -42,7 +42,7 @@
 			</v-flex>
 		</v-layout>
 
-		<v-alert type="info" :value="!visibleExtruders.length">
+		<v-alert type="secondary" :value="!visibleExtruders.length">
 			{{ $t('panel.extrusionFactors.noExtruders') }}
 		</v-alert>
 	</v-card>

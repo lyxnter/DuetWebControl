@@ -43,6 +43,10 @@ export default function(hostname, connector) {
 			events: [],								// provides machine events in the form of { date, type, title, message }
 			isReconnecting: false
 		},
+		getters: {
+			hasTemperaturesToDisplay: state => state.model.heat.heaters.length || state.settings.displayedExtraTemperatures.length,
+			connector: () => connector ? connector.type : null
+		},
 		actions: {
 			...mapConnectorActions(connector, ['reconnect', 'sendCode', 'upload', 'download', 'getFileInfo']),
 
@@ -67,6 +71,7 @@ export default function(hostname, connector) {
 				} catch (e) {
 					if (!(e instanceof DisconnectedError) && doLog) {
 						const type = (e instanceof CodeBufferError) ? 'warning' : 'error';
+						console.log(type, code, e.message, hostname);
 						log(type, code, e.message, hostname);
 					}
 					throw e;
@@ -75,8 +80,9 @@ export default function(hostname, connector) {
 
 			// Upload a file and show progress
 			async upload(context, { filename, content, showProgress = true, showSuccess = true, showError = true, num, count }) {
+				const target = filename.split('/')[1]
 				const cancelSource = BaseConnector.getCancelSource();
-				const notification = showProgress && makeFileTransferNotification('upload', filename, cancelSource, num, count);
+				const notification = (showProgress ? makeFileTransferNotification('upload', filename, cancelSource, num, count) : null);
 				try {
 					// Check if config.g needs to be backed up
 					if (filename === Path.configFile) {
@@ -91,98 +97,118 @@ export default function(hostname, connector) {
 
 					// Perform upload
 					const startTime = new Date();
-					const response = await connector.upload({ filename, content, cancelSource, onProgress: notification && notification.onProgress });
+					const response = await connector.upload({ filename, content, cancelSource, onProgress: (notification ? notification.onProgress : (e) => {	document.getElementById("fileProgress") ? document.getElementById('fileProgress').style.width = ((e.loaded / e.total) * 100).toFixed(1) + '%' : null})
+				});
 
-					// Show success message
-					if (showSuccess && num === count) {
-						if (count) {
-							log('success', i18n.t('notification.upload.successMulti', [count]), undefined, hostname);
-						} else {
-							const secondsPassed = Math.round((new Date() - startTime) / 1000);
-							log('success', i18n.t('notification.upload.success', [Path.extractFileName(filename), displayTime(secondsPassed)]), undefined, hostname);
-						}
-					}
+				// Show success message
 
-					// Return the response
-					if (showProgress) {
-						notification.hide();
+				if (showSuccess && num === count && target != "gcodes") {
+					if (count) {
+						log('success', i18n.t('notification.upload.successMulti', [count]), undefined, hostname);
+					} else {
+						const secondsPassed = Math.round((new Date() - startTime) / 1000);
+						log('success', i18n.t('notification.upload.success', [Path.extractFileName(filename), displayTime(secondsPassed)]), undefined, hostname);
 					}
-					return response;
-				} catch (e) {
-					// Show and report error message
-					if (showProgress) {
-						notification.hide();
+				} /*else {
+					if (content.size > 2*1024*1024 && content.size <= 4*1024*1024) {
+						document.getElementById("uploadDiv").style.display = "none"
 					}
-					if (showError && !(e instanceof OperationCancelledError)) {
-						console.warn(e);
-						log('error', i18n.t('notification.upload.error', [Path.extractFileName(filename)]), e.message, hostname);
-					}
-					throw e;
+				}*/
+
+				// Return the response
+				if (showProgress) {
+					notification.hide();
 				}
-			},
-
-			// Download a file and show progress
-			// Parameter can be either the filename or an object { filename, (type, showProgress, showSuccess, showError, num, count) }
-			async download(context, payload) {
-				const filename = (payload instanceof Object) ? payload.filename : payload;
-				const type = (payload instanceof Object) ? payload.type : 'auto';
-				const showProgress = (payload instanceof Object) ? !!payload.showProgress : true;
-				const showSuccess = (payload instanceof Object) ? !!payload.showSuccess : true;
-				const showError = (payload instanceof Object) ? !!payload.showError : true;
-				const num = (payload instanceof Object) ? payload.num : undefined;
-				const count = (payload instanceof Object) ? payload.count : undefined;
-
-				const cancelSource = BaseConnector.getCancelSource();
-				const notification = showProgress && makeFileTransferNotification('download', filename, cancelSource, num, count);
-				try {
-					const startTime = new Date();
-					const response = await connector.download({ filename, type, cancelSource, onProgress: notification && notification.onProgress });
-
-					// Show success message
-					if (showSuccess && num === count) {
-						if (count) {
-							log('success', i18n.t('notification.download.successMulti', [count]), undefined, hostname);
-						} else {
-							const secondsPassed = Math.round((new Date() - startTime) / 1000);
-							log('success', i18n.t('notification.download.success', [Path.extractFileName(filename), displayTime(secondsPassed)]), undefined, hostname);
-						}
-					}
-
-					// Return the downloaded data
-					if (showProgress) {
-						notification.hide();
-					}
-					return response;
-				} catch (e) {
-					// Show and report error message
-					if (showProgress) {
-						notification.hide();
-					}
-					if (showError && !(e instanceof OperationCancelledError)) {
-						console.warn(e);
-						log('error', i18n.t('notification.download.error', [Path.extractFileName(filename)]), e.message, hostname);
-					}
-					throw e;
+				return response;
+			} catch (e) {
+				// Show and report error message
+				if (showProgress) {
+					notification.hide();
 				}
-			},
+				if (showError && !(e instanceof OperationCancelledError)) {
+					console.warn(e);
+					log('error', i18n.t('notification.upload.error', [Path.extractFileName(filename)]), e.message, hostname);
+				}
+				throw e;
+			}
+		},
 
-			// Get info about the specified filename in the form of a FileInfo instance
-			async getFileInfo({ state, commit }, filename) {
-				if (state.cache.fileInfos.hasOwnProperty(filename)) {
-					return state.cache.fileInfos[filename];
+		// Download a file and show progress
+		// Parameter can be either the filename or an object { filename, (type, showProgress, showSuccess, showError, num, count) }
+		async download(context, payload) {
+			const filename = (payload instanceof Object) ? payload.filename : payload;
+			const type = (payload instanceof Object) ? payload.type : 'auto';
+			const showProgress = (payload instanceof Object) ? !!payload.showProgress : true;
+			const showSuccess = (payload instanceof Object) ? !!payload.showSuccess : true;
+			const showError = (payload instanceof Object) ? !!payload.showError : true;
+			const num = (payload instanceof Object) ? payload.num : undefined;
+			const count = (payload instanceof Object) ? payload.count : undefined;
+
+			const cancelSource = BaseConnector.getCancelSource();
+			const notification = showProgress && makeFileTransferNotification('download', filename, cancelSource, num, count);
+			try {
+				const startTime = new Date();
+				const response = await connector.download({ filename, type, cancelSource, onProgress: notification && notification.onProgress });
+
+				// Show success message
+				if (showSuccess && num === count) {
+					if (count) {
+						log('success', i18n.t('notification.download.successMulti', [count]), undefined, hostname);
+					} else {
+						const secondsPassed = Math.round((new Date() - startTime) / 1000);
+						log('success', i18n.t('notification.download.success', [Path.extractFileName(filename), displayTime(secondsPassed)]), undefined, hostname);
+					}
 				}
 
-				const fileInfo = await connector.getFileInfo(filename);
-				commit('cache/setFileInfo', { filename, fileInfo });
-				return fileInfo;
-			},
+				// Return the downloaded data
+				if (showProgress) {
+					notification.hide();
+				}
+				return response;
+			} catch (e) {
+				// Show and report error message
+				if (showProgress) {
+					notification.hide();
+				}
+				if (showError && !(e instanceof OperationCancelledError)) {
+					console.warn(e);
+					log('error', i18n.t('notification.download.error', [Path.extractFileName(filename)]), e.message, hostname);
+				}
+				throw e;
+			}
+		},
 
-			// Update machine mode. Reserved for the machine connector!
-			async update({ state, commit, dispatch }, payload) {
-				const wasPrinting = state.model.state.isPrinting, lastJobFile = state.model.job.file.fileName;
+		// Get info about the specified filename in the form of a FileInfo instance
+		async getFileInfo({ state, commit }, filename) {
+			if (state.cache.fileInfos.hasOwnProperty(filename)) {
+				return state.cache.fileInfos[filename];
+			}
 
-				// Merge updates into the object model
-				commit('model/update', payload);
+			const fileInfo = await connector.getFileInfo(filename);
+			commit('cache/setFileInfo', { filename, fileInfo });
+			return fileInfo;
+		},
+
+		// Update machine mode. Reserved for the machine connector!
+		async update({ state, commit, dispatch }, payload) {
+			const wasPrinting = state.model.state.isPrinting, lastJobFile = state.model.job.file.fileName;
+			const beepFrequency = state.model.state.beep.frequency, beepDuration = state.model.state.beep.duration;
+			const displayMessage = state.model.state.displayMessage;
+
+			// Merge updates into the object model
+			commit('model/update', payload);
+
+			// Is a beep requested?
+			if (state.model.state.beep.frequency != 0 && state.model.state.beep.duration != 0 &&
+				(state.model.state.beep.frequency != beepFrequency || state.model.state.beep.duration != beepDuration))
+				{
+					beep(state.model.state.beep.frequency, state.model.state.beep.duration);
+				}
+
+				// Is a message supposed to be shown?
+				if (state.model.state.displayMessage != "" && state.model.state.displayMessage != displayMessage) {
+					showMessage(state.model.state.displayMessage);
+				}
 
 				// Is an update or emergency reset in progress?
 				const reconnect = (state.model.state.status === 'updating') || (state.model.state.status === 'halted');
@@ -200,7 +226,7 @@ export default function(hostname, connector) {
 						log('success', i18n.t('events.reconnected'));
 						commit('setReconnecting', false);
 					}
-					
+
 					// Have we just finished a job?
 					if (wasPrinting && !state.model.state.isPrinting) {
 						// Clear the cache of the last file

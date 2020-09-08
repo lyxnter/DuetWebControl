@@ -29,12 +29,15 @@ const store = new Vuex.Store({
 		isDisconnecting: false,
 		isLoggingIn: false,
 		isLoggingOut: false,
+		isLoadingTool: false,
+		isUnloadingTool: false,
 		isLocal: ((location.hostname === 'localhost') || (location.hostname === '127.0.0.1') || (location.hostname === '[::1]')),
 		connectDialogShown: ((location.hostname === 'localhost') || (location.hostname === '127.0.0.1') || (location.hostname === '[::1]')) && ((location.port !== "80") && (location.port !== "")),
 		loginDialogShown: false,
 		passwordRequired: false,
 		selectedMachine: defaultMachine,
 		user: {},
+		lastConfig: {},
 	},
 	getters: {
 		connectedMachines: () => Object.keys(machines).filter(machine => machine !== defaultMachine),
@@ -139,39 +142,40 @@ const store = new Vuex.Store({
 			} else {
 				logGlobal('warning', i18n.t('events.reconnecting', [hostname]), error.message);
 				dispatch(`machines/${hostname}/reconnect`);
+				commit('setSelectedMachine', defaultMachine);
 			}
 		},
 
 		async login({ state, commit}, {usrLogin, usrPasswd}) {
-				//console.log("logging in");
-				//console.log(usrLogin + ": " + usrPasswd);
-				if (state.machines.hasOwnProperty(usrLogin)) {
-					throw new Error(`User ${usrLogin} is already connected!`);
-				}
-				if (state.isLoggingIn) {
-					throw new Error('Already logging in');
-				}
-				commit('setLoggingin', true);
-				try {
-					let hostname;
-					if (hostname == undefined)
-						hostname = state.selectedMachine; //Object.keys(machines)[1];
-					let result = await connector.doLogin(usrLogin, usrPasswd, hostname);
-					commit('setLoggingin', false);
-					commit(`setUser`, result.data);
+			//console.log("logging in");
+			//console.log(usrLogin + ": " + usrPasswd);
+			if (state.machines.hasOwnProperty(usrLogin)) {
+				throw new Error(`User ${usrLogin} is already connected!`);
+			}
+			if (state.isLoggingIn) {
+				throw new Error('Already logging in');
+			}
+			commit('setLoggingin', true);
+			try {
+				let hostname;
+				if (hostname == undefined)
+				hostname = state.selectedMachine; //Object.keys(machines)[1];
+				let result = await connector.doLogin(usrLogin, usrPasswd, hostname);
+				commit('setLoggingin', false);
+				commit(`setUser`, result.data);
 
-				} catch (e) {
-					/*if (!(e instanceof InvalidPasswordError) || password !== defaultPassword) {
-						logGlobal('error', i18n.t('error.connect', [hostname]), e.message);
-					}
-					if (e instanceof InvalidPasswordError) {
-						commit('askForPassword');
-					}*/
-					commit('setLoggingin', false);
-					//commit('setLogedin', false);
-					state.loginDialogShown = true;
-					console.error(e);
+			} catch (e) {
+				/*if (!(e instanceof InvalidPasswordError) || password !== defaultPassword) {
+					logGlobal('error', i18n.t('error.connect', [hostname]), e.message);
 				}
+				if (e instanceof InvalidPasswordError) {
+					commit('askForPassword');
+				}*/
+				commit('setLoggingin', false);
+				//commit('setLogedin', false);
+				state.loginDialogShown = true;
+				console.error(e);
+			}
 		},
 
 		async logout({ state, commit}) {
@@ -187,28 +191,108 @@ const store = new Vuex.Store({
 			try {
 				let hostname;
 				if (hostname == undefined)
-					hostname = state.selectedMachine; //location.host;
-					await connector.doLogout();
-					//console.log(result.data);
-					commit('setLoggingout', false);
-					commit(`setUser`, {});
+				hostname = state.selectedMachine; //location.host;
+				await connector.doLogout();
+				//console.log(result.data);
+				commit('setLoggingout', false);
+				commit(`setUser`, {});
 
 			} catch (e) {
 				commit('setLoggingout', false);
 				console.error(e);
 			}
 		},
+
 		async loadTool({state, commit}, name){
 			commit('setTool', name)
+			commit('setLoadingTool', false);
 		},
+
 		async shutdown({state, commit}) {
 			console.log('Shutting down');
 			try {
 				let hostname;
 				if (hostname == undefined)
-					hostname = state.selectedMachine; //location.host;
-					await connector.doShutdown(hostname);
-					//console.log(result.data);
+				hostname = state.selectedMachine; //location.host;
+				await connector.doShutdown(hostname);
+				//console.log(result.data);
+			} catch (e) {
+				console.error(e);
+			}
+		},
+
+
+		async setToolLoading({state, commit}, loading){
+			console.log('loading Tool ' + loading);
+			commit('setLoadingTool', loading);
+		},
+
+		async loadAddresses({state, commit}) {
+			//console.log('Loading addresses');
+			try {
+				let hostname;
+				if (hostname == undefined)
+				hostname = (state.selectedMachine !== defaultMachine ? state.selectedMachine: (location.hostname != 'localhost' ? location.host : '192.168.1.243'));
+
+				let result = await connector.doLoadAddresses(hostname);
+				//console.log(result);
+				let ifaces = result.data.cfg.filter(iface => (iface.ifname == "enp1s0" || iface.ifname == "enp2s0"))
+				ifaces.ip = result.data.ip.substr(0, result.data.ip.indexOf('/'))
+				//console.log(this.state.user.ifaces)
+				//console.log(ifaces)
+				let diff = false;
+				if(this.state.user.ifaces){
+					for (var i = 0; i < ifaces.length; i++) {
+						let keyI = ifaces[i]
+						let keysI = Object.keys(keyI);
+						for (var j = 0; j < keysI.length; j++) {
+							if (typeof(keyI[keysI[j]]) == "string") {
+								if (keyI[keysI[j]] !== this.state.user.ifaces[i][keysI[j]]) {
+									diff = true
+									//console.log(keysI[j])
+									//console.log(keyI[keysI[j]])
+									//console.log(this.state.user.ifaces[i][keysI[j]])
+								}
+							} else if (typeof(keyI[keysI[j]]) == "object") {
+								let keyJ = keyI[keysI[j]]
+								let keysJ = Object.keys(keyJ);
+								for (var k = 0; k < keysJ.length; k++) {
+									if (typeof(keyJ[keysJ[k]]) == "string") {
+										if (keyJ[keysJ[k]] !== this.state.user.ifaces[i][keysI[j]][keysJ[k]]) {
+											diff = true
+											//console.log(keysJ[k])
+											//console.log(keyJ[keysJ[k]])
+											//console.log(this.state.user.ifaces[i][keysI[j]][keysJ[k]])
+										}
+									} else if (typeof(keyJ[keysJ[k]]) == "object"){
+										let keyK = keyJ[keysJ[k]];
+										let keysK = Object.keys(keyK);
+										for (var l = 0; l < keysK.length; l++) {
+											if (typeof(keyK[keysK[l]]) == "string") {
+												if (keyK[keysK[l]] !== this.state.user.ifaces[i][keysI[j]][keysJ[k]][keysK[l]]) {
+													diff = true
+													//console.log(keysK[l])
+													//console.log(keyK[keysK[l]])
+													//console.log(this.state.user.ifaces[i][keysI[j]][keysJ[k]][keysK[l]])
+												}
+											}
+										}
+									} else {
+										console.log(typeof(keyJ[keysJ[k]]))
+									}
+								}
+							} else {
+								console.log(typeof(keyJ))
+							}
+						}
+					}
+				} else {
+					diff = true;
+				}
+				//console.log(diff);
+				if (diff) {
+					commit(`setIfaces`, result.data);
+				}
 			} catch (e) {
 				console.error(e);
 			}
@@ -241,13 +325,15 @@ const store = new Vuex.Store({
 		},
 
 		setLoggingin: (state, loggingin) => state.isLoggingIn = loggingin,
-
 		setLoggingout: (state, loggingout) => state.isLoggingOut = loggingout,
+
+		setLoadingTool: (state, loadingtool) => state.isLoadingTool = loadingtool,
+		setUnloadingTool: (state, unloadingtool) => state.isUnloadingTool = unloadingtool,
 
 		setSelectedMachine(state, selectedMachine) {
 			this.unregisterModule('machine');
 			this.registerModule('machine', machines[selectedMachine]);
-			state.selectedMachine = selectedMachine
+			state.selectedMachine = selectedMachine;
 		},
 
 		setUser(state, user) {
@@ -257,7 +343,7 @@ const store = new Vuex.Store({
 			tmpUser.level = user.level;
 			tmpUser.last_connect = user.date;
 			tmpUser.type = user.type;
-			console.log(state.user);
+			//console.log(state.user);
 			state.user = tmpUser;
 			if (state.user.username) {
 				console.log("Welcome back " + state.user.username);
@@ -265,14 +351,23 @@ const store = new Vuex.Store({
 				console.log("last connection " + state.user.last_connect);
 			}
 
-			console.log(state.user);
+			//console.log(state.user);
 		},
 
 		setTool(state, tool) {
-				let tmpUser = state.user;
-				state.user = {};
-				tmpUser.loadedTool = tool
-				state.user = tmpUser;
+			let tmpUser = state.user;
+			state.user = {};
+			tmpUser.loadedTool = tool
+			state.user = tmpUser;
+		},
+
+		setIfaces(state, iface) {
+			let tmpUser = state.user;
+			state.user = {};
+			tmpUser.ifaces = iface.cfg.filter(iface => iface.ifname == "enp1s0" || iface.ifname == "enp2s0");
+			tmpUser.ifaces.ip = iface.ip.substr(0, iface.ip.indexOf('/'))
+			state.user = tmpUser;
+			//console.log(tmpUser);
 		},
 	},
 
@@ -281,7 +376,7 @@ const store = new Vuex.Store({
 		machines: {
 			namespaced: true,
 			modules: {
-				[defaultMachine]: machines[defaultMachine] 				// This represents the factory defaults
+				[defaultMachine]: machines[defaultMachine]				// This represents the factory defaults
 				// ... other machines are added as sub-modules to this object
 			}
 		},

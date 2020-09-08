@@ -1,25 +1,97 @@
+<style scoped>
+table {
+	border-collapse: collapse;
+}
+thead, tr {
+	text-align: center;
+	border: 1px solid #000;
+	font-size: large;
+}
+
+tr {
+	height: 64px
+}
+
+.v-input {
+	width: 32px;
+	margin: 16px;
+	text-align: center;
+}
+
+tr:hover {
+	background: #888;
+}
+
+.selected {
+	background: #636363;
+}
+</style>
 <template>
 	<v-dialog v-model="shown" persistent width="480">
 		<v-card>
 			<v-card-title>
-				<span class="headline">{{ $t(!load ? 'dialog.tool.titleUnload' : 'dialog.tool.titleLoad') }}</span>
+				<span class="headline"> {{ $t('loadTool.enableTool') }} </span>
 			</v-card-title>
 
 			<v-card-text>
-				{{ $t('dialog.tool.prompt') }}
-
-				<v-progress-linear indeterminate v-if="loading"></v-progress-linear>
-				<v-list v-if="!loading">
-					<v-list-tile v-for="tool in tools" :key="tool.name" @click="toolClick(tool)">
-						<img :src="tool.ico" style="width: 40px; margin-right:15px" > {{ load ? tool.name.substring(6) : tool.name.substring(8) }}
-					</v-list-tile>
-				</v-list>
+				<template v-if="loading">
+					<v-progress-linear indeterminate></v-progress-linear>
+				</template>
+				<v-tabs v-if="!loading" grow>
+					<v-tabs-slider color="primary"></v-tabs-slider>
+					<v-tab v-for="(material, key) in tools" :key="key" :class="{selected: false && material.selected}">
+						<div style="width: 50px; height: 50px; margin: 0 auto">
+							<img :src="material.ico" width="50px" height="50px" alt="">
+						</div>
+						{{ material.tech }}
+					</v-tab>
+					<v-tab-item v-for="(material, key) in tools" :key="key">
+						<v-list v-if="!loading">
+							<v-list-tile v-for="(tool, index) in material.tools" :key="index" @click.stop.prevent="tool.selected != tool.selected" :class="{'toolLocal': isLocal, selected: tool.selected}">
+								<div @click.stop.prevent="tool.selected = !tool.selected" style="width: 100%; padding: 10px">
+									<div style="width: 10%; display: inline-block; text-align: center">
+										<v-icon class="mr-1">
+											{{ 'radio_button_unchecked' }}
+										</v-icon>
+										<v-icon class="mr-1" :style="'position: absolute;left: 8%;top: 25%;color: hsl(43, 98%, 50%);font-size: 18px;'">
+											{{ tool.selected ? 'done' : '' }}
+										</v-icon>
+									</div>
+									<div style="width: 15%; display: inline-block">
+										{{ tool.name }}
+									</div>
+									<div style="width: 15%; display: inline-block">
+										{{ tool.appro }}
+									</div>
+									<div style="width: 15%; display: inline-block">
+										{{ tool.model }}
+									</div>
+									<div style="width: 15%; display: inline-block">
+										{{ tool.opt }}
+									</div>
+									<div style="width: 15%; display: inline-block">
+										{{ tool.version }}
+									</div>
+									<!--div style="display: inline-block" @click.stop.prevent="deleteTool(key, index)">
+										<v-icon class="mr-1" :style="'position: absolute;right: 5%;top: 25%;color: darkgray;'">
+											{{ 'delete' }}
+										</v-icon>
+									</div-->
+								</div>
+							</v-list-tile>
+						</v-list>
+					</v-tab-item>
+				</v-tabs>
 			</v-card-text>
 
 			<v-card-actions>
 				<v-spacer></v-spacer>
-				<v-btn color="blue darken-1" flat @click="hide">{{ $t('generic.cancel') }}</v-btn>
-				<v-spacer></v-spacer>
+				<v-btn color="primary" @click="dismissed" flat>
+					{{ $t('generic.cancel') }}
+				</v-btn>
+				<v-btn color="primary" @click="confirmed" flat>
+					{{ $t('generic.ok') }}
+				</v-btn>
 			</v-card-actions>
 		</v-card>
 	</v-dialog>
@@ -30,7 +102,6 @@
 
 import { mapState, mapActions, mapMutations } from 'vuex'
 
-import { DisconnectedError } from '../../utils/errors.js'
 import Path from '../../utils/path.js'
 
 export default {
@@ -39,27 +110,34 @@ export default {
 			type: Boolean,
 			required: true
 		},
-		load: {
-			type: Boolean,
-			required: true,
-		}
-
 	},
 	computed: {
+		...mapState({isLocal: state => state.isLocal,}),
 	},
 	data() {
 		return {
 			tool: undefined,
 			tools: [],
 			loading: false,
+			load: true,
+			item: false,
 		}
 	},
 	methods: {
-		...mapActions('machine', ['sendCode', 'getFileList']),
+		...mapActions('machine', ['sendCode', 'getFileList', 'download', 'upload']),
 		...mapMutations('machine', ['setTool']),
 		...mapState({
 			getTool: state => state.user.loadedTool,
 		}),
+		async confirmed() {
+			await this.uploadConfig();
+			this.$emit('confirmed');
+			this.$emit('update:shown', false);
+		},
+		dismissed() {
+			this.$emit('dismissed');
+			this.$emit('update:shown', false);
+		},
 		async loadTools() {
 			if (this.loading) {
 				return;
@@ -68,72 +146,104 @@ export default {
 			this.loading = true
 			try {
 				this.tools = [];
-				const response = await this.getFileList(Path.macros+"/_Tools");
-				let tools = response.filter(item => item.isDirectory).map(item => item.name);
-				console.log(tools);
-				let len = tools.length;
-				let that = this;
-				console.log(this.getTool())
-				for (var i = 0; i < len; i++){
-					let response = await this.getFileList(Path.macros+"/_Tools/"+tools[i]);
-					response.forEach(
-						function (tool) {
-							if (tool.name.includes("Filament")) {
-								tool.ico = "/img/ressources/Medium_universe_FIL.svg"
-							} else if (tool.name.includes("Liquid")) {
-								tool.ico = "/img/ressources/Medium_universe_LIQ.svg"
-							}  else if (tool.name.includes("Paste")) {
-								tool.ico = "/img/ressources/Medium_universe_PAS.svg"
-							} else {
-								tool.ico = "/img/ressources/file.png"
-							}
-							(that.load ? tool.name.includes("_Load") : tool.name.includes("_Unload")) ?
-							that.tools.push({
-								'path': Path.macros+"/_Tools/"+tools[i],
-								'name': tool.name,
-								'ico' : tool.ico,
-							}) : undefined;
-						});
-				}
-				console.log(this.tools);
-			} catch (e) {
-				if (!(e instanceof DisconnectedError)) {
-					console.warn(e);
-					this.$log('error', this.$t('error.toolsLoadFailed'), e.message);
-				}
-				this.hide();
-			}
-			this.loading = false;
-		},
-		toolClick(tool) {
-			this.hide();
-			//console.log(tool);
-			let code = 'M98 P"' + tool.path + '/' + tool.name + '"';
-			//console.log(code);
-			this.sendCode(code);
-			let myTool = tool.name;
-			if (tool.name.lastIndexOf(".") > 0){
-				myTool = myTool.substring(this.load?6:8,myTool.lastIndexOf("."));
-				console.log(myTool);
-			} else {
-			 	myTool = myTool.substring(this.load?6:8);
-				console.log(myTool)
-			}
-			this.$store.commit('setTool', this.load ? myTool : '');
+				let result = await this.download({filename: Path.sys+"/selectedTools.json", showSuccess: false, showProgress: false});
+				if (result) this.tools = result;
+				//console.log(this.tools)
+				const response = await this.getFileList(Path.macros+"/_Toolheads");
+				//console.log(response)
+				if (response){
+					let tools = response.filter(item => item.isDirectory).map(item => item.directory+"/"+item.name);
+					//console.log(tools);
+					let len = tools.length;
+					let that = this;
+					for (var i = 0; i < len; i++){
+						let response = await this.getFileList(tools[i]);
+						response.forEach(
+							function (tool) {
+								var material = (tools[i].substr(tools[i].lastIndexOf('/')+1,3));
+								if (that.tools.length == 0 || that.tools.filter(tool => tool.tech == material).length == 0) {
+									that.tools.push({
+										"selected": false,
+										"ico": "/img/ressources/Medium_universe_" + material + ".svg",
+										"tech": material,
+										"tools" : [],
+									});
+									console.log("new material : " + material, tool);
+								}
+								var materialIndex = that.tools.findIndex(tool => tool.tech == material)
+								if (tool.name.startsWith("_Load")) {
+									let path = tool.directory + "/" + tool.name
+									if (that.tools[materialIndex].tools.filter(item => item.path == path).length == 0) {
+										let params = tool.name.substr(6).split('_')
+										let name = params[0];
+										let appro = params.length == 4 ? params[1] : '';
+										let model = params.length == 4 ? params[2].split("~")[0] : ''
+										let opt = params.length == 4 && params[2].split("~").length == 2 ? params[2].split("~")[1] : ''
+										let version = params.length == 4 ? params[3].substring(1, params[3].length-2) : params[1].substring(1, params[1].length-2)
+										console.log(path)
+										console.log(name)
+										console.log(appro)
+										console.log(model)
+										console.log(opt)
+										console.log(version)
+										that.tools[materialIndex].tools.push({
+											"selected": false,
+											"path": path,
+											"version": version,
+											"name": name,
+											"io":name.length > 3 ? name.substr(3) : "",
+											"opt": opt,
+											"model":  model,
+											"appro": appro,
+										})
+									}
 
-			this.$emit('tool_loaded', tool)
+								}
+							});
+						}
+					}
+				} catch (e) {
+					console.log(e)
+				}
+				this.loading = false;
+			},
+			async uploadConfig() {
+				let json = JSON.stringify(this.tools)
+				//console.log(json);
+				try {
+					await this.upload({ filename: Path.sys+"/selectedTools.json", content: json });
+				} catch(e) {
+					console.log("Error: " + (e.err == 1 ? "no such file" : "not mounted"));
+					console.error(e);// TODO Optionally ask user to save file somewhere else
+				}
+			},
+			deleteTool: function(mater, tool) {
+				console.log(mater, tool)
+				console.log(this[tool]);
+				this.tools[mater].tools.splice(tool,1)
+			}
 		},
-		hide() {
-			this.$emit('update:shown', false);
-		}
-	},
-	watch: {
-		shown(to) {
-			if (to) {
-				// Load tools when this dialog is shown
-				this.loadTools();
+		mounted() {
+			//setTimeout(this.loadTools, 1000 + Math.random() * 1000);
+		},
+		watch: {
+			shown(to) {
+				if (to) {
+					// Load tools when this dialog is shown
+					this.loadTools();
+				}
+			},
+			tools: {
+				deep: true,
+				handler() {
+					//console.log(this.tools)
+					if(this.tools){
+						this.tools.forEach((material) => {
+							material.selected = !material.tools.every(tool => !tool.selected)
+						});
+					}
+				}
 			}
 		}
 	}
-}
-</script>
+	</script>

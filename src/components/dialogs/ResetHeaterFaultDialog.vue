@@ -1,5 +1,5 @@
 <template>
-	<v-dialog v-model="shown" max-width="360">
+	<v-dialog v-model="shown" max-width="640">
 		<v-card>
 			<v-card-title class="headline">
 				<v-icon class="mr-1">warning</v-icon>
@@ -11,13 +11,17 @@
 			</v-card-text>
 
 			<v-card-actions>
+				<v-btn color="primary darken-1" flat="flat" @click="sendCode('M112\nM999');shutdown()">
+					{{$t('dialog.confirmShutdown.title')}}
+				</v-btn>
+
 				<v-spacer></v-spacer>
 
-				<v-btn color="blue darken-1" flat="flat" :disabled="!!counter" @click="resetFault">
+				<v-btn color="primary darken-1" flat="flat" :disabled="!!counter" @click="resetFault">
 					{{ $t('dialog.resetHeaterFault.resetFault') + (counter ? ` (${counter})` : '') }}
 				</v-btn>
 
-				<v-btn color="blue darken-1" flat="flat" @click="hide">
+				<v-btn color="primary darken-1" flat="flat" @click="hide">
 					{{ $t('generic.cancel') }}
 				</v-btn>
 			</v-card-actions>
@@ -47,6 +51,7 @@ export default {
 		}
 	},
 	methods: {
+		...mapActions(['shutdown']),
 		...mapActions('machine', ['sendCode']),
 		resetFault() {
 			this.sendCode(`M562 P${this.heater}`);

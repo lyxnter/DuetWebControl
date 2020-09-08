@@ -6,9 +6,6 @@
 		<v-flex>
 			<event-list></event-list>
 		</v-flex>
-		<v-flex v-if="isLocal" style="height: 260px">
-			<keyboard-input></keyboard-input>
-		</v-flex>
 	</v-layout>
 </template>
 

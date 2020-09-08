@@ -224,7 +224,7 @@
 			 * in the wrong scope when the user calls it
 			 */
 			if (this._internals.canRead) {
-        let line = this._internals.lines.shift();
+				let line = this._internals.lines.shift();
         let decoded = line;
         try {
           /**

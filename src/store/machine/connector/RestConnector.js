@@ -1,4 +1,4 @@
-// RESTful connector for the new Duet 3 API
+// RESTful connector for the Duet 3 API
 'use strict'
 
 import axios from 'axios'
@@ -16,7 +16,8 @@ import { strToTime } from '../../../utils/time.js'
 
 export default class RestSocketConnector extends BaseConnector {
 	static async connect(hostname, username, password) {
-		const socket = new WebSocket(`ws://${hostname}/machine`);
+		const socketProtocol = location.protocol === "https:" ? "wss:" : "ws:";
+		const socket = new WebSocket(`${socketProtocol}//${hostname}/machine`);
 		const model = await new Promise(function(resolve, reject) {
 			socket.onmessage = function(e) {
 				// Successfully connected, the first message is the full object model
@@ -42,15 +43,19 @@ export default class RestSocketConnector extends BaseConnector {
 
 	model = {}
 	fileTransfers = []
+	layers = []
 
 	constructor(hostname, password, socket, model) {
 		super(hostname);
 		this.password = password;
 		this.socket = socket;
 		this.model = model;
+		if (model.job && model.job.layers) {
+			this.layers = model.job.layers;
+		}
 
 		this.axios = axios.create({
-			baseURL: `http://${hostname}/`,
+			baseURL:  `${location.protocol}//${hostname}/`,
 			cancelToken: this.cancelSource.token,
 			timeout: 8000		// default RRF session timeout
 		});
@@ -119,7 +124,11 @@ export default class RestSocketConnector extends BaseConnector {
 				}
 
 				if (error.response.status >= 500 && error.response) {
-					return Promise.reject(new OperationFailedError(error.response.data));
+					let reply = error.response.data;
+					if (reply instanceof ArrayBuffer) {
+						reply = Buffer.from(reply).toString().trim();
+					}
+					return Promise.reject(new OperationFailedError(reply));
 				}
 			}
 
@@ -151,33 +160,94 @@ export default class RestSocketConnector extends BaseConnector {
 	}
 
 	async startSocket() {
+		const that = this;
+
 		// Deal with generic messages
 		if (this.model.messages !== undefined) {
 			this.model.messages.forEach(async function(message) {
-				await this.dispatch('onCodeCompleted', { code: undefined, reply: message });
+				await that.dispatch('onCodeCompleted', { code: undefined, reply: message.content });
 			});
 			delete this.model.messages;
 		}
 
+		// Send PING in predefined intervals to detect disconnects from the client side
+		that.pingTask = setTimeout(function() {
+			// Although the WebSocket standard is supposed to provide PING frames,
+			// there is no way to send them since a WebSocket instance does not provide a method for that.
+			// Hence we rely on our own optional PING-PONG implementation
+			that.socket.send('PING\n');
+			that.pingTask = undefined;
+		}, that.settings.pingInterval);
+
 		// Set up socket events
-		const that = this;
 		this.socket.onmessage = async function(e) {
+			// Don't do anything if the connection has been terminated...
+			if (that.socket == null) {
+				return;
+			}
+
+			// Use PING/PONG messages to detect connection interrupts
+			if (that.pingTask) {
+				clearTimeout(that.pingTask);
+			}
+
+			that.pingTask = setTimeout(function() {
+				// Although the WebSocket standard is supposed to provide PING frames,
+				// there is no way to send them since a WebSocket instance does not provide a method for that.
+				// Hence we rely on our own optional PING-PONG implementation
+				that.socket.send('PING\n');
+				that.pingTask = undefined;
+			}, that.settings.pingInterval);
+
+			if (e.data === 'PONG\n') {
+				return;
+			}
+
+			// Process model updates
 			const data = JSON.parse(e.data);
 
 			// Deal with generic messages
 			if (data.messages !== undefined) {
 				data.messages.forEach(async function(message) {
-					await that.dispatch('onCodeCompleted', { code: undefined, reply: message });
+					let reply;
+					switch (message.type) {
+						case 1:
+							reply  = `Warning: ${message.content}`;
+							break;
+						case 2:
+							reply  = `Error: ${message.content}`;
+							break;
+						default:
+							reply = message.content;
+							break;
+					}
+
+					// TODO Pass supplied date/time here
+					await that.dispatch('onCodeCompleted', { code: undefined, reply });
 				});
 				delete data.messages;
 			}
 
-			// Update model and acknowledge receival
+			// Deal with layers
+			if (data.job && data.job.layers !== undefined) {
+				if (data.job.layers.length === 0) {
+					that.layers = [];
+				} else {
+					data.job.layers.forEach(layer => that.layers.push(layer));
+				}
+				data.job.layers = that.layers;
+			}
+
+			// Update model and acknowledge receipt
 			await that.dispatch('update', data);
 			that.socket.send('OK\n');
 		};
 
 		this.socket.onclose = function(e) {
+			if (that.pingTask) {
+				clearTimeout(that.pingTask);
+				that.pingTask = undefined;
+			}
 			that.dispatch('onConnectionError', new NetworkError(e.reason));
 		};
 
@@ -187,7 +257,15 @@ export default class RestSocketConnector extends BaseConnector {
 	}
 
 	async disconnect() {
-		this.socket.close();
+		if (this.socket) {
+			if (this.pingTask) {
+				clearTimeout(this.pingTask);
+				this.pingTask = undefined;
+			}
+
+			this.socket.close();
+			this.socket = null;
+		}
 	}
 
 	unregister() {
@@ -198,13 +276,25 @@ export default class RestSocketConnector extends BaseConnector {
 	}
 
 	async sendCode(code) {
-		const response = await this.axios.post('machine/code', code, {
-			headers: { 'Content-Type' : 'text/plain' },
-			timeout: 0			// this may take a while...
-		});
+		let reply;
+		try {
+			const response = await this.axios.post('machine/code', code, {
+				headers: { 'Content-Type' : 'text/plain' },
+				responseType: 'arraybuffer', 	// responseType: 'text' is broken, see https://github.com/axios/axios/issues/907
+				timeout: 0						// this may take a while...
+			});
+			reply = Buffer.from(response.data).toString().trim();
+		}
+		catch (e) {
+			if (e.response) {
+				reply = 'Error: ' + Buffer.from(e.response.data).toString().trim();
+			} else {
+				reply = 'Error: ' + e.message;
+			}
+		}
 
-		this.dispatch('onCodeCompleted', { code, reply: response.data });
-		return response.data;
+		this.dispatch('onCodeCompleted', { code, reply });
+		return reply;
 	}
 
 	upload({ filename, content, cancelSource = axios.cancelToken.source(), onProgress }) {
@@ -223,7 +313,7 @@ export default class RestSocketConnector extends BaseConnector {
 
 			try {
 				// Create file transfer and start it
-				that.axios.put('machine/file/' + filename, payload, options)
+				that.axios.put('machine/file/' + encodeURIComponent(filename), payload, options)
 					.then(function(response) {
 						resolve(response);
 						that.dispatch('onFileUploaded', { filename, content });
@@ -242,7 +332,7 @@ export default class RestSocketConnector extends BaseConnector {
 	}
 
 	async delete(filename) {
-		await this.axios.delete('machine/file/' + filename, { filename });
+		await this.axios.delete('machine/file/' + encodeURIComponent(filename), { filename });
 		await this.dispatch('onFileOrDirectoryDeleted', filename);
 	}
 
@@ -265,7 +355,7 @@ export default class RestSocketConnector extends BaseConnector {
 	}
 
 	async makeDirectory(directory) {
-		await this.axios.put('machine/directory/' + directory);
+		await this.axios.put('machine/directory/' + encodeURIComponent(directory));
 		await this.dispatch('onDirectoryCreated', directory);
 	}
 
@@ -289,7 +379,7 @@ export default class RestSocketConnector extends BaseConnector {
 
 			try {
 				// Create file transfer and start it
-				that.axios.get('machine/file/' + filename, options)
+				that.axios.get('machine/file/' + encodeURIComponent(filename), options)
 					.then(function(response) {
 						if (type === 'text') {
 							// see above...
@@ -312,7 +402,7 @@ export default class RestSocketConnector extends BaseConnector {
 	}
 
 	async getFileList(directory) {
-		const response = await this.axios.get('machine/directory/' + directory, { directory });
+		const response = await this.axios.get('machine/directory/' + encodeURIComponent(directory), { directory });
 		return response.data.map(item => ({
 			isDirectory: item.type === 'd',
 			name: item.name,
@@ -322,7 +412,7 @@ export default class RestSocketConnector extends BaseConnector {
 	}
 
 	async getFileInfo(filename) {
-		const response = await this.axios.get('machine/fileinfo/' + filename);
+		const response = await this.axios.get('machine/fileinfo/' + encodeURIComponent(filename));
 		return new FileInfo(response.data);
 	}
 }

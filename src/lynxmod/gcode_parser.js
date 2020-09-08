@@ -156,10 +156,10 @@ export default {
 								this.scene.previewControls.target.z =	this.centerY;
 								if (this.curLay!=undefined && this.layHeight)
 								{
-									this.scene.previewControls.object.position.y =	4/6*Math.max(width, length)+(this.curLay*this.layHeight);
+									this.scene.previewControls.object.position.y =	2*Math.max(width, length)+(this.curLay*this.layHeight);
 									this.scene.previewControls.target.y = (this.boundingBox.max.z + this.boundingBox.min.z)/2;
 								} else {
-									this.scene.previewControls.object.position.y = 4/6*Math.max(width, length)+(this.lastPos.z);
+									this.scene.previewControls.object.position.y = 2*Math.max(width, length)+(this.lastPos.z);
 									this.scene.previewControls.target.y = (this.boundingBox.max.z + this.boundingBox.min.z)/2;
 								}
 								this.scene.previewControls.update();
@@ -226,15 +226,16 @@ export default {
 								}
 								i++;
 							}
-
+							console.log(this.gcodeLayers.length)
 							if (this.gcodeLayers.length > 1)
 							{
+								console.log(id);
 								try {
 									this.scene.this.scene.previewControls.update();
 									this.scene.previewRenderer.render( this.scene.this.scene.previewScene, this.scene.previewCamera );
 									strMime = "image/jpeg";
 									imgData = this.scene.previewRenderer.domElement.toDataURL(strMime);
-									this.scene.preview.savePicture(imgData, this.gcodeReader.fileInput.name.substring(0,this.gcodeReader.fileInput.name.lastIndexOf("."))+"_"+(this.curLay-1)+".jpg");
+									this.scene.preview.savePicture(imgData, this.gcodeReader.fileInput.name.substring(0,this.gcodeReader.fileInput.name.lastIndexOf("."))+"_"+(isNaN(this.curLay-1)?id[id.length-1]:this.curLay)+".jpg");
 								} catch (e) {
 									console.error(e);
 									return;

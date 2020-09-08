@@ -1,13 +1,18 @@
+<style>
+	.local {
+		font-size: large !important;
+	}
+</style>
 <template>
 	<v-card>
-		<v-card-title>
+		<v-card-title :class="{local: isLocal}">
 			<v-icon small class="mr-1">linear_scale</v-icon> {{ $t('panel.jobData.caption') }}
 		</v-card-title>
 
 		<v-card-text class="pt-0 text-xs-center">
-			<v-layout row wrap>
+			<v-layout :class="(isLocal?'column':'row')" wrap>
 				<v-flex>
-					<v-layout column>
+					<v-layout :class="(isLocal?'row':'column')">
 						<v-flex tag="strong">
 							{{ $t('panel.jobData.warmUpDuration') }}
 						</v-flex>
@@ -17,7 +22,7 @@
 					</v-layout>
 				</v-flex>
 				<v-flex>
-					<v-layout column>
+					<v-layout :class="(isLocal?'row':'column')">
 						<v-flex tag="strong">
 							{{ $t('panel.jobData.currentLayerTime') }}
 						</v-flex>
@@ -27,7 +32,7 @@
 					</v-layout>
 				</v-flex>
 				<v-flex>
-					<v-layout column>
+					<v-layout :class="(isLocal?'row':'column')">
 						<v-flex tag="strong">
 							{{ $t('panel.jobData.lastLayerTime') }}
 						</v-flex>
@@ -37,7 +42,7 @@
 					</v-layout>
 				</v-flex>
 				<v-flex>
-					<v-layout column>
+					<v-layout :class="(isLocal?'row':'column')">
 						<v-flex tag="strong">
 							{{ $t('panel.jobData.jobDuration') }}
 						</v-flex>
@@ -47,7 +52,7 @@
 					</v-layout>
 				</v-flex>
 			</v-layout>
-		
+
 		</v-card-text>
 	</v-card>
 </template>
@@ -59,6 +64,7 @@ import { mapState } from 'vuex'
 
 export default {
 	computed: {
+		...mapState(['isLocal']),
 		...mapState('machine/model', ['job']),
 		lastLayerTime() {
 			if (!this.job.layers.length) {

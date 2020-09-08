@@ -17,12 +17,22 @@
 				</template>
 			</v-combobox>
 		</v-flex>
-
 		<v-flex shrink>
-			<v-btn color="info" :disabled="uiFrozen" :loading="sendingCode" @click="doSend">
+			<v-btn color="primary darken-1" :disabled="uiFrozen" :loading="sendingCode" @click="doSend">
 				<v-icon class="mr-2">send</v-icon> {{ $t('input.code.send') }}
 			</v-btn>
 		</v-flex>
+		<v-btn style="position: fixed; margin: 0px 42%; z-index: 1; background: rgb(66, 66, 66); border-top-left-radius: 88px; border-top-right-radius: 88px; width: 88px;" :style="{bottom: sheet?'260px':'0px'}" @click="sheet = !sheet" v-if="isLocal">
+			<v-icon style="transition: all 0.4s ease 0s;" :style="{transform:(sheet?'rotate(180deg)':'')}">keyboard_arrow_up</v-icon>
+		</v-btn>
+
+		<div class="text-center">
+			<v-bottom-sheet v-model="sheet" :inset="inset" :hide-overlay="hideOverlay">
+				<v-sheet class="text-center" height="260px">
+					<keyboard-input :target="target" :doSendCode="true"></keyboard-input>
+				</v-sheet>
+			</v-bottom-sheet>
+		</div>
 	</v-layout>
 </template>
 
@@ -35,6 +45,10 @@ export default {
 	computed: {
 		...mapGetters(['uiFrozen']),
 		...mapState('machine/settings', ['codes']),
+		...mapState('settings', ['disableAutoComplete']),
+		...mapState({
+			isLocal: state => state.isLocal,
+			}),
 		displayedCodes() {
 			return this.codes.map(code => ({ text: code, value: code }));
 		}
@@ -43,7 +57,11 @@ export default {
 		return {
 			code: '',
 			sendPending: false,
-			sendingCode: false
+			sendingCode: false,
+			target: document.createElement('input'),
+      sheet: false,
+      inset: false,
+      hideOverlay: true,
 		}
 	},
 	props: {
@@ -120,6 +138,9 @@ export default {
 				this.sendingCode = false;
 			}
 		}
+	},
+	mounted() {
+		this.target = document.getElementById('write');
 	},
 	watch: {
 		uiFrozen(to) {

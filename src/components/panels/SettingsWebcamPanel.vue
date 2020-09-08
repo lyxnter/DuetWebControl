@@ -1,6 +1,6 @@
 <template>
 	<v-card>
-		<v-card-title>
+		<v-card-title class="pb-0">
 			{{ $t('panel.settingsWebcam.caption') }}
 		</v-card-title>
 
@@ -24,6 +24,12 @@
 				<v-flex xs12 sm12 md6>
 					<v-select v-model="webcamFlip" :items="flipItems" :label="$t('panel.settingsWebcam.webcamFlip')" :disabled="webcamEmbedded"></v-select>
 				</v-flex>
+				<v-flex xs12 sm12 md6>
+					<v-select v-model="webcamResolution" :items="resolutionsItems" :label="$t('panel.settingsWebcam.webcamResolution')"></v-select>
+				</v-flex>
+				<v-flex xs12 sm12 md6>
+					<v-select v-model="webcamFramerate" :items="frameratesItems" :label="$t('panel.settingsWebcam.webcamFramerate')"></v-select>
+				</v-flex>
 			</v-layout>
 		</v-container>
 	</v-card>
@@ -46,7 +52,7 @@ export default {
 			];
 		},
 		webcamURL: {
-			get() { return this.settings.webcam.url; },
+			get() { return (this.settings.webcam.url ? this.settings.webcam.url : window.origin + ":8080/?action=stream"); },
 			set(value) { this.update({ webcam: { url: value } }); }
 		},
 		webcamUpdateInterval: {
@@ -68,6 +74,14 @@ export default {
 		webcamFlip: {
 			get() { return this.settings.webcam.flip; },
 			set(value) { this.update({ webcam: { flip: value } }); }
+		},
+		webcamResolution: {
+			get() { return this.settings.webcam.resolution; },
+			set(value) { this.update({ webcam: { resolution: value } }); }
+		},
+		webcamFramerate: {
+			get() { return this.settings.webcam.framerate; },
+			set(value) { this.update({ webcam: { framerate: value } }); }
 		}
 	},
 	data() {
@@ -77,8 +91,13 @@ export default {
 				{ text: '90°', value: 90 },
 				{ text: '180°', value: 180 },
 				{ text: '270°', value: 270 }
-			]
+			],
+			resolutionsItems: [ "640x360", "640x480", "1280x720", "1920x1080"],
+			frameratesItems: [15, 25, 30, 60],
 		}
+	},
+	mounted() {
+		this.settings.webcam.url = (this.settings.webcam.url ? this.settings.webcam.url : window.origin + ":8080/?action=stream")
 	},
 	methods: mapMutations('settings', ['update'])
 }

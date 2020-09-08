@@ -10,6 +10,7 @@ import MacroFileList from './MacroFileList.vue'
 import MacroList from './MacroList.vue'
 import GcodeList from './GcodeList.vue'
 import SysFileList from './SysFileList.vue'
+import TimelapseFileList from './TimelapseFileList.vue'
 import materials from './materials'
 
 Vue.component('base-file-list', BaseFileList)
@@ -20,6 +21,7 @@ Vue.component('macro-file-list', MacroFileList)
 Vue.component('macro-list', MacroList)
 Vue.component('gcode-list', GcodeList)
 Vue.component('sys-file-list', SysFileList)
+Vue.component('timelapse-file-list', TimelapseFileList)
 
 export default {
 	DisplayFileList,
@@ -29,5 +31,6 @@ export default {
 	MacroList,
 	GcodeList,
 	SysFileList,
+	TimelapseFileList,
 	materials
 }

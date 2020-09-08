@@ -27,12 +27,12 @@ export function drawLegend(canvas, maxVisualizationZ, colorScheme) {
 	// Make scale gradient
 	const showAxes = canvas.height > 180;
 	let scaleHeight = showAxes ? (canvas.height - 139) : (canvas.height - 96);
-	if (colorScheme === 'terrain') {
+	if (colorScheme === 'terrain' || colorScheme === 'diff') {
 		scaleHeight -= 16;
 	}
 
 	const gradient = context.createLinearGradient(0, 66, 0, 66 + scaleHeight);
-	if (colorScheme === 'terrain') {
+	if (colorScheme === 'terrain' || colorScheme === 'diff') {
 		gradient.addColorStop(0.0, 'hsl(0,100%,45%)');
 		gradient.addColorStop(0.25, 'hsl(60,100%,45%)');
 		gradient.addColorStop(0.5, 'hsl(120,100%,45%)');
@@ -48,7 +48,7 @@ export function drawLegend(canvas, maxVisualizationZ, colorScheme) {
 
 	// Put annotation below gradient
 	context.fillStyle = 'white';
-	if (colorScheme === 'terrain') {
+	if (colorScheme === 'terrain' || colorScheme === 'diff') {
 		context.fillText(`${-maxVisualizationZ} mm`, canvas.width / 2, scaleHeight + 82);
 		context.fillText(i18n.t('panel.heightmap.orLess'), canvas.width / 2, scaleHeight + 98);
 		scaleHeight += 16;
@@ -71,7 +71,7 @@ export function drawLegend(canvas, maxVisualizationZ, colorScheme) {
 
 function getColorByZ(z, colorScheme, maxVisualizationZ) {
 	// Terrain color scheme (i.e. from blue to red, asymmetric)
-	if (colorScheme === 'terrain') {
+	if (colorScheme === 'terrain' || colorScheme === 'diff') {
 		z = Math.max(Math.min(z, maxVisualizationZ), -maxVisualizationZ);
 		const hue = 240 - ((z + maxVisualizationZ) / maxVisualizationZ) * 120;
 		return new Color('hsl(' + hue + ',100%,45%)');
@@ -83,12 +83,17 @@ function getColorByZ(z, colorScheme, maxVisualizationZ) {
 }
 
 // Apply colors to the faces
-export function setFaceColors(geometry, scaleZ, colorScheme, maxVisualizationZ) {
+export function setFaceColors(geometry, scaleZ, colorScheme, maxVisualizationZ, geometryB) {
+	if (geometryB)
+		console.log(geometry.faces.length, geometryB.faces.length)
+	else
+		console.log(geometry.faces.length)
 	for (let i = 0; i < geometry.faces.length; i++) {
 		const face = geometry.faces[i];
-		const a = getColorByZ(geometry.vertices[face.a].z / scaleZ, colorScheme, maxVisualizationZ);
-		const b = getColorByZ(geometry.vertices[face.b].z / scaleZ, colorScheme, maxVisualizationZ);
-		const c = getColorByZ(geometry.vertices[face.c].z / scaleZ, colorScheme, maxVisualizationZ);
+		const faceB = (geometryB ? geometryB.faces[i] : undefined);
+		const a = getColorByZ((geometry.vertices[face.a].z-(geometryB ? geometryB.vertices[faceB.a].z : 0)) / scaleZ, colorScheme, maxVisualizationZ);
+		const b = getColorByZ((geometry.vertices[face.b].z-(geometryB ? geometryB.vertices[faceB.b].z : 0)) / scaleZ, colorScheme, maxVisualizationZ);
+		const c = getColorByZ((geometry.vertices[face.c].z-(geometryB ? geometryB.vertices[faceB.c].z : 0)) / scaleZ, colorScheme, maxVisualizationZ);
 
 		if (face.vertexColors.length < 3) {
 			face.vertexColors = [a, b, c];

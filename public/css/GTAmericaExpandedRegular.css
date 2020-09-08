@@ -1,0 +1,9 @@
+@font-face {
+    font-family: 'GTAmericaExpandedRegular';
+    src: url('/fonts/GTAmericaExpanded/GTAmericaExpandedRegular.eot');
+    src: url('/fonts/GTAmericaExpanded/GTAmericaExpandedRegular.eot') format('embedded-opentype'),
+         url('/fonts/GTAmericaExpanded/GTAmericaExpandedRegular.woff2') format('woff2'),
+         url('/fonts/GTAmericaExpanded/GTAmericaExpandedRegular.woff') format('woff'),
+         url('/fonts/GTAmericaExpanded/GTAmericaExpandedRegular.ttf') format('truetype'),
+         url('/fonts/GTAmericaExpanded/GTAmericaExpandedRegular.svg#GTAmericaExpandedRegular') format('svg');
+}

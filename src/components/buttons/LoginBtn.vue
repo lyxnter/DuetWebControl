@@ -20,7 +20,7 @@ export default {
 		isBusy() { return this.isLoggingIn || this.isLoggingOut },
 		buttonColor() {
 			return this.isBusy ? 'warning'
-				: (this.isLogedIn ? 'success' : 'primary');
+				: (this.isLogedIn ? 'success' : 'primary darken-1');
 		},
 		buttonIcon() {
 			return this.isLogedIn ? 'no_meeting_room' : 'meeting_room';

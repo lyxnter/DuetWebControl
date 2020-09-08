@@ -4,7 +4,7 @@ const heaterColors = [
 	'primary',
 	'red',
 	'green',
-	'orange',
+	'blue',
 	'grey',
 	'lime',
 	'black',

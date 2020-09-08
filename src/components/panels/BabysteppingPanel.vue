@@ -1,7 +1,12 @@
+<style>
+	.local {
+		font-size: large;
+	}
+</style>
 <template>
-	<v-card>
+	<v-card :class="{local: isLocal}">
 		<v-card-title>
-			<v-icon small class="mr-1">vertical_align_center</v-icon> {{ $t('panel.babystepping.caption') }}
+			<v-icon small class="mr-1">vertical_align_center</v-icon> <span :class="{local: isLocal}"> {{ $t('panel.babystepping.caption') }} </span>
 		</v-card-title>
 
 		<v-card-text class="pt-0">
@@ -34,7 +39,8 @@ export default {
 		...mapState('machine/model', {
 			babystepping: state => state.move.babystepZ
 		}),
-		...mapState('machine/settings', ['babystepAmount'])
+		...mapState('machine/settings', ['babystepAmount']),
+		...mapState(['isLocal'])
 	}
 }
 </script>

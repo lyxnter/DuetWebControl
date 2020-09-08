@@ -11,7 +11,7 @@
 			<v-btn class="hidden-sm-and-down" v-show="isRootDirectory" :disabled="uiFrozen" @click="showNewMaterial = true">
 				<v-icon class="mr-1">create_new_folder</v-icon> {{ $t('button.newMaterial.caption') }}
 			</v-btn>
-			<v-btn class="hidden-sm-and-down" color="info" :loading="loading" :disabled="uiFrozen" @click="refresh">
+			<v-btn class="hidden-sm-and-down" color="primary" :loading="loading" :disabled="uiFrozen" @click="refresh">
 				<v-icon class="mr-1">refresh</v-icon> {{ $t('button.refresh.caption') }}
 			</v-btn>
 			<upload-btn class="hidden-sm-and-down" target="materials" color="primary"></upload-btn>
@@ -19,7 +19,7 @@
 
 		<base-file-list ref="filelist" v-model="selection" :directory.sync="directory" :loading.sync="loading" :doingFileOperation="doingFileOperation" sort-table="materials" @fileClicked="fileClicked" :no-delete="isRootDirectory" :no-rename="materialSelected" no-drag-drop>
 			<template slot="no-data">
-				<v-alert :value="true" type="info" class="ma-0" @contextmenu.prevent="">
+				<v-alert :value="true" type="primary" class="ma-0" @contextmenu.prevent="">
 					{{ isRootDirectory ? $t('list.material.noMaterials') : $t('list.baseFileList.noFiles') }}
 				</v-alert>
 			</template>
@@ -44,7 +44,7 @@
 			<v-btn v-show="isRootDirectory" :disabled="uiFrozen" @click="showNewMaterial = true">
 				<v-icon class="mr-1">create_new_folder</v-icon> {{ $t('button.newFilament.caption') }}
 			</v-btn>
-			<v-btn color="info" :loading="loading" :disabled="uiFrozen" @click="refresh">
+			<v-btn color="primary" :loading="loading" :disabled="uiFrozen" @click="refresh">
 				<v-icon class="mr-1">refresh</v-icon> {{ $t('button.refresh.caption') }}
 			</v-btn>
 			<upload-btn target="materials" color="primary"></upload-btn>

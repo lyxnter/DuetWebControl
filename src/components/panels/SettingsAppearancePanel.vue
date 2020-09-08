@@ -46,6 +46,10 @@ export default {
 		useBinaryPrefix: {
 			get() { return this.settings.useBinaryPrefix; },
 			set(value) { this.update({ useBinaryPrefix: value }); }
+		},
+		disableAutoComplete: {
+			get() { return this.settings.disableAutoComplete; },
+			set(value) { this.update({ disableAutoComplete: value }); }
 		}
 	},
 	methods: mapMutations('settings', ['update'])

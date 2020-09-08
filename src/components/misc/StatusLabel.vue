@@ -9,7 +9,7 @@ span {
 </style>
 
 <template>
-	<span class="px-2" :class="statusClass">{{ statusText }}</span>
+	<span class="px-2 subtitle-2" :class="statusClass">{{ statusText }}</span>
 </template>
 
 <script>
@@ -21,6 +21,9 @@ export default {
 	computed: {
 		...mapState('machine/model', ['state']),
 		...mapState('settings', ['darkTheme']),
+		...mapState({
+			isLocal: state => state.isLocal,
+		}),
 		statusType() {
 			if (!this.state.status) {
 				return 'unknown';
@@ -31,7 +34,7 @@ export default {
 			return this.state.status;
 		},
 		statusText() {
-			return this.$t(`generic.status.${this.statusType}`);
+			return this.isLocal?this.$t(`generic.status.${this.statusType}`).match(/[a-zA-Z]*/)[0]:this.$t(`generic.status.${this.statusType}`);
 		},
 		statusClass() {
 			switch (this.state.status) {

@@ -27,7 +27,8 @@ const webExtensions = ['.htm', '.html', '.ico', '.xml', '.css', '.map', '.js', '
 
 export default {
 	computed: {
-		...mapState(['isLocal','selectedMachine']),
+		...mapState(['isLocal', 'selectedMachine']),
+		...mapState('machine/model', ['electronics']),
 		...mapGetters(['isConnected', 'uiFrozen']),
 		...mapGetters('machine/model', ['board']),
 		caption() {
@@ -91,6 +92,12 @@ export default {
 				wifiServerSpiffs: false,
 
 				codeSent: false
+			},
+			files: [],
+			renameDialog: {
+				shown: false,
+				directory: '',
+				item: null
 			}
 		}
 	},
@@ -104,7 +111,43 @@ export default {
 		uploadPrint: Boolean
 	},
 	methods: {
-		...mapActions('machine', ['sendCode', 'upload']),
+		...mapActions('machine', ['sendCode', 'upload', 'getFileList']),
+		isUnique(name) {
+			if (this.files && this.files.length && name && name.length) {
+				let input = name
+				let ext = ''
+				let num
+				if (input.indexOf('.') > 0) {
+					ext = input.substr(input.lastIndexOf('.')+1)
+					input = input.substr(0, input.lastIndexOf('.'))
+				}
+				if ((/ - Copy(\(\d+\))?/gm).test(input)) {
+					num = parseInt(input.substr( input.lastIndexOf('(')+1))
+					input = input.substr(0, input.lastIndexOf('-Copy'))
+				}
+				let maxnum = 0;
+				let files = this.files.filter(file => {
+					let fname = file.name
+					let fext = ''
+					let fnum
+					if (fname.indexOf('.') > 0) {
+						fext = fname.substr(fname.lastIndexOf('.')+1)
+						fname = fname.substr(0, fname.lastIndexOf('.'))
+					}
+					if ((/ - Copy(\(\d+\))?/gm).test(fname)) {
+						fnum = parseInt(fname.substr( fname.lastIndexOf('(')+1))
+						fname = fname.substr(0, fname.lastIndexOf('-Copy'))
+						if (fname == name && fnum > maxnum) {
+							maxnum = fnum
+						}
+					}
+					return fname == input && fext == ext && (fnum == num)
+				})
+				console.log(files.length == 0 ? 'unique' : 'NOT UNIQUE');
+				return files.length == 0
+			}
+			return true;
+		},
 		chooseFile() {
 			if (!this.isBusy) {
 				this.$refs.fileInput.click();
@@ -124,6 +167,47 @@ export default {
 				return true;
 			}
 			return false;
+		},
+		renameFile(name){
+			let bakname = name;
+			if (this.files.length > 0) {
+				let ext = ''
+				let num
+				if (name.indexOf('.') > 0) {
+					ext = name.substr(name.lastIndexOf('.')+1)
+					name = name.substr(0, name.lastIndexOf('.'))
+				}
+				if ((/ - Copy(\(\d+\))?/gm).test(name)) {
+					num = parseInt(name.substr( name.lastIndexOf('(')+1))
+					name = name.substr(0, name.lastIndexOf('-Copy'))
+				}
+				let maxnum = 0;
+				let files = this.files.filter(file => {
+					let fname = file.name
+					let fext = ''
+					let fnum
+					if (fname.indexOf('.') > 0) {
+						fext = fname.substr(fname.lastIndexOf('.')+1)
+						fname = fname.substr(0, fname.lastIndexOf('.'))
+					}
+					if ((/ - Copy(\(\d+\))?/gm).test(fname)) {
+						fnum = parseInt(fname.substr( fname.lastIndexOf('(')+1))
+						fname = fname.substr(0, fname.lastIndexOf(' - Copy'))
+						if (name == fname && fnum > maxnum){
+							maxnum = fnum
+						}
+					}
+					return fname == name && fext == ext && (fnum == num)
+				})
+				console.log(files)
+				files = files.sort((a, b) => { if (a.name < b.name) return -1; if (a.name > b.name) return 1; return 0})
+				if(!this.isUnique(bakname))
+				{
+					name = name + ' - Copy(' + (maxnum+1) + ')' + (ext.length ? '.' + ext : '')
+					console.log(name)
+					return name
+				}
+			}
 		},
 		async doUpload(files, zipName, startTime) {
 			if (!files.length) {
@@ -184,7 +268,14 @@ export default {
 			let success = true;
 			this.uploading = true;
 			for (let i = 0; i < files.length; i++) {
-				const content = files[i];
+
+				await this.loadDirectory(this.destinationDirectory)
+				let content = files[i];
+
+				if (!await this.isUnique(content.name))
+				{
+					content = new File([files[i].slice(0, files[i].size, files[i].type)], this.renameFile(files[i].name))
+				}
 
 				// Adjust filename if an update is being uploaded
 				let filename = Path.combine(this.destinationDirectory, content.name);
@@ -209,25 +300,55 @@ export default {
 				try {
 					// Start uploading
 					if (files.length > 1) {
-						await this.upload({ filename, content, showSuccess: !zipName, num: i + 1, count: files.length });
-						if(this.target === 'gcodes')
-						{
-							filename = filename.substring(10,filename.lastIndexOf("."));
-							console.log(filename);
+						if(document.getElementById("previewDisplay"))
+						document.getElementById('previewDisplay').style.display = 'none'
+
+						if (content.size <= 4*1024*1024) {
+							await this.upload({ filename, content, showSuccess: !zipName, num: i + 1, count: files.length, showProgress: true });
+						} else {
+							this.$makeNotification('warning',
+							"File skipped",
+							filename.substring(filename.lastIndexOf('/')+1) + " is too big to be reliably uploaded. Please upload it alone",
+							10000);
 						}
 					} else {
-						await this.upload({ filename, content });
 						if(this.target === 'gcodes')
 						{
-							filename = filename.substring(10,filename.lastIndexOf("."));
-							//console.log(content);
-							//console.log(filename);
-							if(content.size <= 1*1024*1024) {
-								console.log(this.gcodeReader.lectDonnees(content, filename, this.selectedMachine));
+							if (content.size > 2*1024*1024) {
+								if(document.getElementById("previewDisplay")) {
+									document.getElementById('previewDisplay').style.display = 'none'
+								}
+								await this.upload({ filename, content });
+								if (content.size <= 4*1024*1024) {
+									console.log("medium file")
+									document.getElementById("uploadDiv").style.display = "none";
+								}
 							}
+							else {
+								this.upload({ filename, content });
+							}
+							filename = filename.substring(10,filename.lastIndexOf("."));
+							console.log(filename);
+							if(content.size <= 2*1024*1024) {
+								if(document.getElementById("uploadDiv"))
+								document.getElementById("uploadDiv").style.display = ""
+								if(document.getElementById("threeDisplay"))
+								document.getElementById('threeDisplay').style.display = ''
+								if(document.getElementById("previewDisplay"))
+								document.getElementById('previewDisplay').style.display = ''
+								this.gcodeReader.lectDonnees(content, filename, this)
+							}
+						} else {
+							await this.upload({ filename, content });
+						}
+						if (content.size > 4*1024*1024) {
+							setTimeout(function(caller){
+								console.log('big file timeout')
+								caller.$emit('refreshlist');
+								document.getElementById("uploadDiv").style.display = "none";
+							}, Math.max(Math.floor(content.size/(650*1024)), 10)*1000, this);
 						}
 					}
-
 					// Run it (if required)
 					if (this.target === 'start') {
 						await this.sendCode(`M32 "${filename}"`);
@@ -246,6 +367,10 @@ export default {
 					this.$makeNotification('success', this.$t('notification.upload.success', [zipName, this.$displayTime(secondsPassed)]));
 				}
 				this.$emit('uploadComplete', files);
+				if (files.length > 1) {
+					console.log('upload-btn')
+					document.getElementById("uploadDiv").style.display = "none";
+				}
 
 				if (this.updates.firmware || this.updates.wifiServer || this.updates.wifiServerSpiffs) {
 					// Ask user to perform an update
@@ -293,6 +418,13 @@ export default {
 			if (!this.isBusy && e.dataTransfer.files.length) {
 				await this.doUpload(e.dataTransfer.files);
 			}
+		},
+		async loadDirectory(directory) {
+			this.files = await this.getFileList(directory);
+			//console.log(this.files)
+		},
+		async renameCallback(newFilename){
+			console.log(newFilename)
 		}
 	},
 	watch: {

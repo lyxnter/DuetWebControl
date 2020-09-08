@@ -1,16 +1,22 @@
 'use strict'
 
+import Vue from 'vue'
+
 import { quickPatch } from '../../utils/patch.js'
 
 export class Axis {
 	constructor(initData) { quickPatch(this, initData); }
-	letter = null				// must be upper-case
+	letter = '\0'
 	drives = []
-	homed = null
+	homed = false
 	machinePosition = null
 	min = null
+	minEndstop = null
+	minProbed = false
 	max = null
-	visible = null
+	maxEndstop = null
+	maxProbed = false
+	visible = true
 }
 
 export class BedOrChamber {
@@ -23,17 +29,22 @@ export class BedOrChamber {
 
 export class Channel {
 	constructor(initData) { quickPatch(this, initData); }
+	compatibility = 1	// RepRapFirmware
 	feedrate = 50
 	relativeExtrusion = true
+	volumetricExtrusion = false
 	relativePositioning = false
+	stackDepth = 0
+	usingInches = false
+	lineNumber = 0
 }
 
 export class Drive {
 	constructor(initData) { quickPatch(this, initData); }
 	position = null
-	babystepping = {
-		value: null,
-		interpolated: null
+	microstepping = {
+		value: 16,
+		interpolated: true
 	}
 	current = null
 	acceleration = null
@@ -43,13 +54,15 @@ export class Drive {
 
 export class Endstop {
 	constructor(initData) { quickPatch(this, initData); }
+	action = 0					// 0: none, 1: reduce speed, 2: stop driver, 3: stop driver, 4: stop all
 	triggered = false
-	position = 0				// 0: none, 1: low end 2: high end
-	type = 0					// 0: active low, 1: active high, 3: zprobe, 4: motor load detection
+	type = 0					// 0: active low, 1: active high, 3: probe, 4: stall any, 5: stall individual
+	probe = null
 }
 
 export class ExpansionBoard {
 	constructor(initData) { quickPatch(this, initData); }
+	shortName = null
 	name = null
 	revision = null
 	firmware = new Firmware()
@@ -77,6 +90,7 @@ export class ExtraHeater {
 
 export class Extruder {
 	constructor(initData) { quickPatch(this, initData); }
+	drives = []
 	factor = 1.0
 	nonlinear = {
 		a: 0,
@@ -114,16 +128,16 @@ export class FileInfo {
 		}
 	}
 	fileName = null
-	size = null
+	size = 0
 	lastModified = null
-	filament = []
-	generatedBy = null
-	height = null
-	firstLayerHeight = null
-	layerHeight = null
+	height = 0.0
+	firstLayerHeight = 0.0
+	layerHeight = 0.0
 	numLayers = null
-	printTime = null
-	simulatedTime = null
+	filament = []
+	generatedBy = ''
+	printTime = 0
+	simulatedTime = 0
 }
 
 export class Firmware {
@@ -134,33 +148,47 @@ export class Firmware {
 
 export class Heater {
 	constructor(initData) { quickPatch(this, initData); }
-	current = null
+	current = -273.15
 	name = null
 	state = null				// see RRF state enum
 	model = {
 		gain: null,
-		timeConst: null,
+		timeConstant: null,
 		deadTime: null,
-		maxPwm: null
+		maxPwm: null,
+		standardVoltage: null,
+		usePID: true,
+		customPID: false,
+		p: 0.0,
+		i: 0.0,
+		d: 0.0
 	}
 	max = null
 	sensor = null
+	avgPWM = null
+}
+
+export class Laser {
+	constructor(initData) { quickPatch(this, initData); }
+	actualPwm = 0.0
+	requestedPwm = 0.0
 }
 
 export class Layer {
 	constructor(initData) { quickPatch(this, initData); }
-	duration = null
-	height = null
+	duration = 0.0
+	height = 0.0
 	filament = []
-	fractionPrinted = null
+	fractionPrinted = 0.0
 }
 
 export class NetworkInterface {
 	constructor(initData) { quickPatch(this, initData); }
-	type = null					// one of ['wifi', 'lan']
+	type = 'wifi'				// one of ['wifi', 'lan']
 	firmwareVersion = null
 	speed = null				// null if unknown and 0 if no link
 	signal = null				// only WiFi (dBm)
+	macAddress = null
 	configuredIP = null
 	actualIP = null
 	subnet = null
@@ -177,24 +205,27 @@ export class Probe {
 	threshold = 500
 	speed = 2
 	diveHeight = 5
+	offsets = []
 	triggerHeight = 0.7
+	filtered = true
 	inverted = false
 	recoveryTime = 0
 	travelSpeed = 100
 	maxProbeCount = 1
 	tolerance = 0.03
 	disablesBed = false
+	persistent = false
 }
 
 export class Spindle {
 	constructor(initData) { quickPatch(this, initData); }
-	active = null				// RPM
-	current = null				// RPM
+	active = 0					// RPM
+	current = 0					// RPM
 }
 
 export class Storage {
 	constructor(initData) { quickPatch(this, initData); }
-	mounted = null
+	mounted = false
 	speed = null				// in Bytes/s
 	capacity = null				// in Bytes
 	free = null					// in Bytes
@@ -204,18 +235,25 @@ export class Storage {
 
 export class Tool {
 	constructor(initData) { quickPatch(this, initData); }
-	number = null
+	number = 0
 	active = []
 	standby = []
 	name = null
+	filamentExtruder = 0
 	filament = null
 	fans = []
 	heaters = []
 	extruders = []
 	mix = []
 	spindle = -1
-	axes = []							// may hold sub-arrays of drives per axis
-	offsets = []						// offsets in the same order as the axes
+	axes = []					// may hold sub-arrays of drives per axis
+	offsets = []				// offsets in the same order as the axes
+	offsetsProbed = 0			// bitmap of the probed axes
+}
+
+export class UserVariable {
+	name = ""
+	value = ""
 }
 
 function fixObject(item, preset) {
@@ -263,7 +301,7 @@ export function fixMachineItems(state, mergeData) {
 	}
 
 	if (mergeData.fans) {
-		fixItems(state.fans, Fan);
+		fixItems(state.fans, Fan)
 	}
 
 	if (mergeData.heat) {
@@ -279,6 +317,10 @@ export function fixMachineItems(state, mergeData) {
 		if (mergeData.heat.heaters) {
 			fixItems(state.heat.heaters, Heater);
 		}
+	}
+
+	if (mergeData.lasers) {
+		fixItems(state.lasers, Laser);
 	}
 
 	// Layers are not verified for performance reasons
@@ -314,5 +356,9 @@ export function fixMachineItems(state, mergeData) {
 
 	if (mergeData.tools) {
 		fixItems(state.tools, Tool);
+	}
+
+	if (mergeData.userVariables) {
+		fixItems(state.userVariables, UserVariable);
 	}
 }

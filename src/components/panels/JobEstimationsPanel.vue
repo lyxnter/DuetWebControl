@@ -1,58 +1,63 @@
+<style>
+	.local {
+		font-size: large !important;
+	}
+</style>
 <template>
 	<v-card>
-		<v-card-title>
+		<v-card-title :class="{local: isLocal}">
 			<v-icon small class="mr-1">watch_later</v-icon> {{ $t('panel.jobEstimations.caption') }}
 		</v-card-title>
 
 		<v-card-text class="pt-0 text-xs-center">
-			<v-layout row wrap>
-				<v-flex>
-					<v-layout column>
+			<v-layout :class="(isLocal?'column':'row')" wrap>
+				<v-flex order-sm2>
+					<v-layout :class="isLocal?'row':'column'">
 						<v-flex tag="strong">
 							{{ $t('panel.jobEstimations.filament') }}
 						</v-flex>
 						<v-flex>
-							{{ $displayTime(job.timesLeft.filament) }}
+							{{ $displayTime(job.timesLeft.filament, true) }}
 						</v-flex>
 					</v-layout>
 				</v-flex>
-				<v-flex>
-					<v-layout column>
+				<v-flex order-sm2>
+					<v-layout :class="isLocal?'row':'column'">
 						<v-flex tag="strong">
 							{{ $t('panel.jobEstimations.file') }}
 						</v-flex>
 						<v-flex>
-							{{ $displayTime(job.timesLeft.file) }}
+							{{ $displayTime(job.timesLeft.file, true) }}
 						</v-flex>
 					</v-layout>
 				</v-flex>
-				<v-flex>
-					<v-layout column>
+				<v-flex order-sm2>
+					<v-layout :class="isLocal?'row':'column'">
 						<v-flex tag="strong">
 							{{ $t('panel.jobEstimations.layer') }}
 						</v-flex>
 						<v-flex>
-							{{ $displayTime(job.timesLeft.layer) }}
+							{{ $displayTime(job.timesLeft.layer, true) }}
 						</v-flex>
 					</v-layout>
 				</v-flex>
-				<v-flex v-show="job.file.printTime && !state.isSimulating">
-					<v-layout column>
+				<v-flex v-show="job.file.printTime && !state.isSimulating" :class="isLocal?'order-sm1':'order-sm2'" :style="{width: isLocal?'100%':''}">
+					<v-layout :class="isLocal?'row':'column'" :style="{'font-size': isLocal?'larger':''}">
 						<v-flex tag="strong">
 							{{ $t('panel.jobEstimations.slicer') }}
 						</v-flex>
 						<v-flex>
-							{{ $displayTime(state.isPrinting ? Math.max(0, job.file.printTime - job.duration) : job.file.printTime) }}
+							{{ $displayTime(state.isPrinting ? Math.max(0, job.file.printTime - job.duration, true) : job.file.printTime) }}
 						</v-flex>
 					</v-layout>
 				</v-flex>
-				<v-flex v-show="job.file.simulatedTime && !state.isSimulating">
+				<v-flex v-show="job.file.simulatedTime && !state.isSimulating" class="order-sm2">
 					<v-layout column>
 						<v-flex tag="strong">
 							{{ $t('panel.jobEstimations.simulation') }}
 						</v-flex>
 						<v-flex>
-							{{ $displayTime(state.isPrinting ? Math.max(0, job.file.simulatedTime - job.duration) : job.file.simulatedTime) }}
+							{{ $displayTime(state.isPrinting ? Math.max(0, job.file.simulatedTime - job.duration, true) : job.file.simulatedTime) }}
 						</v-flex>
 					</v-layout>
 				</v-flex>
@@ -64,9 +69,13 @@
 <script>
 'use strict'
 
-import { mapState } from 'vuex'
+import { mapState, mapGetters } from 'vuex'
 
 export default {
-	computed: mapState('machine/model', ['job', 'state'])
+	computed: {
+		...mapState(['isLocal']),
+		...mapState('machine/model', ['job', 'state']),
+		...mapGetters('machine/model', ['isPrinting', 'isSimulating'])
+	}
 }
 </script>

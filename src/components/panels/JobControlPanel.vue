@@ -9,25 +9,38 @@
 				<v-icon class="mr-1">{{ isPaused ? "play_arrow" : "pause" }}</v-icon> {{ pauseResumeText }}
 			</code-btn>
 
-			<code-btn v-if="isPaused" color="error" block code="M0 H1">
+			<v-btn v-if="isPaused" color="error" block @click="confirmCancel">
 				<v-icon class="mr-1">stop</v-icon> {{ cancelText }}
-			</code-btn>
+			</v-btn>
 
 			<code-btn v-if="!state.isPrinting && processAnotherCode" color="success" block :code="processAnotherCode">
 				<v-icon class="mr-1">refresh</v-icon> {{ processAnotherText }}
 			</code-btn>
 
-			<v-switch :label="$t('panel.jobControl.autoSleep')" v-model="autoSleepActive" :disabled="uiFrozen" hide-details></v-switch>
+			<v-switch :label="$t('panel.jobControl.autoSleep')" v-model="autoSleepActive" :disabled="uiFrozen" hide-details v-if="!isLocal"></v-switch>
 		</v-card-text>
+
+		<confirm-dialog :shown.sync="confirmCancelDialog.shown" :question="confirmCancelDialog.question" :prompt="confirmCancelDialog.prompt" @confirmed="sendCode('M0 H1')"></confirm-dialog>
 	</v-card>
 </template>
 
 <script>
 'use strict'
 
-import { mapState, mapGetters, mapMutations } from 'vuex'
+import { mapState, mapGetters, mapMutations, mapActions} from 'vuex'
+
+import { extractFileName } from '../../utils/path.js'
 
 export default {
+	data() {
+		return {
+			confirmCancelDialog: {
+				question: this.$t('dialog.cancel.title'),
+				prompt: this.$t('dialog.cancel.prompt',['']),
+				shown: false
+			},
+		}
+	},
 	computed: {
 		...mapGetters(['uiFrozen']),
 		...mapState(['isLocal']),
@@ -73,8 +86,20 @@ export default {
 				return this.$t('panel.jobControl.repeatPrint');
 			}
 			return this.$t('panel.jobControl.repeatJob');
+		},
+		printFile() {
+			return this.job.file.fileName ? extractFileName(this.job.file.fileName) : undefined;
 		}
 	},
-	methods: mapMutations('machine', ['setAutoSleep'])
+	methods: {
+		...mapMutations('machine', ['setAutoSleep']),
+		...mapActions('machine', ['sendCode']),
+		confirmCancel: function() {
+			console.log(this.confirmCancelDialog);
+			//this.confirmCancelDialog.question = this.cancelText;
+			this.confirmCancelDialog.prompt =this.$t('dialog.cancel.prompt', [this.printFile?this.printFile:" l'impression"]);
+			this.$nextTick(() => this.confirmCancelDialog.shown = true);
+		}
+	}
 }
 </script>

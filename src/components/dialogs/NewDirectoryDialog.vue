@@ -1,5 +1,5 @@
 <template>
-	<input-dialog :shown.sync="innerShown" :title="title || $t('dialog.newDirectory.title')" :prompt="prompt || $t('dialog.newDirectory.prompt')" @confirmed="createDirectory"></input-dialog>
+	<input-dialog :shown.sync="innerShown" :title="title || $t('dialog.newDirectory.title')" :files="files" :prompt="prompt || $t('dialog.newDirectory.prompt')" @confirmed="createDirectory"></input-dialog>
 </template>
 
 <script>
@@ -34,11 +34,12 @@ export default {
 	computed: mapGetters(['isConnected']),
 	data() {
 		return {
-			innerShown: this.shown
+			innerShown: this.shown,
+			files: []
 		}
 	},
 	methods: {
-		...mapActions('machine', ['makeDirectory']),
+		...mapActions('machine', ['makeDirectory', 'getFileList']),
 		async createDirectory(directory) {
 			const currentDirectory = this.directory;
 			try {
@@ -58,6 +59,10 @@ export default {
 					}
 				}
 			}
+		},
+		async loadDirectory(directory) {
+			this.files = await this.getFileList(directory);
+			console.log(this.files)
 		}
 	},
 	watch: {
@@ -74,6 +79,7 @@ export default {
 		shown(to) {
 			if (this.innerShown !== to) {
 				this.innerShown = to;
+				this.loadDirectory(this.directory)
 			}
 		}
 	}

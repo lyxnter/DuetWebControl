@@ -11,8 +11,10 @@
 		<v-card-text class="pt-0">
 			<template v-if="isConnected">
 				<template v-if="electronics.name">
-					{{ electronics.name }}
-					<br/><br/>
+					{{ $t('panel.settingsElectronics.board', [electronics.name + (electronics.shortName ? ` (${electronics.shortName})` : '')]) }} <br>
+				</template>
+				<template v-if="electronics.version">
+					{{ `DSF Version: ${electronics.version}` }} <br>
 				</template>
 				<template v-if="electronics.firmware.name">
 					{{ $t('panel.settingsElectronics.firmware', [electronics.firmware.name + ' ' + $display(electronics.firmware.version), $display(electronics.firmware.date)]) }}
@@ -21,6 +23,8 @@
 				<template v-if="network.interfaces.length && network.interfaces[0].type === 'wifi'">
 					{{ $t('panel.settingsElectronics.dwsFirmware', [$display(network.interfaces[0].firmwareVersion)]) }}
 				</template>
+				<br>
+				{{ $t('panel.settingsElectronics.updateNote') }}
 			</template>
 			<template v-else>
 				(not connected)

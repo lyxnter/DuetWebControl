@@ -11,15 +11,15 @@
 			<v-btn class="hidden-sm-and-down" v-show="isRootDirectory" :disabled="uiFrozen" @click="showNewFiber = true">
 				<v-icon class="mr-1">create_new_folder</v-icon> New Fiber
 			</v-btn>
-			<v-btn class="hidden-sm-and-down" color="info" :loading="loading" :disabled="uiFrozen" @click="refresh">
+			<v-btn class="hidden-sm-and-down" color="grey darken-3" :loading="loading" :disabled="uiFrozen" @click="refresh">
 				<v-icon class="mr-1">refresh</v-icon> Refresh
 			</v-btn>
-			<upload-btn class="hidden-sm-and-down" target="fibers" color="primary"></upload-btn>
+			<upload-btn class="hidden-sm-and-down" target="fibers" color="primary darken-1"></upload-btn>
 		</v-toolbar>
 
 		<base-file-list ref="filelist" v-model="selection" :directory.sync="directory" :loading.sync="loading" :doingFileOperation="doingFileOperation" sort-table="fibers" @fileClicked="fileClicked" :no-delete="isRootDirectory" :no-rename="fiberselected" no-drag-drop>
 			<template slot="no-data">
-				<v-alert :value="true" type="info" class="ma-0" @contextmenu.prevent="">{{ isRootDirectory ? 'No Fibers' : 'No Files' }}</v-alert>
+				<v-alert :value="true" type="primary darken-1" class="ma-0" @contextmenu.prevent="">{{ isRootDirectory ? 'No Fibers' : 'No Files' }}</v-alert>
 			</template>
 
 			<template slot="context-menu">
@@ -42,10 +42,10 @@
 			<v-btn v-show="isRootDirectory" :disabled="uiFrozen" @click="showNewFiber = true">
 				<v-icon class="mr-1">create_new_folder</v-icon> New Fiber
 			</v-btn>
-			<v-btn color="info" :loading="loading" :disabled="uiFrozen" @click="refresh">
+			<v-btn color="grey darken-3" :loading="loading" :disabled="uiFrozen" @click="refresh">
 				<v-icon class="mr-1">refresh</v-icon> Refresh
 			</v-btn>
-			<upload-btn target="fibers" color="primary"></upload-btn>
+			<upload-btn target="fibers" color="primary darken-1"></upload-btn>
 		</v-layout>
 
 		<new-directory-dialog :shown.sync="showNewFiber" :directory="directory" title="New fiber" prompt="Please enter a name for the new fiber" :showSuccess="false" :showError="false" @directoryCreationFailed="directoryCreationFailed" @directoryCreated="createfiberFiles"></new-directory-dialog>
