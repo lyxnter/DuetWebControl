@@ -436,7 +436,7 @@ export default {
 			if (!that.axios) {
 				//let protocol = location.protocol;
 				that.axios = await axios.create({
-					baseURL:`https://192.168.1.243:8000/`,
+					baseURL:`https://duetapi:8000/`,
 					//cancelToken: BaseConnector.getCancelSource().token,
 					timeout: 8000,	// default session timeout in RepRapFirmware
 					withCredentials: true,
@@ -479,7 +479,7 @@ export default {
 				if (!this.axios) {
 					//let protocol = location.protocol;
 					this.axios = await axios.create({
-						baseURL:`https://192.168.1.243:8000/`,
+						baseURL:`https://duetapi:8000/`,
 						//cancelToken: BaseConnector.getCancelSource().token,
 						timeout: 8000,	// default session timeout in RepRapFirmware
 						withCredentials: true,

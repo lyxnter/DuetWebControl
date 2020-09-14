@@ -76,9 +76,9 @@ export default {
 	data() {
 		return {
 			ifaces: [],
-			publicIP: "127.0.0.1",
+			publicIP: "duetapi",
 			netmask: "255.0.0.0",
-			gateway: "127.0.0.1",
+			gateway: "duetapi",
 			dns: [],
 			axios: undefined,
 			edit: false,

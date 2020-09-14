@@ -31,8 +31,8 @@ const store = new Vuex.Store({
 		isLoggingOut: false,
 		isLoadingTool: false,
 		isUnloadingTool: false,
-		isLocal: ((location.hostname === 'localhost') || (location.hostname === '127.0.0.1') || (location.hostname === '[::1]')),
-		connectDialogShown: ((location.hostname === 'localhost') || (location.hostname === '127.0.0.1') || (location.hostname === '[::1]')) && ((location.port !== "80") && (location.port !== "")),
+		isLocal: ((location.hostname === 'localhost') || (location.hostname === 'duetapi') || (location.hostname === '[::1]')),
+		connectDialogShown: ((location.hostname === 'localhost') || (location.hostname === 'duetapi') || (location.hostname === '[::1]')) && ((location.port !== "80") && (location.port !== "")),
 		loginDialogShown: false,
 		passwordRequired: false,
 		selectedMachine: defaultMachine,
@@ -232,7 +232,7 @@ const store = new Vuex.Store({
 			try {
 				let hostname;
 				if (hostname == undefined)
-				hostname = (state.selectedMachine !== defaultMachine ? state.selectedMachine: (location.hostname != 'localhost' ? location.host : '192.168.1.243'));
+				hostname = (state.selectedMachine !== defaultMachine ? state.selectedMachine: (location.hostname != 'localhost' ? location.host : 'duetapi'));
 
 				let result = await connector.doLoadAddresses(hostname);
 				let ifaces = Object.values(result.data.cfg).filter(iface => (iface.ifname == "enp1s0" || iface.ifname == "enp2s0"))

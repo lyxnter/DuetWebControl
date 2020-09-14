@@ -21,7 +21,7 @@ import { quickPatch } from '../../../utils/patch.js'
 import { bitmapToArray } from '../../../utils/numbers.js'
 import { strToTime, timeToStr } from '../../../utils/time.js'
 
-const urlAPI = 'https://192.168.1.243:8000'
+const urlAPI = 'https://duetapi:8000'
 
 export default class ApiConnector extends BaseConnector {
 	static async connect(hostname, username, password) {

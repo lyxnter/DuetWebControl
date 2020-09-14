@@ -67,7 +67,7 @@ export default {
 						{
 							let response = await this.getFileList(Path.macros+"/_Toolheads");
 							let tools = response.filter(item => item.name.startsWith("CAL")).map(item => item.name);
-							//console.log("http://192.168.1.243/rr_filelist?dir="+Path.macros+"/_Toolheads/"+tools[0])
+							//console.log("http://duetapi/rr_filelist?dir="+Path.macros+"/_Toolheads/"+tools[0])
 							//console.log(tools);
 							path = Path.macros + "/_Toolheads/" + tools[0]
 						} else {
