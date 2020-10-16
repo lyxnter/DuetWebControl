@@ -53,6 +53,11 @@
 				</v-icon>
 				{{$t('dialog.confirmShutdown.title')}}
 			</v-btn>
+			<router-link :to="{ name: 'DuetConnexionList' }">DuetConnexion</router-link>
+			<v-content>
+			<Breadcrumb layout-class="pl-3 py-3" />
+			<router-view></router-view>
+		</v-content>
 			<v-spacer></v-spacer>
 			<div v-if="ifaces && ifaces.length > 0" style="font-size: large;position: fixed;margin: 0px 50%;z-index: 1;width: 150px;left: -75px;top: 0px;">
 				<div style="border-radius: 50%; display: inline-flex; margin-left: 0; vertical-align: middle; width: 15px; height: 15px" id="state"

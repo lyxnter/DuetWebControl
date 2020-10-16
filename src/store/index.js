@@ -2,6 +2,15 @@
 
 import Vue from 'vue'
 import Vuex from 'vuex'
+import makeCrudModule from './modules/crud';
+import notifications from './modules/notifications';
+import duetconfigService from '../services/duetconfig';
+import duetconnexionService from '../services/duetconnexion';
+import duetfileService from '../services/duetfile';
+import duetgcodeService from '../services/duetgcode';
+import duetreplyService from '../services/duetreply';
+import duetstatutService from '../services/duetstatut';
+import duetvideoService from '../services/duetvideo';
 
 import machine, { defaultMachine } from './machine'
 import connector from './machine/connector'
@@ -379,7 +388,30 @@ const store = new Vuex.Store({
 				// ... other machines are added as sub-modules to this object
 			}
 		},
-		settings
+		settings,
+		notifications,
+		duetconfig: makeCrudModule({
+			service: duetconfigService
+		}),
+		duetconnexion: makeCrudModule({
+			service: duetconnexionService
+		}),
+		duetfile: makeCrudModule({
+			service: duetfileService
+		}),
+		duetgcode: makeCrudModule({
+			service: duetgcodeService
+		}),
+		duetreply: makeCrudModule({
+			service: duetreplyService
+		}),
+		duetstatut: makeCrudModule({
+			service: duetstatutService
+		}),
+		duetvideo: makeCrudModule({
+			service: duetvideoService
+		}),
+
 	},
 	plugins: [
 		connector.installStore,

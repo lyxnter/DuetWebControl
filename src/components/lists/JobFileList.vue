@@ -233,8 +233,8 @@ export default {
 							}
 
 							// Set file info
-							
-							id= file.id;
+
+
 							height = fileInfo.height;
 							layerHeight = fileInfo.layerHeight;
 							filament = fileInfo.filament;
@@ -258,7 +258,7 @@ export default {
 					file.layerHeight = layerHeight;
 					file.filament = filament;
 					file.generatedBy = generatedBy;
-				
+
 					file.id = id;
 					file.printTime = printTime;
 					file.simulatedTime = simulatedTime;
@@ -313,7 +313,7 @@ export default {
 		simulate(item) {
 			this.sendCode(`M37 P"${Path.combine(this.directory, (item && item.name) ? item.name : this.selection[0].name)}"`);
 		},
-		history(item) {
+		history() {
 			console.log(this.selection[0]);
 			if (this.selection[0].id) {
 					this.historyDialog.title = this.selection[0].name;

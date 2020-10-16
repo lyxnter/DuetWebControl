@@ -1,113 +1,3 @@
-<style>
-#title:not(:hover) {
-	color: inherit;
-}
-#title {
-	margin-right: 20px;
-}
-
-.container {
-	padding: 4px;
-}
-.container div.component,
-.container div.v-card {
-	margin: 8px;
-}
-
-.empty-table-fix td {
-	padding-left: 0px !important;
-	padding-right: 0px !important;
-}
-
-.global-control.theme--light {
-	background-color: #F5F5F5 !important;
-}
-#global-container .v-card.theme--light {
-	background-color: #F5F5F5 !important;
-}
-.global-control.theme--dark {
-	background-color: #515151 !important;
-}
-#global-container .v-card.theme--dark {
-	background-color: #515151 !important;
-}
-
-input[type='number'] {
-	-moz-appearance: textfield;
-}
-
-input::-webkit-outer-spin-button,
-input::-webkit-inner-spin-button {
-	-webkit-appearance: none;
-}
-
-a:not(:hover) {
-	text-decoration: none;
-}
-
-a:hover {
-	color: white;
-}
-
-.theme--dark textarea {
-	caret-color: #FFF;
-}
-
-.v-item-group.theme--dark .v-btn__content {
-	color: #FFF !important;
-}
-
-.v-card__title {
-	font-size: 1rem;
-}
-
-#clock {
-	animation-duration: 10s;
-	animation-direction: normal;
-	animation-iteration-count: infinite;
-	animation-name: addLife;
-}
-
-@keyframes addLife {
-	0% {
-		margin-top: 0px;
-	}
-
-	10% {
-		margin-top: -21px;
-	}
-
-	50% {
-		margin-top: -21px;
-	}
-
-	60% {
-		margin-top: 0px;
-	}
-
-	100% {
-		margin-top: 0px;
-	}
-}
-
-#state {
-	animation-duration: 5s;
-	animation-direction: normal;
-	animation-iteration-count: infinite;
-	animation-timing-function: linear;
-	animation-name: animateCon;
-}
-
-@keyframes animateCon {
-	from {
-		transform: rotate(0deg)
-	}
-	to {
-		transform: rotate(360deg)
-	}
-}
-</style>
-
 <template>
 	<v-app :dark="darkTheme">
 		<template v-if="!getTool">
@@ -541,7 +431,7 @@ export default {
 	},
 	watch: {
 		darkTheme(to) {
-			this.$vuetify.theme.dark = to;
+		//	this.$vuetify.theme.dark = to;
 		},
 		isPrinting(to) {
 			if (to) {
@@ -597,3 +487,113 @@ export default {
 	}
 }
 </script>
+
+<style>
+#title:not(:hover) {
+	color: inherit;
+}
+#title {
+	margin-right: 20px;
+}
+
+.container {
+	padding: 4px;
+}
+.container div.component,
+.container div.v-card {
+	margin: 8px;
+}
+
+.empty-table-fix td {
+	padding-left: 0px !important;
+	padding-right: 0px !important;
+}
+
+.global-control.theme--light {
+	background-color: #F5F5F5 !important;
+}
+#global-container .v-card.theme--light {
+	background-color: #F5F5F5 !important;
+}
+.global-control.theme--dark {
+	background-color: #515151 !important;
+}
+#global-container .v-card.theme--dark {
+	background-color: #515151 !important;
+}
+
+input[type='number'] {
+	-moz-appearance: textfield;
+}
+
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+	-webkit-appearance: none;
+}
+
+a:not(:hover) {
+	text-decoration: none;
+}
+
+a:hover {
+	color: white;
+}
+
+.theme--dark textarea {
+	caret-color: #FFF;
+}
+
+.v-item-group.theme--dark .v-btn__content {
+	color: #FFF !important;
+}
+
+.v-card__title {
+	font-size: 1rem;
+}
+
+#clock {
+	animation-duration: 10s;
+	animation-direction: normal;
+	animation-iteration-count: infinite;
+	animation-name: addLife;
+}
+
+@keyframes addLife {
+	0% {
+		margin-top: 0px;
+	}
+
+	10% {
+		margin-top: -21px;
+	}
+
+	50% {
+		margin-top: -21px;
+	}
+
+	60% {
+		margin-top: 0px;
+	}
+
+	100% {
+		margin-top: 0px;
+	}
+}
+
+#state {
+	animation-duration: 5s;
+	animation-direction: normal;
+	animation-iteration-count: infinite;
+	animation-timing-function: linear;
+	animation-name: animateCon;
+}
+
+@keyframes animateCon {
+	from {
+		transform: rotate(0deg)
+	}
+	to {
+		transform: rotate(360deg)
+	}
+}
+</style>
