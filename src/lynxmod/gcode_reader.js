@@ -12,7 +12,7 @@ import { strToTime, timeToStr } from '../utils/time.js'
 const exportSTL = require('threejs-export-stl');
 import JSZip from 'jszip'
 let $ = require('jquery');
-
+import { ENTRYPOINT, HOSTNAME, PROTOCOL, PORT } from '../config/entrypoint';
 import { makeFileTransferNotification, makeNotification } from '../plugins/toast.js'
 
 /* ======== GCODE_READER ======== */
@@ -289,13 +289,13 @@ export default {
 
 					if( !self.axios) {
 						self.axios = await Axios.create({
-							baseURL:`http://192.168.1.53/`,
+							baseURL:ENTRYPOINT,
 							//cancelToken: BaseConnector.getCancelSource().token,
 							timeout: 8000,	// default session timeout in RepRapFirmware
 							withCredentials: true,
 						});
 					}
-					self.axios.post('rr_upload', content, {
+					self.axios.post('/duet/action/rr_upload', content, {
 						isFileTransfer: true,
 						params: {
 							name: bboxPath,

@@ -255,6 +255,7 @@ import axios from 'axios'
 import { mapState, mapGetters, mapActions, mapMutations } from 'vuex'
 
 import { Routing } from './routes'
+import { ENTRYPOINT, HOSTNAME } from './config/entrypoint';
 
 export default {
 	computed: {
@@ -441,7 +442,7 @@ export default {
 		window.addEventListener('unload', this.disconnectAll);
 
 		if(((location.port === "8080") || (location.port === "8081") || (location.port === "8082"))){
-			this.connect({hostname: "192.168.1.54"});
+			this.connect({hostname: HOSTNAME});
 		} else if (!this.isLocal || (location.port === "80") || (location.port === "")) {
 			this.connect();
 		}
@@ -458,7 +459,7 @@ export default {
 					setTimeout(() => {
 						console.log(location.host)
 						if(((location.port === "8080") || (location.port === "8081") || (location.port === "8082"))){
-							that.connect({hostname: "192.168.1.54"});
+							that.connect({hostname: HOSTNAME});
 						} else if (!that.isLocal || (location.port === "80") || (location.port === "")) {
 							that.connect();
 						}

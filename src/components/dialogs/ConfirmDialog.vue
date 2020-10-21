@@ -456,7 +456,7 @@ export default {
 			var start = new Date()
 			let that = this
 			$.ajax({
-				url: (this.selectedMachine?this.selectedMachine:"/") + "rr_upload?name=0:/www/img/GCodePreview/" + f + "/" + t + "&time=" + encodeURIComponent(this.timeToStr(new Date)),
+				url: (this.selectedMachine?this.selectedMachine:"/") + "/duet/action/rr_upload?name=0:/www/img/GCodePreview/" + f + "/" + t + "&time=" + encodeURIComponent(this.timeToStr(new Date)),
 				data: r,
 				type: "POST",
 				contentType: !1,
