@@ -1,0 +1,9 @@
+@font-face {
+    font-family: 'KnockoutHTF66FullFlyweight';
+    src: url('/fonts/KnockoutHTF66/KnockoutHTF66FullFlyweight.eot');
+    src: url('/fonts/KnockoutHTF66/KnockoutHTF66FullFlyweight.eot') format('embedded-opentype'),
+         url('/fonts/KnockoutHTF66FullFlyweight.woff2') format('woff2'),
+         url('/fonts/KnockoutHTF66/KnockoutHTF66FullFlyweight.woff') format('woff'),
+         url('/fonts/KnockoutHTF66/KnockoutHTF66FullFlyweight.ttf') format('truetype'),
+         url('/fonts/KnockoutHTF66/KnockoutHTF66FullFlyweight.svg#KnockoutHTF66FullFlyweight') format('svg');
+}

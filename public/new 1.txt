@@ -1,0 +1,12 @@
+C // Reading the configuration file
+F // Flashing a new firmware binary
+H // Halted
+O // Off
+D // Pausing / Decelerating
+R // Resuming
+S // Paused / Stopped
+M // Simulating
+P // Printing
+T // Changing tool
+B // Busy
+I // Idle
