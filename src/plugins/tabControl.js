@@ -161,7 +161,7 @@ export default {
 			if (binding.modifiers.contextmenu) {
 				contextMenuNodes[id] = vnode;
 			}
-		} else if (tagName === 'v-list-tile') {
+		} else if (tagName === 'v-list-item') {
 			const link = el.querySelector('a');
 			link.tabIndex = 0;
 
@@ -199,7 +199,7 @@ export default {
 			if (binding.modifiers.contextmenu) {
 				delete contextMenuNodes[el.dataset.tabId];
 			}
-		} else if (tagName === 'v-list-tile') {
+		} else if (tagName === 'v-list-item') {
 			const link = el.querySelector('a');
 			link.removeEventListener('keydown', tabItemKeyDown);
 		} else {

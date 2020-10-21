@@ -64,18 +64,18 @@ th:last-child {
 
 		<v-menu v-model="contextMenu.shown" :position-x="contextMenu.x" :position-y="contextMenu.y" absolute offset-y v-tab-control.contextmenu>
 			<v-list>
-				<v-list-tile v-show="contextMenu.item && !isLocal" @click="copy" tabindex="0">
+				<v-list-item v-show="contextMenu.item && !isLocal" @click="copy" tabindex="0">
 					<v-icon class="mr-1">assignment</v-icon> {{ $t('list.eventLog.copy') }}
-				</v-list-tile>
-				<v-list-tile @click="clearLog" tabindex="0">
+				</v-list-item>
+				<v-list-item @click="clearLog" tabindex="0">
 					<v-icon class="mr-1">clear_all</v-icon> {{ $t('list.eventLog.clear') }}
-				</v-list-tile>
-				<v-list-tile :disabled="!events.length" v-show="!isLocal" @click="downloadText" tabindex="0">
+				</v-list-item>
+				<v-list-item :disabled="!events.length" v-show="!isLocal" @click="downloadText" tabindex="0">
 					<v-icon class="mr-1">font_download</v-icon> {{ $t('list.eventLog.downloadText') }}
-				</v-list-tile>
-				<v-list-tile :disabled="!events.length" v-show="!isLocal" @click="downloadCSV" tabindex="0">
+				</v-list-item>
+				<v-list-item :disabled="!events.length" v-show="!isLocal" @click="downloadCSV" tabindex="0">
 					<v-icon class="mr-1">cloud_download</v-icon> {{ $t('list.eventLog.downloadCSV') }}
-				</v-list-tile>
+				</v-list-item>
 			</v-list>
 		</v-menu>
 	</div>

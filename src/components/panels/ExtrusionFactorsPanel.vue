@@ -11,12 +11,12 @@
 				</template>
 
 				<v-list>
-					<v-list-tile v-for="(extruder, index) in move.extruders" :key="index" @click="toggleExtruderVisibility(index)">
+					<v-list-item v-for="(extruder, index) in move.extruders" :key="index" @click="toggleExtruderVisibility(index)">
 						<v-icon class="mr-1">
 							{{ (displayedExtruders.indexOf(index) !== -1) ? 'check_box' : 'check_box_outline_blank' }}
 						</v-icon>
 						{{ $t('panel.extrusionFactors.extruder', [index]) }}
-					</v-list-tile>
+					</v-list-item>
 				</v-list>
 			</v-menu>
 		</v-card-title>

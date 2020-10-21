@@ -25,6 +25,7 @@ const ACTIONS = {
   MERCURE_OPEN: 'MERCURE_OPEN',
   RESET_LIST: 'RESET_LIST',
   SET_CREATED: 'SET_CREATED',
+  SET_ACTIONED: 'SET_ACTIONED',
   SET_DELETED: 'SET_DELETED',
   SET_ERROR: 'SET_ERROR',
   SET_SELECT_ITEMS: 'SET_SELECT_ITEMS',
@@ -135,7 +136,19 @@ export default function makeCrudModule({
             commit(ACTIONS.SET_UPDATED, data);
           })
           .catch(e => handleError(commit, e));
-      }
+      },
+      action: ({ commit },parameters) => {
+        commit(ACTIONS.SET_ERROR, '');
+        commit(ACTIONS.TOGGLE_LOADING);
+        service
+          .action(parameters['action'],parameters['values'])
+          .then(response => response.json())
+          .then(data => {
+            commit(ACTIONS.TOGGLE_LOADING);
+            commit(ACTIONS.SET_ACTIONED, data);
+          })
+          .catch(e => handleError(commit, e));
+      },
     },
     getters: {
       find: state => id => {
@@ -162,6 +175,9 @@ export default function makeCrudModule({
       },
       [ACTIONS.SET_CREATED]: (state, created) => {
         Object.assign(state, { created });
+      },
+      [ACTIONS.SET_ACTIONED]: (state, actioned) => {
+        Object.assign(state, { actioned });
       },
       [ACTIONS.SET_DELETED]: (state, deleted) => {
         if (!state.allIds.includes(deleted['@id'])) return;

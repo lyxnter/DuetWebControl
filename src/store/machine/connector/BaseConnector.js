@@ -1,5 +1,3 @@
-'use strict'
-
 import axios from 'axios'
 
 import { NotImplementedError } from '../../../utils/errors.js'
@@ -45,7 +43,7 @@ class BaseConnector {
 	type = 'unknown'
 	verbose = false
 
-	constructor(type, hostname) {
+	constructor(type,hostname) {
 		this.type = type;
 		this.hostname = hostname;
 	}

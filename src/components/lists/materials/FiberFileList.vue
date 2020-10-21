@@ -23,15 +23,15 @@
 			</template>
 
 			<template slot="context-menu">
-				<v-list-tile v-show="fiberselected" @click="downloadFiber">
+				<v-list-item v-show="fiberselected" @click="downloadFiber">
 					<v-icon class="mr-1">cloud_download</v-icon> Download
-				</v-list-tile>
-				<v-list-tile v-show="fiberSelected" @click="rename">
+				</v-list-item>
+				<v-list-item v-show="fiberSelected" @click="rename">
 					<v-icon class="mr-1">short_text</v-icon> Rename File or Directory
-				</v-list-tile>
-				<v-list-tile @click="remove">
+				</v-list-item>
+				<v-list-item @click="remove">
 					<v-icon class="mr-1">delete</v-icon> Delete
-				</v-list-tile>
+				</v-list-item>
 			</template>
 		</base-file-list>
 

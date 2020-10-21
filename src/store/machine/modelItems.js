@@ -1,6 +1,5 @@
 'use strict'
 
-import Vue from 'vue'
 
 import { quickPatch } from '../../utils/patch.js'
 

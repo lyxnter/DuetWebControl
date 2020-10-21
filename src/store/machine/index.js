@@ -15,7 +15,8 @@ import { makeFileTransferNotification, showMessage } from '../../plugins/toast.j
 
 import beep from '../../utils/beep.js'
 import { DisconnectedError, CodeBufferError, OperationCancelledError } from '../../utils/errors.js'
-import Path from '../../utils/path.js'
+import Path from '../../utils/path.js';
+
 
 export const defaultMachine = '[default]'			// must not be a valid hostname
 
@@ -36,6 +37,8 @@ export function getModifiedDirectories(action, state) {
 }
 
 export default function(hostname, connector) {
+	console.log(hostname);
+	console.log(connector);
 	return {
 		namespaced: true,
 		state: {
@@ -190,11 +193,11 @@ export default function(hostname, connector) {
 		},
 
 
-		async getFileHistory({ state, commit },id) {
+		async getFileHistory(id) {
 			return connector.getFileHistory(id);
 		},
 
-		async getConfigTools({ state, commit }) {
+		async getConfigTools() {
 			return connector.getConfigTools();
 		},
 

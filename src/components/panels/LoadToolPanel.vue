@@ -53,11 +53,7 @@
 				</v-icon>
 				{{$t('dialog.confirmShutdown.title')}}
 			</v-btn>
-			<router-link :to="{ name: 'DuetConnexionList' }">DuetConnexion</router-link>
-			<v-content>
-			<Breadcrumb layout-class="pl-3 py-3" />
-			<router-view></router-view>
-		</v-content>
+
 			<v-spacer></v-spacer>
 			<div v-if="ifaces && ifaces.length > 0" style="font-size: large;position: fixed;margin: 0px 50%;z-index: 1;width: 150px;left: -75px;top: 0px;">
 				<div style="border-radius: 50%; display: inline-flex; margin-left: 0; vertical-align: middle; width: 15px; height: 15px" id="state"
@@ -109,9 +105,9 @@
 			</v-tooltip>
 		</template>
 		<v-list v-if="selectedMachine !== '[default]' && waited && tools.length > 0 && !loading && false">
-			<v-list-tile v-for="(geometry, index) in geometries" :key="index" @click="geoClick(geometry)" :class="{'toolLocal': isLocal}">
+			<v-list-item v-for="(geometry, index) in geometries" :key="index" @click="geoClick(geometry)" :class="{'toolLocal': isLocal}">
 				{{ geometry.name }}
-			</v-list-tile>
+			</v-list-item>
 		</v-list>
 		<v-tabs v-if="selectedMachine !== '[default]' && waited && tools.length > 0" grow>
 			<v-tabs-slider color="primary"></v-tabs-slider>
@@ -124,9 +120,9 @@
 			</v-tab>
 			<v-tab-item v-for="(material, key) in tools.filter(mater => mater.tech != 'CAL' && mater.selected)" :key="key">
 				<v-list v-if="!loading">
-					<v-list-tile v-for="(tool, index) in material.tools.filter(tool => tool.selected)" :key="index" @click="toolClick(tool)" :class="{'toolLocal': isLocal}">
+					<v-list-item v-for="(tool, index) in material.tools.filter(tool => tool.selected)" :key="index" @click="toolClick(tool)" :class="{'toolLocal': isLocal}">
 						{{ tool.name }}{{ tool.appro ? '_' + tool.appro : '' }}{{ tool.model ? '_' + tool.model : '' }}{{ tool.opt ? ('~' + tool.opt) : '' }}{{ tool.version ? '_' + tool.version : '' }}
-					</v-list-tile>
+					</v-list-item>
 				</v-list>
 			</v-tab-item>
 		</v-tabs>
@@ -136,9 +132,9 @@
 			</v-btn>
 		</v-layout>
 		<v-list v-if="selectedMachine !== '[default]' && waited && tools.length > 0 && !loading && false">
-			<v-list-tile v-for="(mesh, index) in meshes" :key="index" @click="meshClick(mesh)" :class="{'toolLocal': isLocal}">
+			<v-list-item v-for="(mesh, index) in meshes" :key="index" @click="meshClick(mesh)" :class="{'toolLocal': isLocal}">
 				{{ mesh.name }}
-			</v-list-tile>
+			</v-list-item>
 		</v-list>
 		<v-btn @click="sheet = !sheet" style="position: fixed; margin: 0 50%; z-index: 1; border-top-left-radius: 88px; border-top-right-radius: 88px; width:88px; heigth:44px; left: -44px" :style="{bottom: (sheet ? '120px' : '0px')}">
 			<v-icon style="transition: 0.4s" :style="{transform: sheet ? 'rotate(180deg)' : 'rotate(0deg)'}">keyboard_arrow_up</v-icon>
@@ -181,8 +177,9 @@
 import { mapState, mapGetters, mapActions } from 'vuex'
 
 import { DisconnectedError } from '../../utils/errors.js'
-import Path from '../../utils/path.js'
+
 import axios from 'axios'
+//import { ENTRYPOINT } from '../../config/entrypoint';
 
 export default {
 	data() {
@@ -406,6 +403,7 @@ export default {
 				setTimeout(function(that){that.setToolLoading(false);},1000,this)
 		},
 		hide() {
+			console.log('test');
 			this.$emit('update:shown', false);
 		},
 		loadLastConfig: async function() {

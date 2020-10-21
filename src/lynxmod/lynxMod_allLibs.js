@@ -35,7 +35,7 @@ function doUpdate(manual){
 			    	if(req.status === 200){
 						console.log("ok " + req.responseText);
 
-						console.log("posting " +res + " to "+ ajaxPrefix+"api/duet/action/rr_upload?name=0:/sys/" + updateLinks[elem].name + "&time="+updateLinks[elem].updated)
+						console.log("posting " +res + " to "+ ajaxPrefix+"duet/action/rr_upload?name=0:/sys/" + updateLinks[elem].name + "&time="+updateLinks[elem].updated)
 						//$.post(ajaxPrefix+"rr_upload?name=0:/sys/" + updateLinks[elem].name + "&time="+updateLinks[elem].updated, res)
 					} else {
 						console.log("Status de la réponse: %d (%s)", req.status, req.statusText);
@@ -65,7 +65,8 @@ $("#btn_add_user").click(function(e){
 		});
 		updatePrivileges();
 		create_key(usersList.length-1, $("#userPswd").val()).then(function(){
-		$.ajax(ajaxPrefix + "api/duet/action/rr_upload?name=" + encodeURIComponent("0:/sys/usersList.json") + "&time=" + encodeURIComponent(timeToStr(new Date())), {
+		
+		$.ajax(ajaxPrefix + "duet/action/rr_upload?name=" + encodeURIComponent("0:/sys/usersList.json") + "&time=" + encodeURIComponent(timeToStr(new Date())), {
 			data: JSON.stringify(usersList),
 			dataType: "json",
 			processData: false,
@@ -94,7 +95,7 @@ var LineReader=function(e){if(!(this instanceof LineReader))return new LineReade
 
 /* img to Blob*/
 function b64toBlob(e,t,n){t=t||"",n=n||512;for(var o=atob(e),r=[],a=0;a<o.length;a+=n){for(var l=o.slice(a,a+n),i=new Array(l.length),s=0;s<l.length;s++)i[s]=l.charCodeAt(s);var c=new Uint8Array(i);r.push(c)}return new Blob(r,{type:t})}
-var savePicture=function(e,t){document.getElementById("myAwesomeForm");var n=e.split(";"),o=n[0].split(":")[1],r=b64toBlob(n[1].split(",")[1],o);var f = fileInput.name.substring(0,fileInput.name.lastIndexOf("."));while(f.includes(" ")||t.includes(" ")){f=f.replace(" ","_");t=t.replace(" ","_");}$.ajax({url:ajaxPrefix+"api/duet/action/rr_upload?name=0:/www/img/GCodePreview/"+f+"/"+t+"&time="+encodeURIComponent(timeToStr(new Date)),data:r,type:"POST",contentType:!1,processData:!1,cache:!1,dataType:"json",async:0,error:function(e){console.error(e)},success:function(e){/*console.log(e)*/},complete:function(){console.log("Request finished.")}})};
+var savePicture=function(e,t){document.getElementById("myAwesomeForm");var n=e.split(";"),o=n[0].split(":")[1],r=b64toBlob(n[1].split(",")[1],o);var f = fileInput.name.substring(0,fileInput.name.lastIndexOf("."));while(f.includes(" ")||t.includes(" ")){f=f.replace(" ","_");t=t.replace(" ","_");}$.ajax({url:ajaxPrefix+"duet/action/rr_upload?name=0:/www/img/GCodePreview/"+f+"/"+t+"&time="+encodeURIComponent(timeToStr(new Date)),data:r,type:"POST",contentType:!1,processData:!1,cache:!1,dataType:"json",async:0,error:function(e){console.error(e)},success:function(e){/*console.log(e)*/},complete:function(){console.log("Request finished.")}})};
 
 function getPicture(url, name, pic, size, nbTry) // new feature already deprecated
 {
@@ -103,7 +104,7 @@ function getPicture(url, name, pic, size, nbTry) // new feature already deprecat
 		url = url.replace(" ", "_");
 		name = name.replace(" ", "_");
 	}
-	$.get(ajaxPrefix + "api/duet/action/rr_filelist?dir=" + url + "&first=0",
+	$.get(ajaxPrefix + "duet/action/rr_filelist?dir=" + url + "&first=0",
 		function(data, status)
 		{
 			var xhr = new XMLHttpRequest();
@@ -136,9 +137,9 @@ function getPicture(url, name, pic, size, nbTry) // new feature already deprecat
 			 xhr.responseType = 'blob';
 			if (data.files.length >= 2 )
 			{
-				xhr.open("GET", ajaxPrefix + "api/duet/action/rr_download?name=" + url + "/" + name);
+				xhr.open("GET", ajaxPrefix + "duet/action/rr_download?name=" + url + "/" + name);
 			} else {
-				xhr.open("GET", ajaxPrefix + "api/duet/action/rr_download?name=0/www/img/GCodePreview/empty_bp.jpg");
+				xhr.open("GET", ajaxPrefix + "duet/action/rr_download?name=0/www/img/GCodePreview/empty_bp.jpg");
 			}
 			xhr.send();
 		}
@@ -154,14 +155,14 @@ function deletePicture(name)
 		url = url.replace(" ", "_");
 		dir = dir.replace(" ", "_");
 	}
-	$.get(ajaxPrefix + "api/duet/action/rr_filelist?dir=" + url + "&first=0",
+	$.get(ajaxPrefix + "duet/action/rr_filelist?dir=" + url + "&first=0",
 		function(data, status)
 		{
 			for(var file in data.files)
 			{
-				$.get(ajaxPrefix + "api/duet/action/rr_delete?name=" + url + "/" + data.files[file].name, function(data, status){}, false);
+				$.get(ajaxPrefix + "duet/action/rr_delete?name=" + url + "/" + data.files[file].name, function(data, status){}, false);
 			}
-			$.get(ajaxPrefix + "api/duet/action/rr_delete?name=" + url, function(data, status){}, false);
+			$.get(ajaxPrefix + "duet/action/rr_delete?name=" + url, function(data, status){}, false);
 		}
 	);
 }

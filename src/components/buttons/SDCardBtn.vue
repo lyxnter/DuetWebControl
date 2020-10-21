@@ -5,10 +5,10 @@
 		</v-btn>
 
 		<v-list ref="list">
-			<v-list-tile v-for="(storage, index) in storages" :key="index" @click="$emit('storageSelected', index)" v-tab-control>
+			<v-list-item v-for="(storage, index) in storages" :key="index" @click="$emit('storageSelected', index)" v-tab-control>
 				<v-icon class="mr-1">{{ storage.mounted ? 'done' : 'clear' }}</v-icon>
 				{{ $t('generic.sdCard', [index]) }} ({{ $t(storage.mounted ? 'generic.mounted' : 'generic.notMounted') }})
-			</v-list-tile>
+			</v-list-item>
 		</v-list>
 	</v-menu>
 </template>

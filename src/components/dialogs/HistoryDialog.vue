@@ -3,7 +3,7 @@
 		<v-card  >
 			<v-card-title>
 				<div class="headline">
-			  	<v-card-text>{{ title }}</v-card-text>
+					<v-card-text>{{ title }}</v-card-text>
 				</div>
 			</v-card-title>
 
@@ -17,41 +17,41 @@
 					hide-details
 				></v-text-field>
 			</v-card-title>
-		  <v-data-table
-		    :headers="headers"
-		    :items="list"
-				:search="search"
-				:loading="isloading"
-				disable-initial-sort="true"
-		    class="elevation-1"
-		  >
+			<v-data-table
+			:headers="headers"
+			:items="list"
+			:search="search"
+			:loading="isloading"
+			disable-initial-sort="true"
+			class="elevation-1"
+			>
 			<v-progress-linear v-slot:progress color="primary"  indeterminate ></v-progress-linear>
-		    <template v-slot:items="props">
-		      <td>{{ props.item.id }}</td>
-		      <td>{{ props.item.execDate }}</td>
-		      <td>
-						<v-icon color="success" v-if="props.item.result==1" class="mr-1">assignment_turned_in</v-icon>
-						<v-icon color="warning" v-if="props.item.result==2" class="mr-1">assignment_late</v-icon>
-						<v-icon color="error" v-if="props.item.result==3" class="mr-1">assignment_late</v-icon>
-					</td>
-		      <td>{{ props.item.reason }}</td>
-		      <td><v-btn icon @click="playVideo(props.item.timelapsePath)" :value="props.item.timelapsePath"><v-icon>video_call</v-icon></v-btn></td>
+			<template v-slot:items="props">
+				<td>{{ props.item.id }}</td>
+				<td>{{ props.item.execDate }}</td>
+				<td>
+					<v-icon color="success" v-if="props.item.result==1" class="mr-1">assignment_turned_in</v-icon>
+					<v-icon color="warning" v-if="props.item.result==2" class="mr-1">assignment_late</v-icon>
+					<v-icon color="error" v-if="props.item.result==3" class="mr-1">assignment_late</v-icon>
+				</td>
+				<td>{{ props.item.reason }}</td>
+				<td><v-btn icon @click="playVideo(props.item.timelapsePath)" :value="props.item.timelapsePath"><v-icon>video_call</v-icon></v-btn></td>
 
 
-		      <td>{{ props.item.logFolder }}</td>
-		    </template>
-				<template v-slot:no-data>
-					<v-alert :value="false" color="darken-1" icon="warning">
-						{{ $t('$vuetify.noDataText') }}
-					</v-alert>
-				</template>
-		  </v-data-table>
-		</template>
-			<v-card-actions>
-				<v-spacer></v-spacer>
-				<v-btn v-bind:color="'primary'+' darken-1'" flat @click="dismissed">{{ $t('generic.close') }}</v-btn>
-			</v-card-actions>
-		</v-card>
+				<td>{{ props.item.logFolder }}</td>
+			</template>
+			<template v-slot:no-data>
+				<v-alert :value="false" color="darken-1" icon="warning">
+					{{ $t('$vuetify.noDataText') }}
+				</v-alert>
+			</template>
+		</v-data-table>
+	</template>
+	<v-card-actions>
+		<v-spacer></v-spacer>
+		<v-btn v-bind:color="'primary'+' darken-1'" flat @click="dismissed">{{ $t('generic.close') }}</v-btn>
+	</v-card-actions>
+	</v-card>
 	</v-dialog>
 </template>
 
@@ -76,7 +76,7 @@ import {  mapState, mapActions } from 'vuex'
           { text: this.$t('list.history.logs'), value: 'logFolder' }
         ],
 				list: this.list,
-		   	isloading: true,
+				isloading: true,
       }
 		},
 		props: {
@@ -106,7 +106,7 @@ import {  mapState, mapActions } from 'vuex'
 				this.$emit('update:shown', false);
 			},
 			async refreshData() {
-			  this.isloading = true;
+				this.isloading = true;
 				this.list= await this.getFileHistory(this.item.id);
 				this.isloading = false;
 			},

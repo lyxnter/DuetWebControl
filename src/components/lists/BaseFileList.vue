@@ -169,6 +169,7 @@ table.v-table tbody th {
 		@dragover="onItemDragOver(props.item, $event)"
 		@drop.prevent="onItemDragDrop(props.item, $event)"
 		v-tab-control.contextmenu @keydown.space="props.selected = !props.selected">
+		<!--
 		<td class="pr-0">
 			<v-checkbox :input-value="props.selected" @touchstart.stop="" @touchend.stop="" @click.stop.prevent="props.selected = !props.selected" primary hide-details></v-checkbox>
 		</td>
@@ -229,8 +230,9 @@ table.v-table tbody th {
 					{{ displayLoadingValue(props.item, header.value, header.precision, header.unit) }}
 				</td>
 			</template>
+			!-->
 		</tr>
-		<!--v-layout row wrap md12 v-if="displayMode.asMini"-->
+		<!--
 		<v-flex shrink md3 v-if="displayMode.asMini" class="isLocal">
 			<div
 			v-tab-control.contextmenu.dblclick
@@ -273,28 +275,28 @@ table.v-table tbody th {
 			</v-layout>
 		</div>
 	</v-flex>
-	<!--/v-layout-->
+	!-->
 </template>
 </v-data-table>
 <v-menu v-model="contextMenu.shown" :position-x="contextMenu.x" :position-y="contextMenu.y" absolute offset-y>
 	<v-list>
 		<slot name="context-menu"></slot>
 
-		<v-list-tile v-show="!noDownload && innerValue.length === 1 && filesSelected && !isLocal" @click="download">
+		<v-list-item v-show="!noDownload && innerValue.length === 1 && filesSelected && !isLocal" @click="download">
 			<v-icon class="mr-1">cloud_download</v-icon> {{ $tc('list.baseFileList.download', innerValue.length) }}
-		</v-list-tile>
-		<v-list-tile v-show="!noEdit && innerValue.length === 1 && filesSelected && !isLocal" :disabled="!canEditFile" @click="edit(innerValue[0])">
+		</v-list-item>
+		<v-list-item v-show="!noEdit && innerValue.length === 1 && filesSelected && !isLocal" :disabled="!canEditFile" @click="edit(innerValue[0])">
 			<v-icon class="mr-1">edit</v-icon> {{ $t('list.baseFileList.edit') }}
-		</v-list-tile>
-		<v-list-tile v-show="!noRename && innerValue.length === 1 && !isLocal" @click="rename">
+		</v-list-item>
+		<v-list-item v-show="!noRename && innerValue.length === 1 && !isLocal" @click="rename">
 			<v-icon class="mr-1">short_text</v-icon> {{ $t('list.baseFileList.rename') }}
-		</v-list-tile>
-		<v-list-tile v-show="!noDelete" @click="confirmDelete(innerValue)">
+		</v-list-item>
+		<v-list-item v-show="!noDelete" @click="confirmDelete(innerValue)">
 			<v-icon class="mr-1">delete</v-icon> {{ $t('list.baseFileList.delete') }}
-		</v-list-tile>
-		<v-list-tile v-show="!foldersSelected && innerValue.length > 1 && !isLocal" @click="downloadZIP">
+		</v-list-item>
+		<v-list-item v-show="!foldersSelected && innerValue.length > 1 && !isLocal" @click="downloadZIP">
 			<v-icon class="mr-1">archive</v-icon> {{ $t('list.baseFileList.downloadZIP') }}
-		</v-list-tile>
+		</v-list-item>
 	</v-list>
 </v-menu>
 
@@ -561,8 +563,8 @@ export default {
 		async refresh() {
 			await this.loadDirectory(this.innerDirectory);
 			await this.computeRowsCols();
-
-				this.$emit('update:filelist', to);
+			this.$emit('update:filelist');
+		//		this.$emit('update:filelist', to);
 		},
 		async loadDirectory(directory) {
 			if (!this.isConnected || this.innerLoading || !directory) {
@@ -803,7 +805,7 @@ export default {
 			try {
 				await this.machineMove({ from, to, force: true});
 			} catch (e) {
-				this.$makeNotification('error', `Failed to move ${data.items[i].name} to ${directory}`, e.message);
+				this.$makeNotification('error', `Failed to move  to `, e.message);
 			}
 		},
 		async download(item) {

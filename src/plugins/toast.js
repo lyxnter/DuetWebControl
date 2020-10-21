@@ -26,7 +26,6 @@ export function makeNotification(type, title, message = '', timeout) {
 		equalNotification.resetTimeout();
 		return equalNotification;
 	}
-
 	// Prepare and show new toast
 	const item = {}, options = Object.assign({
 		class: 'new-toast',

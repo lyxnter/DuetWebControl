@@ -6,6 +6,7 @@ import i18n from '../i18n'
 let store
 
 export function display(value, precision, unit) {
+
 	if (isNumber(value)) {
 		return value.toFixed((precision !== undefined) ? precision : 2) + (unit ? (' ' + unit) : '');
 	}

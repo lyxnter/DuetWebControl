@@ -12,7 +12,7 @@
 				</thead>
 				<tbody>
 					<tr v-for="endstop in endstops" :key="endstop.index">
-						<td style="text-align: center; font-weight: bold;">{{ endstop.index < 3 ? ['X','Y','Z'][endstop.index] : 'E'+(endstop.index - 3) }}</td>
+						<td style="text-align: center; font-weight: bold;">{{  ['X','Y','Z'][endstop.index]  }}</td><!--{{ endstop.index < 3 ? ['X','Y','Z'][endstop.index] : 'E'+(endstop.index - 3) }}</td> !-->
 						<td style="text-align: center">
 							<div id="state" style="border-radius: 50%; display: inline-flex; margin-left: 0px; vertical-align: middle; width: 15px; height: 15px;" :style="{background: (endstop.triggered ? 'green' : 'red')}">
 							</div>

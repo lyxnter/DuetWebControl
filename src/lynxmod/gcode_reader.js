@@ -7,10 +7,10 @@ let THREE = require('three') ;
 import { displaySpeed } from '../plugins/display.js'
 import i18n from '../i18n'
 import Axios from 'axios'
-import { strToTime, timeToStr } from '../utils/time.js'
+import {  timeToStr } from '../utils/time.js'
 
-const exportSTL = require('threejs-export-stl');
-import JSZip from 'jszip'
+//const exportSTL = require('threejs-export-stl');
+//import JSZip from 'jszip'
 let $ = require('jquery');
 
 //import { makeFileTransferNotification, makeNotification } from '../plugins/toast.js'
@@ -274,7 +274,7 @@ export default {
 					out += "G28\n"
 
 					let bboxPath = path.split('/')
-					let fName = bboxPath.pop()
+	//				let fName = bboxPath.pop()
 					bboxPath = '0:/gcodes/' + bboxPath.join('/') + '/' + 'BBox ' + file.name
 
 					let content = new Blob([out]);
@@ -458,6 +458,7 @@ export default {
 				return cmdLine;
 			},
 			extractGCode: function(args) {
+				let center = {}
 				if (this.scene === undefined)
 				this.scene = Object.assign(Scene.default.methods, Scene.default.data);
 				switch (args.cmd) {
@@ -747,7 +748,7 @@ export default {
 			} else {
 				this.rad = Math.sqrt(((args.i - args.x) * (args.i - args.x)) + ((args.y - args.j) * (args.y - args.j)))
 			}
-			let center = {}
+
 			center.x = this.lastPos.x + args.i
 			center.y = this.lastPos.y + args.j
 
@@ -1164,10 +1165,11 @@ export default {
 			break;
 
 			default:
+			/*
 			if (this.DEBUG || true) {
 				console.log("unknown command: " + args.cmd);
 				console.log(args);
-			}
+			}*/
 			break;
 		}
 	},

@@ -108,33 +108,33 @@ margin-right: 10px;
 				<v-progress-linear v-show="loading" :indeterminate="true" class="my-0"></v-progress-linear>
 
 				<v-list class="pt-0" v-bind:class="{'v-list--dense': !isLocal}">
-					<v-list-tile v-if="!isRootDirectory" @click="goUp" v-tab-control>
-						<v-list-tile-avatar>
+					<v-list-item v-if="!isRootDirectory" @click="goUp" v-tab-control>
+						<v-list-item-avatar>
 							<v-icon class="list-icon grey darken-1 white--text">
 								keyboard_arrow_up
 							</v-icon>
-						</v-list-tile-avatar>
+						</v-list-item-avatar>
 
-						<v-list-tile-content>
-							<v-list-tile-title v-bind:class="{local: isLocal}">{{ $t('list.baseFileList.goUp') }}</v-list-tile-title>
-						</v-list-tile-content>
-					</v-list-tile>
+						<v-list-item-content>
+							<v-list-item-title v-bind:class="{local: isLocal}">{{ $t('list.baseFileList.goUp') }}</v-list-item-title>
+						</v-list-item-content>
+					</v-list-item>
 
-					<v-list-tile v-for="(item) in filelist.filter((item,index) => index < 16)" :key="item.name" @click="onItemClick(item)" v-tab-control>
-						<v-list-tile-avatar v-bind:class="{'icon': item.ico}">
+					<v-list-item v-for="(item) in filelist.filter((item,index) => index < 16)" :key="item.name" @click="onItemClick(item)" v-tab-control>
+						<v-list-item-avatar v-bind:class="{'icon': item.ico}">
 							<object :data="item.ico" v-if="true" class="list-icon" :class="item.isDirectory ? 'grey darken-1 white--text' : 'grey darken-2 white--text'" style="border-radius: 50%; padding: 10%">
 								<img :src="item.isDirectory ? '/img/ressources/folder.svg' : '/img/ressources/file.png'" style="width: 80%; height: 80%; margin-top: 9%;margin-bottom: 8%;"/>
 							</object>
-						</v-list-tile-avatar>
+						</v-list-item-avatar>
 
-						<v-list-tile-content>
-							<v-list-tile-title v-bind:class="{local: isLocal}">{{ item.displayName }}</v-list-tile-title>
-						</v-list-tile-content>
+						<v-list-item-content>
+							<v-list-item-title v-bind:class="{local: isLocal}">{{ item.displayName }}</v-list-item-title>
+						</v-list-item-content>
 
-						<v-list-tile-action v-if="!item.isDirectory && item.executing">
+						<v-list-item-action v-if="!item.isDirectory && item.executing">
 							<v-progress-circular class="list-icon" indeterminate color="blue"></v-progress-circular>
-						</v-list-tile-action>
-					</v-list-tile>
+						</v-list-item-action>
+					</v-list-item>
 				</v-list>
 			</v-card-text>
 			<v-card-text class="pa-0" v-show="loading || filelist.length || !isRootDirectory" v-else>
@@ -147,9 +147,9 @@ margin-right: 10px;
 							<object :data="item.ico" v-if="item.ico || true" class="list-icon">
 								<img :src="item.isDirectory ? '/img/ressources/folder.svg' : '/img/ressources/file.png'" style="width: 80%; height: 80%; margin-top: 11%;margin-bottom: 6%;"/>
 							</object>
-							<v-list-tile-title v-bind:class="{local: isLocal}" style="width:90%; margin: -5px 0 5px 5%;">
+							<v-list-item-title v-bind:class="{local: isLocal}" style="width:90%; margin: -5px 0 5px 5%;">
 								{{ item.displayName }}
-							</v-list-tile-title>
+							</v-list-item-title>
 						</v-flex>
 					</v-layout>
 				</v-layout>

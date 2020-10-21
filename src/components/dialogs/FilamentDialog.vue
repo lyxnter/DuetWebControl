@@ -10,9 +10,9 @@
 
 				<v-progress-linear indeterminate v-if="loading"></v-progress-linear>
 				<v-list v-if="!loading">
-					<v-list-tile v-for="filament in filaments" :key="filament" @click="filamentClick(filament)">
+					<v-list-item v-for="filament in filaments" :key="filament" @click="filamentClick(filament)">
 						<v-icon class="mr-1">radio_button_checked</v-icon> {{ filament }}
-					</v-list-tile>
+					</v-list-item>
 				</v-list>
 			</v-card-text>
 

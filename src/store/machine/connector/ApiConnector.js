@@ -20,15 +20,13 @@ import {
 import { quickPatch } from '../../../utils/patch.js'
 import { bitmapToArray } from '../../../utils/numbers.js'
 import { strToTime, timeToStr } from '../../../utils/time.js'
-
-const urlAPI = 'https://duetapi:8000'
+import { ENTRYPOINT } from '../../../config/entrypoint';
 
 export default class ApiConnector extends BaseConnector {
 	static async connect(hostname, username, password) {
 		let response;
 		try {
-			let protocol = location.protocol;
-			response = await axios.get(`${urlAPI}/api/duet/action/rr_connect`, {
+			response = await axios.get(`${ENTRYPOINT}/duet/action/rr_connect`, {
 				params: {
 					password,
 					time: timeToStr(new Date())
@@ -42,7 +40,7 @@ export default class ApiConnector extends BaseConnector {
 		}
 
 		switch (response.data.err) {
-			case 0: return new ApiConnector(hostname, password, response.data);
+			case 0: return new ApiConnector(hostname ,password, response.data);
 			case 1: throw new InvalidPasswordError();
 			case 2: throw new NoFreeSessionError();
 			default: throw new LoginError(`Unknown err value: ${response.data.err}`)
@@ -56,7 +54,6 @@ export default class ApiConnector extends BaseConnector {
 	isReconnecting = false
 	name = null
 	password = null
-	protocol = 'https'
 	port = '80'
 	boardType = null
 	sessionTimeout = null
@@ -73,12 +70,12 @@ export default class ApiConnector extends BaseConnector {
 	messageBoxShown = false;
 
 	constructor(hostname, password,responseData) {
-		super('api', hostname);
+		super('api',hostname);
 		this.password = password;
 		this.boardType = responseData.boardType;
 		this.sessionTimeout = responseData.sessionTimeout || 8000;	/// default timeout in RRF is 8000ms
 		this.axios = axios.create({
-			baseURL: `${urlAPI}/`,
+			baseURL: `${ENTRYPOINT}/`,
 			cancelToken: this.cancelSource.token,
 			timeout: this.sessionTimeout,
 			withCredentials: true,
@@ -95,15 +92,14 @@ export default class ApiConnector extends BaseConnector {
 
 		// Attempt to reconnect
 		try {
-			let protocol = location.protocol;
-			const response = await axios.get(`${urlAPI}/api/duet/action/rr_connect`, {
+			const response = await axios.get(`${ENTRYPOINT}/duet/action/rr_connect`, {
 				params: {
 					password: this.password,
 					time: timeToStr(new Date())
 				},
 				timeout: 2000
 			});
-
+			console.log(response.data.err);
 			switch (response.data.err) {
 				case 0:
 				this.justConnected = true;
@@ -187,7 +183,7 @@ export default class ApiConnector extends BaseConnector {
 	}
 
 	async disconnect() {
-		await this.axios.get('api/duet/action/rr_disconnect');
+		await this.axios.get('duet/action/rr_disconnect');
 	}
 
 	unregister() {
@@ -236,7 +232,7 @@ export default class ApiConnector extends BaseConnector {
 		this.justConnected ||
 		(this.updateLoopCounter % this.settings.extendedUpdateEvery) === 0 ||
 		(this.verbose && (this.updateLoopCounter % 2) === 0) ? 2 : (wasPrinting ? 3 : 1);
-		const response = await this.axios.get(`api/duet/action/rr_status?type=${statusType}`);
+		const response = await this.axios.get(`duet/action/rr_status?type=${statusType}`);
 		const isPrinting = ['D', 'S', 'R', 'P', 'M'].indexOf(response.data.status) !== -1;
 		const newData = {};
 
@@ -689,7 +685,7 @@ export default class ApiConnector extends BaseConnector {
 		}
 		// Call this only from updateLoop()
 		async getGCodeReply(seq = this.lastStatusResponse.seq) {
-			const response = await this.axios.get('api/duet/action/rr_reply', {
+			const response = await this.axios.get('duet/action/rr_reply', {
 				responseType: 'arraybuffer' 	// responseType: 'text' is broken, see https://github.com/axios/axios/issues/907
 			});
 			const reply = Buffer.from(response.data).toString().trim();
@@ -716,11 +712,12 @@ export default class ApiConnector extends BaseConnector {
 
 			let datasTools = [];
 			let results;
+			console.log('getConfigTools');
 			await this.axios
-			.get('api/duet/action/pc_configtools')
+			.get('duet/action/pc_configtools')
 			.then(response => (results = response.data))
 			.catch(error => console.log(error));
-
+			console.log(results);
 			if (results) {
 				for (var i = 0; i < results.length; i++) {
 					datasTools.push(results[i]);
@@ -731,7 +728,7 @@ export default class ApiConnector extends BaseConnector {
 		}
 		// Call this only from updateLoop()
 		async getConfigResponse() {
-			const response = await this.axios.get('api/duet/action/rr_config');
+			const response = await this.axios.get('duet/action/rr_config');
 			const configData = {
 				electronics: {
 					name: response.data.firmwareElectronics,
@@ -771,7 +768,7 @@ export default class ApiConnector extends BaseConnector {
 			await this.dispatch('update', configData);
 		}
 		async sendCode(code) {
-			const response = await this.axios.get('api/duet/action/rr_gcode', {
+			const response = await this.axios.get('duet/action/rr_gcode', {
 				params: { gcode: code }
 			});
 
@@ -874,7 +871,7 @@ export default class ApiConnector extends BaseConnector {
 						try {
 							// Create file transfer and start it
 							options.params.part = totalCount
-							that.axios.post('api/duet/action/rr_upload', payload, options)
+							that.axios.post('duet/action/rr_upload', payload, options)
 							.then(function(response) {
 								instructionPos = lineReader.GetReadPos();
 								myResponse = response;
@@ -938,7 +935,7 @@ export default class ApiConnector extends BaseConnector {
 				} else {
 					try {
 						// Create file transfer and start it
-						that.axios.post('api/duet/action/rr_upload', payload, options)
+						that.axios.post('duet/action/rr_upload', payload, options)
 						.then(function(response) {
 							if (response.data.err === 0) {
 								//that.dispatch('onFileUploaded', { filename, content });
@@ -961,7 +958,7 @@ export default class ApiConnector extends BaseConnector {
 			});
 		}
 		async delete(filename) {
-			const response = await this.axios.get('api/duet/action/rr_delete', {
+			const response = await this.axios.get('duet/action/rr_delete', {
 				params: { name: filename }
 			});
 
@@ -972,7 +969,7 @@ export default class ApiConnector extends BaseConnector {
 			await this.dispatch('onFileOrDirectoryDeleted', filename);
 		}
 		async move({ from, to, force, silent }) {
-			const response = await this.axios.get('api/duet/action/rr_move', {
+			const response = await this.axios.get('duet/action/rr_move', {
 				params: {
 					old: from,
 					new: to,
@@ -989,7 +986,7 @@ export default class ApiConnector extends BaseConnector {
 			}
 		}
 		async makeDirectory(directory) {
-			const response = await this.axios.get('api/duet/action/rr_mkdir', {
+			const response = await this.axios.get('duet/action/rr_mkdir', {
 				params: { dir: directory }
 			});
 
@@ -1021,7 +1018,7 @@ export default class ApiConnector extends BaseConnector {
 
 				try {
 					// Create file transfer and start it
-					that.axios.get('api/duet/action/rr_download', options)
+					that.axios.get('duet/action/rr_download', options)
 					.then(function(response) {
 						if (type === 'text') {
 							// see above...
@@ -1050,7 +1047,7 @@ export default class ApiConnector extends BaseConnector {
 
 			let fileList = [], next = 0;
 			do {
-				const response = await this.axios.get('api/duet/action/rr_filelist', {
+				const response = await this.axios.get('duet/action/rr_filelist', {
 					params: {
 						dir: directory,
 						first: next
@@ -1089,7 +1086,7 @@ export default class ApiConnector extends BaseConnector {
 			}));
 		}
 		async getFileInfo(filename) {
-			const response = await this.axios.get('api/duet/action/rr_fileinfo', {
+			const response = await this.axios.get('duet/action/rr_fileinfo', {
 				params: filename ? { name: filename } : {}
 			});
 
@@ -1104,7 +1101,7 @@ export default class ApiConnector extends BaseConnector {
 			let fileHistoryList = [];
 			let results;
 			await this.axios
-			.get('api/duet/action/rr_filehistory', {
+			.get('duet/action/rr_filehistory', {
 				params: id ? { id: id } : {}
 			})
 			.then(response => (results = response.data))
@@ -1118,17 +1115,16 @@ export default class ApiConnector extends BaseConnector {
 			return fileHistoryList;
 
 		}
-		async doLogin(login, password, hostname) {
+		async doLogin(login, password) {
 			if (!this.axios){
-				let protocol = location.protocol;
 				this.axios = await axios.create({
-					baseURL:`${protocol}//`+hostname+`/`,
+					baseURL:`${ENTRYPOINT}`,
 					cancelToken: BaseConnector.getCancelSource().token,
 					timeout: 8000,	// default session timeout in RepRapFirmware
 					withCredentials: true,
 				});
 			}
-			const response = await this.axios.get('api/duet/action/pc_login', {
+			const response = await this.axios.get('duet/action/pc_login', {
 				withCredentials: true,
 				params: { username: login, password: password }
 			});
@@ -1138,17 +1134,16 @@ export default class ApiConnector extends BaseConnector {
 			}
 			return response;
 		}
-		async doLogout(hostname) {
+		async doLogout() {
 			if (!this.axios){
-				let protocol = location.protocol;
 				this.axios = await axios.create({
-					baseURL:`${protocol}//`+hostname+`/`,
+					baseURL:`${ENTRYPOINT}`,
 					cancelToken: BaseConnector.getCancelSource().token,
 					timeout: 8000,	// default session timeout in RepRapFirmware
 					withCredentials: true,
 				});
 			}
-			const response = await this.axios.get('api/duet/action/pc_logout', {
+			const response = await this.axios.get('duet/action/pc_logout', {
 				withCredentials: true,
 				params: {}
 			});
@@ -1158,17 +1153,16 @@ export default class ApiConnector extends BaseConnector {
 			}
 			return response;
 		}
-		async doShutdown(hostname) {
+		async doShutdown() {
 			if (!this.axios){
-				let protocol = location.protocol;
 				this.axios = await axios.create({
-					baseURL:`${protocol}//`+hostname+`/`,
+					baseURL:`${ENTRYPOINT}`,
 					cancelToken: BaseConnector.getCancelSource().token,
 					timeout: 8000,	// default session timeout in RepRapFirmware
 					withCredentials: true,
 				});
 			}
-			const response = await this.axios.get('api/duet/action/pc_shutdown', {
+			const response = await this.axios.get('duet/action/pc_shutdown', {
 				withCredentials: true,
 				params: {}
 			});
@@ -1178,19 +1172,17 @@ export default class ApiConnector extends BaseConnector {
 			}
 			return response;
 		}
-		async doLoadAddresses(hostname) {
+		async doLoadAddresses() {
 
 			if (!this.axios){
-				let protocol = location.protocol;
 				this.axios = await axios.create({
-					baseURL:`${urlAPI}`,
+					baseURL:`${ENTRYPOINT}`,
 					cancelToken: BaseConnector.getCancelSource().token,
 					timeout: 8000,	// default session timeout in RepRapFirmware
 					withCredentials: true,
 				});
 			}
-
-			const response = await this.axios.get('api/duet/action/pc_getip', {
+			const response = await this.axios.get('duet/action/pc_getip', {
 				withCredentials: true,
 				params: {}
 			});

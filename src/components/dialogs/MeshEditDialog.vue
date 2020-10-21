@@ -32,17 +32,17 @@
 							</v-tab>
 							<v-tab-item key="0_presets">
 								<v-card style="background: #4d4d4d; padding: 0 20px">
-									<v-list-tile>
+									<v-list-item>
 										<div style="display: inline-block; width: 25px; height: 25px; margin: 10px 5px -5px 17px ;overflow: hidden; border-radius: 50%; margin-bottom: 0px;">
 										</div>
 										<div style="width: 15%; display: inline-block; text-align: center"> Calibration </div>
 										<div style="width: 15%; display: inline-block; text-align: center">{{ $t('panel.tools.chamber', ['']) }}</div>
 										<div style="width: 15%; display: inline-block; text-align: center">{{ $t('panel.tools.bed', ['']) }}</div>
 										<div style="width: 20%; display: inline-block; text-align: center">{{ $t('dialog.meshEdit.diameter') }}</div>
-									</v-list-tile>
-									<v-list-tile @click="getTool.toUpperCase().startsWith('CAL') ? sendCode('G32') : null" :disabled="!getTool.toUpperCase().startsWith('CAL')">
-										<v-list-tile-content>
-											<v-list-tile-title>
+									</v-list-item>
+									<v-list-item @click="getTool.toUpperCase().startsWith('CAL') ? sendCode('G32') : null" :disabled="!getTool.toUpperCase().startsWith('CAL')">
+										<v-list-item-content>
+											<v-list-item-title>
 												<div style="display: inline-block; border: 1px solid white; width: 25px; height: 25px; margin: 0 5px -5px 10px ;overflow: hidden; border-radius: 50%; margin-bottom: 0px;">
 													<img src="/img/ressources/grid-icon.png" alt="" width="25px" height="25px" style="width: 60px; margin-left: -5px; height: 60px; margin-top: -5px; filter: invert(100%); background: #B0B0B0">
 												</div>
@@ -50,15 +50,15 @@
 												<div style="width: 15%; display: inline-block; text-align: center">{{ 'Off' }}</div>
 												<div style="width: 15%; display: inline-block; text-align: center">{{ 'Off' }}</div>
 												<div style="width: 20%; display: inline-block; text-align: center">{{ 380 }}mm</div>
-											</v-list-tile-title>
-										</v-list-tile-content>
-									</v-list-tile>
-									<v-list-tile v-for="calibration in calibrations.filter(a => !a.custom)"
+											</v-list-item-title>
+										</v-list-item-content>
+									</v-list-item>
+									<v-list-item v-for="calibration in calibrations.filter(a => !a.custom)"
 										:key="calibration.path"
 										@click="getTool.toUpperCase().startsWith('CAL') ? sendCode('M98 P' + calibration.path) : null"
 										:disabled="!getTool.toUpperCase().startsWith('CAL')">
-										<v-list-tile-content>
-											<v-list-tile-title>
+										<v-list-item-content>
+											<v-list-item-title>
 												<div style="display: inline-block; border: 1px solid white; width: 25px; height: 25px; margin: 0 5px -5px 10px ;overflow: hidden; border-radius: 50%; margin-bottom: 0px;">
 													<img src="/img/ressources/grid-icon.png" alt="" width="25px" height="25px" style="width: 60px; margin-left: -5px; height: 60px; margin-top: -5px; filter: invert(100%); background: #B0B0B0">
 												</div>
@@ -66,16 +66,16 @@
 												<div style="width: 15%; display: inline-block; text-align: center">{{ calibration.chamber }}°C</div>
 												<div style="width: 15%; display: inline-block; text-align: center">{{ calibration.bed }}°C</div>
 												<div style="width: 20%; display: inline-block; text-align: center">{{ 380 }}mm</div>
-											</v-list-tile-title>
-										</v-list-tile-content>
-									</v-list-tile>
+											</v-list-item-title>
+										</v-list-item-content>
+									</v-list-item>
 									<v-divider></v-divider>
-									<v-list-tile v-for="calibration in calibrations.filter(a => a.custom)"
+									<v-list-item v-for="calibration in calibrations.filter(a => a.custom)"
 										:key="calibration.path"
 										@click="getTool.toUpperCase().startsWith('CAL') ? sendCode('M98 P' + calibration.path) : null"
 										:disabled="!getTool.toUpperCase().startsWith('CAL')">
-										<v-list-tile-content>
-											<v-list-tile-title>
+										<v-list-item-content>
+											<v-list-item-title>
 												<div v-if="calibration.name.split('_')[1] == 'C'" style="display: inline-block; border: 1px solid white; width: 25px; height: 25px; margin: 0 5px -5px 10px ;overflow: hidden; border-radius: 50%; margin-bottom: 0px;">
 													<img src="/img/ressources/grid-icon.png" alt="" width="25px" height="25px" style="width: 60px; margin-left: -5px; height: 60px; margin-top: -5px; filter: invert(100%); background: #B0B0B0">
 												</div>
@@ -92,9 +92,9 @@
 												<v-btn icon class="grey darken-1" v-on:click.stop="confirmDelete(calibration)">
 													<v-icon> delete </v-icon>
 												</v-btn>
-											</v-list-tile-title>
-										</v-list-tile-content>
-									</v-list-tile>
+											</v-list-item-title>
+										</v-list-item-content>
+									</v-list-item>
 								</v-card>
 							</v-tab-item>
 							<v-tab-item key="1_custom">
@@ -469,7 +469,7 @@ export default {
 			result.forEach(promise => promises.push(promise));
 			Promise.all(promises).then(
 				res => {
-					//console.log(res);
+					console.log(res);
 					this.$makeNotification('success',
 					this.$t("dialog.meshEdit.title"),
 					this.$t("dialog.meshEdit.success"),

@@ -1,31 +1,3 @@
-<style scoped>
-table {
-	border-collapse: collapse;
-}
-thead, tr {
-	text-align: center;
-	border: 1px solid #000;
-	font-size: large;
-}
-
-tr {
-	height: 64px
-}
-
-.v-input {
-	width: 32px;
-	margin: 16px;
-	text-align: center;
-}
-
-tr:hover {
-	background: #888;
-}
-
-.selected {
-	background: #636363;
-}
-</style>
 <template>
 	<v-dialog v-model="shown" persistent width="480">
 		<v-card>
@@ -47,7 +19,7 @@ tr:hover {
 					</v-tab>
 					<v-tab-item v-for="(material, key) in tools" :key="key">
 						<v-list v-if="!loading">
-							<v-list-tile v-for="(tool, index) in material.tools" :key="index" @click.stop.prevent="tool.selected != tool.selected" :class="{'toolLocal': isLocal, selected: tool.selected}">
+							<v-list-item v-for="(tool, index) in material.tools" :key="index" @click.stop.prevent="tool.selected != tool.selected" :class="{'toolLocal': isLocal, selected: tool.selected}">
 								<div @click.stop.prevent="tool.selected = !tool.selected" style="width: 100%; padding: 10px">
 									<div style="width: 10%; display: inline-block; text-align: center">
 										<v-icon class="mr-1">
@@ -78,7 +50,7 @@ tr:hover {
 										</v-icon>
 									</div-->
 								</div>
-							</v-list-tile>
+							</v-list-item>
 						</v-list>
 					</v-tab-item>
 				</v-tabs>
@@ -247,3 +219,31 @@ export default {
 		}
 	}
 	</script>
+	<style scoped>
+	table {
+		border-collapse: collapse;
+	}
+	thead, tr {
+		text-align: center;
+		border: 1px solid #000;
+		font-size: large;
+	}
+
+	tr {
+		height: 64px
+	}
+
+	.v-input {
+		width: 32px;
+		margin: 16px;
+		text-align: center;
+	}
+
+	tr:hover {
+		background: #888;
+	}
+
+	.selected {
+		background: #636363;
+	}
+	</style>

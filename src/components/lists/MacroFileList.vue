@@ -28,9 +28,9 @@
 			</template>
 
 			<template slot="context-menu">
-				<v-list-tile v-show="isFile" @click="runFile(selection[0].name)">
+				<v-list-item v-show="isFile" @click="runFile(selection[0].name)">
 					<v-icon class="mr-1">play_arrow</v-icon> {{ $t('list.macro.run') }}
-				</v-list-tile>
+				</v-list-item>
 			</template>
 		</base-file-list>
 

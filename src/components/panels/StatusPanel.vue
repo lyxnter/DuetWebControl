@@ -1,39 +1,3 @@
-<style scoped>
-strong {
-	align-self: center;
-	text-align: center;
-}
-
-.local {
-	font-size: large;
-}
-
-.equal-width {
-	flex-basis: 0;
-}
-
-.category-header {
-	flex: 0 0 100px;
-}
-
-a:not(:hover) {
-	color: inherit;
-}
-
-.content span,
-.content strong {
-	padding-left: 8px;
-	padding-right: 8px;
-}
-
-.probe-span {
-	border-radius: 5px;
-}
-.probe-span:not(:last-child) {
-	margin-right: 8px;
-}
-</style>
-
 <template>
 	<v-card :class="{local: isLocal}">
 		<v-card-title class="py-2" :class="{local: isLocal}">
@@ -153,7 +117,7 @@ a:not(:hover) {
 										</v-flex>
 
 										<v-tooltip bottom>
-											<template slot="activator">
+											<template >
 												<v-flex tag="span">
 													{{ $display(electronics.vIn.current, 1, 'V') }}
 												</v-flex>
@@ -173,7 +137,7 @@ a:not(:hover) {
 										</v-flex>
 
 										<v-tooltip bottom>
-											<template slot="activator">
+											<template >
 												<v-flex tag="span">
 													{{ $display(electronics.mcuTemp.current, 1, 'C') }}
 												</v-flex>
@@ -193,7 +157,7 @@ a:not(:hover) {
 										</v-flex>
 
 										<v-tooltip bottom>
-											<template slot="activator">
+											<template >
 												<v-flex tag="span">
 													{{ $display(electronics.cpuTemp.current, 1, 'C') }}
 												</v-flex>
@@ -282,3 +246,38 @@ export default {
 	}
 }
 </script>
+<style scoped>
+strong {
+	align-self: center;
+	text-align: center;
+}
+
+.local {
+	font-size: large;
+}
+
+.equal-width {
+	flex-basis: 0;
+}
+
+.category-header {
+	flex: 0 0 100px;
+}
+
+a:not(:hover) {
+	color: inherit;
+}
+
+.content span,
+.content strong {
+	padding-left: 8px;
+	padding-right: 8px;
+}
+
+.probe-span {
+	border-radius: 5px;
+}
+.probe-span:not(:last-child) {
+	margin-right: 8px;
+}
+</style>

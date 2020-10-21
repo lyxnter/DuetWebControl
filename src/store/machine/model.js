@@ -10,7 +10,6 @@ import {
 	Extruder,
 	Fan,
 	FileInfo,
-	FileHistory,
 	Firmware,
 	Heater,
 	Probe,

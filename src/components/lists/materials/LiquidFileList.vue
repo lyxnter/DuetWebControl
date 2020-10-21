@@ -25,15 +25,15 @@
 			</template>
 
 			<template slot="context-menu">
-				<v-list-tile v-show="liquidSelected" @click="downloadLiquid">
+				<v-list-item v-show="liquidSelected" @click="downloadLiquid">
 					<v-icon class="mr-1">cloud_download</v-icon> {{ $t('list.baseFileList.downloadZIP') }}
-				</v-list-tile>
-				<v-list-tile v-show="liquidSelected" @click="rename">
+				</v-list-item>
+				<v-list-item v-show="liquidSelected" @click="rename">
 					<v-icon class="mr-1">short_text</v-icon> {{ $t('list.baseFileList.rename') }}
-				</v-list-tile>
-				<v-list-tile @click="remove">
+				</v-list-item>
+				<v-list-item @click="remove">
 					<v-icon class="mr-1">delete</v-icon> {{ $t('list.baseFileList.delete') }}
-				</v-list-tile>
+				</v-list-item>
 			</template>
 		</base-file-list>
 

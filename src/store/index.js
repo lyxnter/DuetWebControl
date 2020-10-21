@@ -11,6 +11,7 @@ import duetgcodeService from '../services/duetgcode';
 import duetreplyService from '../services/duetreply';
 import duetstatutService from '../services/duetstatut';
 import duetvideoService from '../services/duetvideo';
+import userService from '../services/user';
 
 import machine, { defaultMachine } from './machine'
 import connector from './machine/connector'
@@ -20,7 +21,7 @@ import settings from './settings.js'
 import i18n from '../i18n'
 import Plugins from '../plugins'
 import { logGlobal } from '../plugins/logging.js'
-
+import { ENTRYPOINT } from '../config/entrypoint';
 import { InvalidPasswordError } from '../utils/errors.js'
 
 Vue.use(Vuex)
@@ -40,8 +41,8 @@ const store = new Vuex.Store({
 		isLoggingOut: false,
 		isLoadingTool: false,
 		isUnloadingTool: false,
-		isLocal: ((location.hostname === 'localhost') || (location.hostname === 'duetapi') || (location.hostname === '[::1]')),
-		connectDialogShown: ((location.hostname === 'localhost') || (location.hostname === 'duetapi') || (location.hostname === '[::1]')) && ((location.port !== "80") && (location.port !== "")),
+		isLocal: ((location.hostname === 'localhost') || (location.hostname === '[::1]')),
+		connectDialogShown: ((location.hostname === 'localhost')  || (location.hostname === '[::1]')) && ((location.port !== "80") && (location.port !== "")),
 		loginDialogShown: false,
 		passwordRequired: false,
 		selectedMachine: defaultMachine,
@@ -212,12 +213,12 @@ const store = new Vuex.Store({
 			}
 		},
 
-		async loadTool({state, commit}, name){
+		async loadTool({ commit}, name){
 			commit('setTool', name)
 			commit('setLoadingTool', false);
 		},
 
-		async shutdown({state, commit}) {
+		async shutdown({state}) {
 			console.log('Shutting down');
 			try {
 				let hostname;
@@ -231,7 +232,7 @@ const store = new Vuex.Store({
 		},
 
 
-		async setToolLoading({state, commit}, loading){
+		async setToolLoading({ commit}, loading){
 			console.log('loading Tool ' + loading);
 			commit('setLoadingTool', loading);
 		},
@@ -241,8 +242,7 @@ const store = new Vuex.Store({
 			try {
 				let hostname;
 				if (hostname == undefined)
-				hostname = (state.selectedMachine !== defaultMachine ? state.selectedMachine: (location.hostname != 'localhost' ? location.host : 'duetapi'));
-
+				hostname = (state.selectedMachine !== defaultMachine ? state.selectedMachine: (location.hostname != 'localhost' ? location.host : ENTRYPOINT));
 				let result = await connector.doLoadAddresses(hostname);
 				let ifaces = Object.values(result.data.cfg).filter(iface => (iface.ifname == "enp1s0" || iface.ifname == "enp2s0"))
 				ifaces.ip = result.data.ip.substr(0, result.data.ip.indexOf('/'))
@@ -410,6 +410,9 @@ const store = new Vuex.Store({
 		}),
 		duetvideo: makeCrudModule({
 			service: duetvideoService
+		}),
+		user: makeCrudModule({
+			service: userService
 		}),
 
 	},

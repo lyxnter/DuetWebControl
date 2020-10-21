@@ -8,7 +8,7 @@ var devUser = false;
 $(".btn-login").click(function(e) {
 	if(usersList.length == 0)
 	{
-		$.get(ajaxPrefix + "api/duet/action/rr_download?name=0:/sys/usersList.json", function(res){
+		$.get(ajaxPrefix + "duet/action/rr_download?name=0:/sys/usersList.json", function(res){
 			usersList = JSON.parse(res);
 		})
 	}
@@ -50,17 +50,17 @@ function checkForUpdates(forceDisplay){
 						$("#modal_updates #input_update_rrf").append("A new version is avaliable for the RepRap Firmware<br>    Current: " + configResponse.firmwareVersion + " => Avaliable: <a href='" +  data[i].html_url + "'>" + data[i].tag_name);
 						$("#btn_do_update").removeClass("disabled");
 						$("#modal_updates").modal("show");
-					} 
+					}
 					else
 					{
 						$("#modal_updates #input_update_rrf").append("RepRap Firmware is up to date");
 					}
-					
+
 					trouve = true;
 				}
 			}
 		});
-		
+
 		$.get("https://api.github.com/repos/thomaslynx/duetwebgcodeviewer/releases", function(data){
 			var trouve = false;
 			var i = 0;
@@ -105,11 +105,11 @@ if ($("td[data-axis='" + 0 + "']").html() != "n/a" && $("td[data-axis='" + 1 + "
 	{
 		if ((x1 != x2 || y1 != y2) && (z1 == z2))
 		{// changer couleur extrudeur
-			
+
 			do {
 				liveScene.remove(liveScene.getObjectByName("toolPath"));
 			} while (liveScene.getObjectByName("toolPath"))
-			
+
 			lastLayer[Math.max(status.currentTool, 0)].push({x1: x1, x2: x2, y1: y1, y2: y2});
 			for(var tool = 0; tool < lastLayer.length; tool++)
 			{
@@ -127,7 +127,7 @@ if ($("td[data-axis='" + 0 + "']").html() != "n/a" && $("td[data-axis='" + 1 + "
 				var line = new THREE.LineSegments(geometry, new THREE.LineBasicMaterial({color: (tool > 0 ?tempChartOptions.colors[tool]:0xa0a0a0)}))
 				line.name = "toolPath";
 				liveScene.add(line);
-				
+
 			}
 				liveScene.remove(liveScene.getObjectByName("toolHead"));
 				var geometry = new THREE.Geometry();
@@ -135,7 +135,7 @@ if ($("td[data-axis='" + 0 + "']").html() != "n/a" && $("td[data-axis='" + 1 + "
 				var line = new THREE.LineSegments(geometry, new THREE.LineBasicMaterial({color: 0xa0a0a0}))
 				line.name = "toolHead"
 				liveScene.add(line);
-			
+
 		} else if (z1 != z2){
 			//console.log("new Layer")
 			//redrawBP();
@@ -146,21 +146,21 @@ if ($("td[data-axis='" + 0 + "']").html() != "n/a" && $("td[data-axis='" + 1 + "
 		}
 	}
 }
-			
+
 file info
 var dirName = response.fileName.substring(response.fileName.lastIndexOf("/")+1, response.fileName.lastIndexOf("."));
 fileName = dirName + "_bp.jpg"
 //getPicture("0:/www/img/GCodePreview/" + dirName, fileName, $("#livePreview")[0], 250);
 $("#livePreview")[0].src = ajaxPrefix + "img/GCodePreview/" + dirName + "/" + fileName;
 $("#livePreview")[0].width = "250";
-				
+
 setOem
 function setLynxter (config) {
 	console.log(config);
 	lynxterFeatures = config;
 	//$(".diabase").removeClass("hidden");
 	//$(".no-diabase").addClass("hidden");
-	
+
 	$(".navbar-brand").prop("href", "https://www.lynxter.fr/lynxter-accueil/").prop("target", "_blank");
 	$(".navbar-brand > img").removeClass("hidden").prop("src", "img/logoLynxter.jpg");
 	$(".navbar-brand > img").prop("style", "height: 50px; margin-top: -15px;");
@@ -170,7 +170,7 @@ function setLynxter (config) {
 
 	//$("#img_crosshair").prop("src", "img/crosshair.png");
 	//$("#img_calibration_diagram").prop("src", "img/diabase_calibration_diagram.png");
-	
+
 	for(var i = 0; i < config.heads.length; i++) {
 		$("#tab_" + config.heads[i]).removeClass("hidden");
 		$("#page_" + config.heads[i]).removeClass("hidden");
@@ -195,7 +195,7 @@ function addGCodeFileMiniature(filename) {
 function addGCodeDirectoryMiniature(name) {
 	$("#page_files h1").addClass("hidden");
 	$("#table_gcode_files").removeClass("hidden");
-	
+
 	var row = $("#table_gcode_files tr")[$("#table_gcode_files tr").length -1];
 	if (row.childNodes.length >= 8)
 	{
@@ -204,7 +204,7 @@ function addGCodeDirectoryMiniature(name) {
 	}
 
 	row.innerHTML += '<td draggable="true" data-directory="' + name + '"><a href="#" class="a-gcode-directory"><img src="img/folder.svg" width="150"><br/> ' + name + '</a></td>';
-	
+
 	var rowElem = $(row);
 	rowElem[0].addEventListener("dragstart", fileDragStart, false);
 	rowElem[0].addEventListener("dragend", fileDragEnd, false);
@@ -304,7 +304,7 @@ if (row.length > 0) {
 			setGCodeFileList(row, 0, undefined, 0, 0, 0, [], "");
 		else if($("#gcode_mini").hasClass("active"))
 			setGCodeFileMiniature(row, 0, undefined, 0, 0, 0, [], "");
-			
+
 	}
 }
 
@@ -382,7 +382,7 @@ $("#btn_new_material").click(function() {
 	showTextInput(T("New material"), T("Please enter a name:"), function(value) {
 		if (filenameValid(value)) {
 			if (materialsExist) {
-				$.ajax(ajaxPrefix + "api/duet/action/rr_mkdir?dir=" + encodeURIComponent("0:/materials/" + value), {
+				$.ajax(ajaxPrefix + "duet/action/rr_mkdir?dir=" + encodeURIComponent("0:/materials/" + value), {
 					dataType: "json",
 					success: function(response) {
 						if (response.err == 0) {
@@ -395,11 +395,11 @@ $("#btn_new_material").click(function() {
 					}
 				});
 			} else {
-				$.ajax(ajaxPrefix + "api/duet/action/rr_mkdir?dir=0:/materials", {
+				$.ajax(ajaxPrefix + "duet/action/rr_mkdir?dir=0:/materials", {
 					dataType: "json",
 					success: function(response) {
 						if (response.err == 0) {
-							$.ajax(ajaxPrefix + "api/duet/action/rr_mkdir?dir=" + encodeURIComponent("0:/materials/" + value), {
+							$.ajax(ajaxPrefix + "duet/action/rr_mkdir?dir=" + encodeURIComponent("0:/materials/" + value), {
 								dataType: "json",
 								success: function(response) {
 									if (response.err == 0) {
@@ -443,7 +443,7 @@ function updateMaterials() {
 function getMaterials(first) {
 	if(first === undefined)
 		return;
-	$.ajax(ajaxPrefix + "api/duet/action/rr_filelist?dir=0:/materials&first=" + (first != undefined ?first:0), {
+	$.ajax(ajaxPrefix + "duet/action/rr_filelist?dir=0:/materials&first=" + (first != undefined ?first:0), {
 		dataType: "json",
 		success: function(response) {
 			if (isConnected) {
@@ -510,10 +510,10 @@ function addMaterial(name, dateCreated) {
 function clearMaterials() {
 	materialsLoaded = false;
 	materialsExist = false;
-	
+
 	clearFilaments();
 	clearLiquids()
-	
+
 	$("#table_materials > thead input[type='checkbox']:first-child").prop("checked", false);
 	$("#table_materials > tbody").children().remove();
 	$("#table_materials").addClass("hidden");
@@ -537,7 +537,7 @@ $("#btn_new_filament").click(function() {
 	showTextInput(T("New filament"), T("Please enter a name:"), function(value) {
 		if (filenameValid(value)) {
 			if (filamentsExist) {
-				$.ajax(ajaxPrefix + "api/duet/action/rr_mkdir?dir=" + encodeURIComponent("0:/materials/filaments/" + value), {
+				$.ajax(ajaxPrefix + "duet/action/rr_mkdir?dir=" + encodeURIComponent("0:/materials/filaments/" + value), {
 					dataType: "json",
 					success: function(response) {
 						if (response.err == 0) {
@@ -550,11 +550,11 @@ $("#btn_new_filament").click(function() {
 					}
 				});
 			} else {
-				$.ajax(ajaxPrefix + "api/duet/action/rr_mkdir?dir=0:/materials/filaments", {
+				$.ajax(ajaxPrefix + "duet/action/rr_mkdir?dir=0:/materials/filaments", {
 					dataType: "json",
 					success: function(response) {
 						if (response.err == 0) {
-							$.ajax(ajaxPrefix + "api/duet/action/rr_mkdir?dir=" + encodeURIComponent("0:/materials/filaments/" + value), {
+							$.ajax(ajaxPrefix + "duet/action/rr_mkdir?dir=" + encodeURIComponent("0:/materials/filaments/" + value), {
 								dataType: "json",
 								success: function(response) {
 									if (response.err == 0) {
@@ -598,7 +598,7 @@ function updateFilaments() {
 function getFilaments(first) {
 	if(first === undefined)
 		return;
-	$.ajax(ajaxPrefix + "api/duet/action/rr_filelist?dir=0:/materials/filaments&first=" + (first != undefined ?first:0), {
+	$.ajax(ajaxPrefix + "duet/action/rr_filelist?dir=0:/materials/filaments&first=" + (first != undefined ?first:0), {
 		dataType: "json",
 		success: function(response) {
 			if (isConnected) {
@@ -680,7 +680,7 @@ $("#btn_new_liquid").click(function() {
 	showTextInput(T("New liquid"), T("Please enter a name:"), function(value) {
 		if (filenameValid(value)) {
 			if (liquidsExist) {
-				$.ajax(ajaxPrefix + "api/duet/action/rr_mkdir?dir=" + encodeURIComponent("0:/materials/liquids/" + value), {
+				$.ajax(ajaxPrefix + "duet/action/rr_mkdir?dir=" + encodeURIComponent("0:/materials/liquids/" + value), {
 					dataType: "json",
 					success: function(response) {
 						if (response.err == 0) {
@@ -693,11 +693,11 @@ $("#btn_new_liquid").click(function() {
 					}
 				});
 			} else {
-				$.ajax(ajaxPrefix + "api/duet/action/rr_mkdir?dir=0:/materials/liquids", {
+				$.ajax(ajaxPrefix + "duet/action/rr_mkdir?dir=0:/materials/liquids", {
 					dataType: "json",
 					success: function(response) {
 						if (response.err == 0) {
-							$.ajax(ajaxPrefix + "api/duet/action/rr_mkdir?dir=" + encodeURIComponent("0:/materials/liquids/" + value), {
+							$.ajax(ajaxPrefix + "duet/action/rr_mkdir?dir=" + encodeURIComponent("0:/materials/liquids/" + value), {
 								dataType: "json",
 								success: function(response) {
 									if (response.err == 0) {
@@ -741,7 +741,7 @@ function updateLiquids() {
 function getLiquids(first) {
 	if(first === undefined)
 		return;
-	$.ajax(ajaxPrefix + "api/duet/action/rr_filelist?dir=0:/materials/liquids&first=" + (first != undefined ?first:0), {
+	$.ajax(ajaxPrefix + "duet/action/rr_filelist?dir=0:/materials/liquids&first=" + (first != undefined ?first:0), {
 		dataType: "json",
 		success: function(response) {
 			if (isConnected) {

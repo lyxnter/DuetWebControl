@@ -178,7 +178,7 @@ export default {
 				});
 			}
 
-			let result = await this.axios.get('/api/duet/action/pc_webcam', {
+			let result = await this.axios.get('/duet/action/pc_webcam', {
 				withCredentials: true,
 				params: {
 					info: "",
@@ -241,7 +241,7 @@ export default {
 					});
 				}
 
-				let rep = await that.axios.get('/api/duet/action/pc_webcam', {
+				let rep = await that.axios.get('/duet/action/pc_webcam', {
 					withCredentials: true,
 					//params: {fra: 5, res: that.resolutions16_9['480p']}
 				});
@@ -276,7 +276,7 @@ export default {
 							withCredentials: true,
 						});
 					}
-					this.axios.get('/api/duet/action/pc_webcam', {
+					this.axios.get('/duet/action/pc_webcam', {
 						withCredentials: true,
 						params: {
 							dev: this.maWebcam.devs[this.maWebcam.active],

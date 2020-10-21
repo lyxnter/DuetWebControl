@@ -41,17 +41,17 @@
 				<v-card>
 					<v-list>
 						<template v-if="move.compensation">
-							<v-list-tile class="center-menu-item">
+							<v-list-item class="center-menu-item">
 								{{ $t('panel.movement.compensationInUse', [move.compensation]) }}
-							</v-list-tile>
+							</v-list-item>
 							<v-divider></v-divider>
 						</template>
-						<v-list-tile @click="getTool.toUpperCase().startsWith('CAL') ? sendCode('G32') : null" :disabled="!getTool.toUpperCase().startsWith('CAL')">
+						<v-list-item @click="getTool.toUpperCase().startsWith('CAL') ? sendCode('G32') : null" :disabled="!getTool.toUpperCase().startsWith('CAL')">
 							<v-icon class="mr-1">view_module</v-icon> {{ $t('panel.movement.runDelta') }}
-						</v-list-tile>
-						<v-list-tile :disabled="tools.length == 0" @click="nozzleHeightCalib">
+						</v-list-item>
+						<v-list-item :disabled="tools.length == 0" @click="nozzleHeightCalib">
 							<v-icon class="mr-1">vertical_align_bottom</v-icon> {{ $t('panel.movement.runNozzleHeight') }}
-						</v-list-tile>
+						</v-list-item>
 						<v-expansion-panel :value="-1" style="margin-bottom: 15px">
 							<v-expansion-panel-content style="background: #ffffff0f">
 								<template v-slot:header style="padding: 0">
@@ -60,26 +60,26 @@
 									</span>
 								</template>
 								<v-card style="background: #4d4d4d; padding: 0 20px">
-									<v-list-tile :disabled="!move.compensation || move.compensation.indexOf('Point') === -1" @click="sendCode('M561')">
+									<v-list-item :disabled="!move.compensation || move.compensation.indexOf('Point') === -1" @click="sendCode('M561')">
 										<v-icon class="mr-1">clear</v-icon> {{ $t('panel.movement.disableBedCompensation') }}
-									</v-list-tile>
+									</v-list-item>
 									<v-divider></v-divider>
 									<v-list style="background: #4d4d4d;">
-										<v-list-tile @click="sendCode('G29')" :disabled="!getTool.toUpperCase().startsWith('CAL')">
+										<v-list-item @click="sendCode('G29')" :disabled="!getTool.toUpperCase().startsWith('CAL')">
 											<v-icon class="mr-1">grid_on</v-icon> {{ $t('panel.movement.runMesh') }}
-										</v-list-tile>
-										<v-list-tile :disabled="!getTool.toUpperCase().startsWith('CAL')" @click="showMeshEditDialog = true">
+										</v-list-item>
+										<v-list-item :disabled="!getTool.toUpperCase().startsWith('CAL')" @click="showMeshEditDialog = true">
 											<v-icon class="mr-1">view_module</v-icon> {{ $t('panel.movement.editMesh') }}
-										</v-list-tile>
-										<v-list-tile @click="sendCode('G29 S1')">
+										</v-list-item>
+										<v-list-item @click="sendCode('G29 S1')">
 											<v-icon class="mr-1">save</v-icon> {{ $t('panel.movement.loadMesh') }}
-										</v-list-tile>
-										<v-list-tile @click="$router.push('/Heightmap')">
+										</v-list-item>
+										<v-list-item @click="$router.push('/Heightmap')">
 											<v-icon class="mr-1">grid_on</v-icon> {{ $t('panel.movement.showHeightmap') }}
-										</v-list-tile>
-										<v-list-tile :disabled="move.compensation !== 'Mesh'" @click="sendCode('G29 S2')">
+										</v-list-item>
+										<v-list-item :disabled="move.compensation !== 'Mesh'" @click="sendCode('G29 S2')">
 											<v-icon class="mr-1">grid_off</v-icon> {{ $t('panel.movement.disableMeshCompensation') }}
-										</v-list-tile>
+										</v-list-item>
 									</v-list>
 								</v-card>
 							</v-expansion-panel-content>

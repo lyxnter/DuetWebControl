@@ -28,12 +28,12 @@
 		</template>
 
 		<template slot="context-menu">
-			<v-list-tile v-show="isFile && !state.isPrinting" @click="start">
+			<v-list-item v-show="isFile && !state.isPrinting" @click="start">
 				<v-icon class="mr-1">play_arrow</v-icon> {{ $t('list.jobs.start') }}
-			</v-list-tile>
-			<v-list-tile v-show="isFile && !state.isPrinting" @click="simulate">
+			</v-list-item>
+			<v-list-item v-show="isFile && !state.isPrinting" @click="simulate">
 				<v-icon class="mr-1">fast_forward</v-icon> {{ $t('list.jobs.simulate') }}
-			</v-list-tile>
+			</v-list-item>
 		</template>
 	</base-file-list>
 
@@ -47,15 +47,15 @@
 	</template>
 
 	<template slot="context-menu">
-		<v-list-tile v-show="isFile && !state.isPrinting" @click="start">
+		<v-list-item v-show="isFile && !state.isPrinting" @click="start">
 			<v-icon class="mr-1">play_arrow</v-icon> {{ $t('list.jobs.start') }}
-		</v-list-tile>
-		<v-list-tile v-show="isFile && !state.isPrinting" @click="simulate">
+		</v-list-item>
+		<v-list-item v-show="isFile && !state.isPrinting" @click="simulate">
 			<v-icon class="mr-1">fast_forward</v-icon> {{ $t('list.jobs.simulate') }}
-		</v-list-tile>
-		<v-list-tile  v-show="isFile && !state.isPrinting " @click="history">
+		</v-list-item>
+		<v-list-item  v-show="isFile && !state.isPrinting " @click="history">
 			<v-icon class="mr-1">history</v-icon> {{ $t('list.jobs.history') }}
-		</v-list-tile>
+		</v-list-item>
 	</template>
 </base-file-list>
 
@@ -259,7 +259,7 @@ export default {
 					file.filament = filament;
 					file.generatedBy = generatedBy;
 
-					file.id = id;
+			//		file.id = id;
 					file.printTime = printTime;
 					file.simulatedTime = simulatedTime;
 					file.dir = directory;

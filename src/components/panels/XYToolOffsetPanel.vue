@@ -706,7 +706,7 @@ export default {
 				});
 			}
 
-			let result = await this.axios.get('/api/duet/action/pc_webcam', {
+			let result = await this.axios.get('/duet/action/pc_webcam', {
 				withCredentials: true,
 				params: {
 					info: "",
@@ -777,7 +777,7 @@ export default {
 						});
 					}
 
-					let rep = await that.axios.get('/api/duet/action/pc_webcam', {
+					let rep = await that.axios.get('/duet/action/pc_webcam', {
 						withCredentials: true,
 						//params: {fra: 5, res: that.resolutions16_9['480p']}
 					});
@@ -866,7 +866,7 @@ value: ((this.exposure.max - this.exposure.min) - this.exposure.value)
 					}
 
 					await this.focus.auto.forEach((item) => {
-						this.axios.get('/api/duet/action/pc_webcam', {
+						this.axios.get('/duet/action/pc_webcam', {
 							withCredentials: true,
 							params: {
 								action: "command",
@@ -879,7 +879,7 @@ value: ((this.exposure.max - this.exposure.min) - this.exposure.value)
 						})
 					});
 
-					this.axios.get('api/duet/action/pc_webcam', {
+					this.axios.get('duet/action/pc_webcam', {
 						withCredentials: true,
 						params: {
 							action: "command",
@@ -906,7 +906,7 @@ value: ((this.exposure.max - this.exposure.min) - this.exposure.value)
 							withCredentials: true,
 						});
 					}
-					this.axios.get('/api/duet/action/pc_webcam', {
+					this.axios.get('/duet/action/pc_webcam', {
 						withCredentials: true,
 						params: {
 							dev: this.webcam.devs[this.webcam.active],

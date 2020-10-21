@@ -19,6 +19,9 @@ export default function makeService(endpoint) {
         method: 'PUT',
         body: JSON.stringify(payload)
       });
-    }
+    },
+    action(action,payload) {
+      return fetch(`${endpoint}/action/${action}`, { method: 'POST', body: JSON.stringify(payload) });
+    },
   };
 }

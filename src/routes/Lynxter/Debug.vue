@@ -189,7 +189,7 @@
 								<b>Frequence:</b> {{ fans[fan].frequency }}Hz<br>
 								<b>Broche:</b> {{ fans[fan].pin }}<br>
 								<b>Inversé:</b> {{ fans[fan].inverted ? 'Oui' : 'Non' }}<br>
-								<b>Impulsion:</b> {{ fans[fan].blip < 1 ? (fans[fan].blip * 1000) + 'ms' : fans[fan].blip + 's' }}<br>
+								<b>Impulsion:</b> {{ (fans[fan].blip * 1000) + 'ms' }}<!-- {{ fans[fan].blip < 1 ? (fans[fan].blip * 1000) + 'ms' : fans[fan].blip + 's' }}<br> !-->
 								<b>Mode:</b> {{ fans[fan].thermostatic.control ? 'Automatique' : 'Mannuel' }} <br>
 								<span v-if="fans[fan].thermostatic.control">
 									&nbsp;&nbsp;<b>Résistances:</b> {{ fans[fan].thermostatic.heaters }} <br>
@@ -257,8 +257,11 @@ export default {
 		},
 		servoValue: {
 			get() {
-				if (this.servo == -1)
-				this.servo = 40
+				/*
+				if (this.servo == -1) {
+					this.servo = 40;
+				} */
+
 				return this.servo
 			},
 			set(value) {

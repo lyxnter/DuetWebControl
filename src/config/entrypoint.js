@@ -1,1 +1,1 @@
-export const ENTRYPOINT = 'https://duetapi:8000/api';
+export const ENTRYPOINT = 'https://192.168.1.243:8000/api';

@@ -90,7 +90,7 @@ table.extra tr > td:first-child {
 			<v-spacer></v-spacer>
 
 			<v-menu v-model="dropdownShown" offset-y left :close-on-content-click="false" :disabled="uiFrozen" v-if="!isLocal">
-				<a slot="activator" ref="dropdownActivator" href="#" @click.prevent tabindex="0" @keyup.enter="showDropdown">
+				<a  ref="dropdownActivator" href="#" @click.prevent tabindex="0" @keyup.enter="showDropdown">
 					<v-icon small>more_horiz</v-icon> {{ $t('panel.tools.controlAll') }}
 				</a>
 				<v-card>
@@ -190,7 +190,7 @@ table.extra tr > td:first-child {
 						</div>
 						<div v-if="(shown || !isLocal) && materials != {} && window.width > 385" @click.prevent="">
 							<v-menu offset-y left :disabled="uiFrozen" v-tab-control :close-on-content-click="false">
-								<template slot="activator">
+								<template >
 									<v-btn color="secondary darken-1" small class="mx-0" :disabled="uiFrozen">
 										{{ window.width > 475 ? $t('button.preloadPrime.caption') : $t('button.preloadPrime.caption').split('/')[0] }} <v-icon v-if="window.width > 405">arrow_drop_down</v-icon>
 									</v-btn>
@@ -198,14 +198,14 @@ table.extra tr > td:first-child {
 
 								<v-card>
 									<v-list>
-										<v-list-tile @click="sendCode('M98 P0:/macros/_Materials/' +  universe + '/Pre_load_' + tool.name + '.g')">
+										<v-list-item @click="sendCode('M98 P0:/macros/_Materials/' +  universe + '/Pre_load_' + tool.name + '.g')">
 											<v-btn color="secondary darken-1" small class="mx-0" :disabled="uiFrozen">
 												{{ $t('button.preloadPrime.preload', [(tool.name || $t('panel.tools.tool', [tool.number]))]) }}
 											</v-btn>
-										</v-list-tile>
-										<v-list-tile v-if="Object.entries(materials).filter(item => item[1].filter(item => item.indexOf('Prime') >= 0).length).length > 0">
+										</v-list-item>
+										<v-list-item v-if="Object.entries(materials).filter(item => item[1].filter(item => item.indexOf('Prime') >= 0).length).length > 0">
 											<v-menu offset-y left :disabled="uiFrozen" v-tab-control>
-												<template slot="activator">
+												<template >
 													<v-btn color="secondary darken-1" small class="mx-0" :disabled="uiFrozen">
 														{{ $t('button.preloadPrime.prime', [(tool.name || $t('panel.tools.tool', [tool.number]))]) }} <v-icon>arrow_drop_down</v-icon>
 													</v-btn>
@@ -213,16 +213,16 @@ table.extra tr > td:first-child {
 
 												<v-card>
 													<v-list>
-														<v-list-tile v-for="(file, material) in Object.fromEntries(Object.entries(materials).filter(item => item[1].filter(item => item.indexOf('Prime') >= 0).length))" :key="material" @click="sendCode('M98 P0:/macros/_Materials/' +  universe + '/' + material + '/Prime ' + tool.name)">
+														<v-list-item v-for="(file, material) in Object.fromEntries(Object.entries(materials).filter(item => item[1].filter(item => item.indexOf('Prime') >= 0).length))" :key="material" @click="sendCode('M98 P0:/macros/_Materials/' +  universe + '/' + material + '/Prime ' + tool.name)">
 															{{ $t('button.preloadPrime.prime', [material]) }}
-														</v-list-tile>
+														</v-list-item>
 													</v-list>
 												</v-card>
 											</v-menu>
-										</v-list-tile>
-										<v-list-tile v-if="Object.entries(materials).filter(item => item[1].filter(item => item.indexOf('Unload') >= 0).length).length > 0">
+										</v-list-item>
+										<v-list-item v-if="Object.entries(materials).filter(item => item[1].filter(item => item.indexOf('Unload') >= 0).length).length > 0">
 											<v-menu offset-y left :disabled="uiFrozen" v-tab-control>
-												<template slot="activator">
+												<template>
 													<v-btn color="secondary darken-1" small class="mx-0" :disabled="uiFrozen">
 														{{ $t('button.preloadPrime.unload', [(tool.name || $t('panel.tools.tool', [tool.number]))]) }} <v-icon>arrow_drop_down</v-icon>
 													</v-btn>
@@ -230,16 +230,16 @@ table.extra tr > td:first-child {
 
 												<v-card>
 													<v-list>
-														<v-list-tile v-for="(file, material) in Object.fromEntries(Object.entries(materials).filter(item => item[1].filter(item => item.indexOf('Unload') >= 0).length))" :key="material" @click="sendCode('M98 P0:/macros/_Materials/' +  universe + '/' + material + '/Unload ' + tool.name)">
+														<v-list-item v-for="(file, material) in Object.fromEntries(Object.entries(materials).filter(item => item[1].filter(item => item.indexOf('Unload') >= 0).length))" :key="material" @click="sendCode('M98 P0:/macros/_Materials/' +  universe + '/' + material + '/Unload ' + tool.name)">
 															{{ $t('button.preloadPrime.unload', [material]) }}
-														</v-list-tile>
+														</v-list-item>
 													</v-list>
 												</v-card>
 											</v-menu>
-										</v-list-tile>
-										<v-list-tile v-if="Object.entries(materials).filter(item => item[1].filter(item => item.indexOf('Pre-heat') >= 0).length).length > 0">
+										</v-list-item>
+										<v-list-item v-if="Object.entries(materials).filter(item => item[1].filter(item => item.indexOf('Pre-heat') >= 0).length).length > 0">
 											<v-menu offset-y left :disabled="uiFrozen" v-tab-control>
-												<template slot="activator">
+												<template >
 													<v-btn color="secondary darken-1" small class="mx-0" :disabled="uiFrozen">
 														{{ $t('button.preloadPrime.preheat', [(tool.name || $t('panel.tools.tool', [tool.number]))]) }} <v-icon>arrow_drop_down</v-icon>
 													</v-btn>
@@ -247,13 +247,13 @@ table.extra tr > td:first-child {
 
 												<v-card>
 													<v-list>
-														<v-list-tile v-for="(file, material) in Object.fromEntries(Object.entries(materials).filter(item => item[1].filter(item => item.indexOf('Pre-heat') >= 0).length))" :key="material" @click="sendCode('M98 P0:/macros/_Materials/' +  universe + '/' + material + '/Pre-heat ' + tool.name)">
+														<v-list-item v-for="(file, material) in Object.fromEntries(Object.entries(materials).filter(item => item[1].filter(item => item.indexOf('Pre-heat') >= 0).length))" :key="material" @click="sendCode('M98 P0:/macros/_Materials/' +  universe + '/' + material + '/Pre-heat ' + tool.name)">
 															{{ $t('button.preloadPrime.preheat', [material]) }}
-														</v-list-tile>
+														</v-list-item>
 													</v-list>
 												</v-card>
 											</v-menu>
-										</v-list-tile>
+										</v-list-item>
 									</v-list>
 								</v-card>
 							</v-menu>
@@ -610,12 +610,12 @@ table.extra tr > td:first-child {
 
 <v-menu v-model="filamentMenu.shown" :activator="filamentMenu.target" offset-y auto>
 	<v-list>
-		<v-list-tile @click="filamentMenu.dialogShown = true">
+		<v-list-item @click="filamentMenu.dialogShown = true">
 			<v-icon class="mr-1">swap_vert</v-icon> {{ $t('panel.tools.changeFilament') }}
-		</v-list-tile>
-		<v-list-tile @click="unloadFilament">
+		</v-list-item>
+		<v-list-item @click="unloadFilament">
 			<v-icon class="mr-1">arrow_upward</v-icon> {{ $t('panel.tools.unloadFilament') }}
-		</v-list-tile>
+		</v-list-item>
 	</v-list>
 </v-menu>
 <filament-dialog :shown.sync="filamentMenu.dialogShown" :tool="filamentMenu.tool"></filament-dialog>

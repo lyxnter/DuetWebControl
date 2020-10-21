@@ -7,45 +7,45 @@
 			<v-navigation-drawer v-model="drawer" persistent clipped fixed app enable-resize-watcher >
 				<v-list class="pt-0" :expand="$vuetify.breakpoint.mdAndUp || isLocal">
 					<v-list-group v-for="(category, index) in routing.filter((category, index) => checkMenuCondition(category.condition) && checkLynxCatCondition(category.showLocal, category.minLevel, category.showDist))" :key="index" :prepend-icon="category.icon" no-action :value="isExpanded(category)">
-						<v-list-tile slot="activator">
-							<v-list-tile-title>{{ $t(category.caption) }}</v-list-tile-title>
-						</v-list-tile>
+						<v-list-item slot="activator">
+							<v-list-item-title>{{ $t(category.caption) }}</v-list-item-title>
+						</v-list-item>
 
 						<template v-for="(page, pageIndex) in category.pages">
-							<v-list-tile v-if="checkMenuCondition(page.condition) && checkLynxCondition(page.showLocal, page.minLevel, page.showDist)" :key="`${index}-${pageIndex}`" v-ripple :to="page.path" @click.prevent>
-								<v-list-tile-action>
+							<v-list-item v-if="checkMenuCondition(page.condition) && checkLynxCondition(page.showLocal, page.minLevel, page.showDist)" :key="`${index}-${pageIndex}`" v-ripple :to="page.path" @click.prevent>
+								<v-list-item-action>
 									<img  v-if="page.img" :src="page.img" width="24" height="24">
 									<v-icon v-else>{{ page.icon }}</v-icon>
-								</v-list-tile-action>
-								<v-list-tile-title>{{ $t(page.caption) }}</v-list-tile-title>
-							</v-list-tile>
+								</v-list-item-action>
+								<v-list-item-title>{{ $t(page.caption) }}</v-list-item-title>
+							</v-list-item>
 						</template>
 					</v-list-group>
 					<div class="hidden-sm-and-up" style="margin-top: 25%"></div>
-					<v-list-tile v-if="isLocal && false">
+					<v-list-item v-if="isLocal && false">
 						<connect-btn class="mb-3" block></connect-btn>
-					</v-list-tile>
-					<v-list-tile v-if="!isLocal && isLocal">
+					</v-list-item>
+					<v-list-item v-if="!isLocal && isLocal">
 						<login-btn class="mb-3" block></login-btn>
-					</v-list-tile>
-					<v-list-tile class="hidden-sm-and-up">
+					</v-list-item>
+					<v-list-item class="hidden-sm-and-up">
 						<emergency-btn block></emergency-btn>
-					</v-list-tile>
-					<v-list-tile>
+					</v-list-item>
+					<v-list-item>
 						<v-btn block v-if="isLocal" color="" @click="confirmShutdownDialog.shown = !confirmShutdownDialog.shown">
 							<v-icon mr-1 >
 								power_settings_new
 							</v-icon>
 							{{$t('dialog.confirmShutdown.title')}}
 						</v-btn>
-					</v-list-tile>
-					<v-list-tile class="pa-2" v-if="isLocal" >
+					</v-list-item>
+					<v-list-item class="pa-2" v-if="isLocal" >
 						<div style="width: max-content; margin: auto" :style="isLocal?'font-size: large':''">
 							<v-btn icon onclick="window.history.back()"><v-icon>arrow_back</v-icon></v-btn>
 							<v-btn icon onclick="location.href = 'https://' + location.host"><v-icon>refresh</v-icon></v-btn>
 							<v-btn icon onclick="window.history.forward()"><v-icon>arrow_forward</v-icon></v-btn>
 						</div>
-					</v-list-tile>
+					</v-list-item>
 				</v-list>
 
 				<div class="hidden-sm-and-up" v-if="true==false">
@@ -54,14 +54,14 @@
 				</div>
 			</v-navigation-drawer>
 
-			<v-toolbar ref="appToolbar" app clipped-left>
-				<v-toolbar-side-icon @click.stop="drawer = !drawer" v-tab-control :style="{transform: (isLocal? 'scale(1.75)':'')}"></v-toolbar-side-icon>
+			<v-app-bar app ref="appToolbar" clipped-left>
+				<v-app-bar-nav-icon @click.stop="drawer = !drawer"  :style="{transform: (isLocal? 'scale(1.75)':'')}"></v-app-bar-nav-icon>
 				<v-toolbar-title :style="isLocal ? 'margin-left: 10px' : ''">
 					<!-- TODO: Optional OEM branding -->
 					<div @click="$router.push('/');" style="cursor:pointer; padding:10px 15px;margin: 0 10px 0 0;">
-						<a id="title" v-tab-control style="width: max-content; margin: 0px auto;position: relative;"> {{ /*isLocal ?*/ (name.substr(0, 8) + name.substr(8).split('-').map(tname => tname.substr(0,tname.indexOf('_'))).join('_')) /*: name*/	}}</a>
+						<a id="title"  style="width: max-content; margin: 0px auto;position: relative;"> {{ /*isLocal ?*/ (name.substr(0, 8) + name.substr(8).split('-').map(tname => tname.substr(0,tname.indexOf('_'))).join('_')) /*: name*/	}}</a>
 					</div>
-					<a id="user" v-tab-control style="color: inherit" v-if="!isLocal && isLocal">{{ username }} ({{ type }})</a>
+					<a id="user"  style="color: inherit" v-if="!isLocal && isLocal">{{ username }} ({{ type }})</a>
 				</v-toolbar-title>
 				<status-label v-if="state.status && isLocal" style="font-size: large; letter-spacing: 0.1rem;"></status-label>
 				<connect-btn v-if="isLocal && false" class="hidden-sm-and-down"></connect-btn>
@@ -82,7 +82,7 @@
 				<!--v-btn icon class="hidden-sm-and-down" @click="rightDrawer = !rightDrawer">
 					<v-icon>menu</v-icon>
 				</v-btn-->
-			</v-toolbar>
+			</v-app-bar>
 
 			<v-content id="content">
 				<v-scroll-y-transition>
@@ -143,7 +143,7 @@
 import Piecon from 'piecon'
 import axios from 'axios'
 import { mapState, mapGetters, mapActions, mapMutations } from 'vuex'
-
+import { ENTRYPOINT } from './config/entrypoint';
 import { Routing } from './routes'
 
 export default {
@@ -331,7 +331,7 @@ export default {
 		window.addEventListener('unload', this.disconnectAll);
 
 		if(((location.port === "8080") || (location.port === "8081") || (location.port === "8082"))){
-			this.connect({hostname: "duetapi", protocol: "https", port: "8000"});
+			this.connect();
 		} else if (!this.isLocal || (location.port === "80") || (location.port === "")) {
 			this.connect();
 		}
@@ -348,7 +348,7 @@ export default {
 					setTimeout(() => {
 						console.log(location.host)
 						if(((location.port === "8080") || (location.port === "8081") || (location.port === "8082"))){
-							that.connect({hostname: "duetapi", protocol: "https", port: "8000"});
+							that.connect();
 						} else if (!that.isLocal || (location.port === "80") || (location.port === "")) {
 							that.connect();
 						}
@@ -362,14 +362,14 @@ export default {
 			if (!that.axios) {
 				//let protocol = location.protocol;
 				that.axios = await axios.create({
-					baseURL:`https://duetapi:8000/`,
+					baseURL: ENTRYPOINT,
 					//cancelToken: BaseConnector.getCancelSource().token,
 					timeout: 8000,	// default session timeout in RepRapFirmware
 					withCredentials: true,
 				});
 			}
 
-			let result = await that.axios.get('api/duet/action/pc_configmachine', {
+			let result = await that.axios.get('duet/action/pc_configmachine', {
 				withCredentials: true,
 			});
 
@@ -430,9 +430,7 @@ export default {
 		}
 	},
 	watch: {
-		darkTheme(to) {
-		//	this.$vuetify.theme.dark = to;
-		},
+
 		isPrinting(to) {
 			if (to) {
 				// Go to Job Status when a print starts
@@ -468,16 +466,17 @@ export default {
 		deep: true,
 		handler: async function(){
 			if (!this.axios) {
+
 				//let protocol = location.protocol;
 				this.axios = await axios.create({
-					baseURL:`https://duetapi:8000/`,
+					baseURL:ENTRYPOINT,
 					//cancelToken: BaseConnector.getCancelSource().token,
 					timeout: 8000,	// default session timeout in RepRapFirmware
 					withCredentials: true,
 				});
 			}
 
-			this.axios.get('api/duet/action/pc_configmachine', {
+			this.axios.get('duet/action/pc_configmachine', {
 				withCredentials: true,
 				params: {
 					params: JSON.stringify(this.lastConfig)

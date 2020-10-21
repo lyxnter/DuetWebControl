@@ -1,14 +1,7 @@
-'use strict'
-
-import { LoginError, LoadAddressesError, OperationFailedError } from '../../../utils/errors.js'
-
-import BaseConnector from './BaseConnector.js'
-import PollConnector from './PollConnector.js'
-import RestConnector from './RestConnector.js'
-import ApiConnector from './ApiConnector.js'
+import BaseConnector from './BaseConnector.js';
+import ApiConnector from './ApiConnector.js';
 
 
-const connectors = [ApiConnector]
 export const MachineActions = ['disconnect', 'sendCode', 'upload', 'delete', 'move', 'makeDirectory', 'download', 'getFileList', 'getFileInfo', 'getFileHistory', 'getConfigTools']
 
 export function mapConnectorActions(connector, toIgnore = []) {
@@ -26,120 +19,54 @@ export default {
 	// Connect asynchronously and return the connector that worked.
 	// If no connector can be found, an error will be thrown.
 	async connect(hostname, user, password) {
-		let connector = null, lastError = null;
-		for (let i = 0; i < connectors.length; i++) {
-			try {
-				connector = await connectors[i].connect(hostname, user, password);
-				lastError = null;
-				break;
-			} catch (e) {
-				lastError = e;
-				if (e instanceof LoginError) {
-					// This connector could establish a connection but the firmware refused it
-					break;
-				}
-			}
-		}
-
-		if (lastError !== null) {
-			throw lastError;
+		let connector = null;
+		try {
+				connector = await ApiConnector.connect(hostname, user, password);
+		} catch (e) {
+				throw e;
 		}
 		return connector;
 	},
 
-	async doLogin(user, password, hostname) {
-		let connector = null, lastError = null;
-		for (let i = 0; i < connectors.length; i++) {
-			try {
-				if(connectors[i].prototype.doLogin) {
-					console.log(connectors[i].prototype.doLogin);
-					connector = await connectors[i].prototype.doLogin(user, password, hostname);
-					lastError = null;
-					break;
-				}
-			} catch (e) {
-				lastError = e;
-				if (e instanceof LoginError) {
-					// This connector could establish a connection but the firmware refused it
-					break;
-				}
-			}
-		}
-
-		if (lastError !== null) {
-			throw lastError;
+	async doLogin(user, password) {
+		let connector = null;
+		try {
+				connector = await ApiConnector.prototype.doLogin(user, password);
+		} catch (e) {
+				throw e;
 		}
 		return connector;
 	},
 
-	async doLogout(hostname) {
-		let connector = null, lastError = null;
-		for (let i = 0; i < connectors.length; i++) {
-			try {
-				connector = await connectors[i].prototype.doLogout(hostname);
-				lastError = null;
-				break;
-			} catch (e) {
-				lastError = e;
-				if (e instanceof LoginError) {
-					// This connector could establish a connection but the firmware refused it
-					break;
-				}
-			}
-		}
-
-		if (lastError !== null) {
-			throw lastError;
+	async doLogout() {
+		let connector = null;
+		try {
+				connector = await ApiConnector.prototype.doLogout();
+		} catch (e) {
+				throw e;
 		}
 		return connector;
 	},
 
-	async doShutdown(hostname) {
-		let connector = null, lastError = null;
-		for (let i = 0; i < connectors.length; i++) {
-			try {
-				console.log(connectors[i].prototype)
-				connector = await connectors[i].prototype.doShutdown(hostname);
-				lastError = null;
-				break;
-			} catch (e) {
-				lastError = e;
-				if (e instanceof OperationFailedError) {
-					// This connector could establish a connection but the firmware refused it
-					break;
-				}
-			}
-		}
-
-		if (lastError !== null) {
-			throw lastError;
+	async doShutdown() {
+		let connector = null;
+		try {
+				connector = await ApiConnector.prototype.doShutdown();
+		} catch (e) {
+				throw e;
 		}
 		return connector;
 	},
 
-	async doLoadAddresses(hostname) {
-		let connector = null, lastError = null;
-		for (let i = 0; i < connectors.length; i++) {
-			try {
-				connector = await connectors[i].prototype.doLoadAddresses(hostname);
-				lastError = null;
-				break;
-			} catch (e) {
-				lastError = e;
-				if (e instanceof LoadAddressesError) {
-					// This connector could establish a connection but the firmware refused it
-					break;
-				}
-			}
-		}
-
-		if (lastError !== null) {
-			throw lastError;
+	async doLoadAddresses() {
+		let connector = null;
+		try {
+				connector = await ApiConnector.prototype.doLoadAddresses();
+		} catch (e) {
+				throw e;
 		}
 		return connector;
 	},
-
-
 	// Install the global Vuex store
 	installStore(store) {
 		BaseConnector.installStore(store);
