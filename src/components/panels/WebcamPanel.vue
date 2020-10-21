@@ -173,14 +173,14 @@ export default {
 			if (!this.axios) {
 				//let protocol = location.protocol;
 				this.axios = await axios.create({
-					baseURL:`http://`+this.selectedMachine+`/`,
+					baseURL:ENTRYPOINT+`/`,
 					//cancelToken: BaseConnector.getCancelSource().token,
 					timeout: 8000,	// default session timeout in RepRapFirmware
 					withCredentials: true,
 				});
 			}
 
-			let result = await this.axios.get('/pc_webcam', {
+			let result = await this.axios.get('/duet/action/pc_webcam', {
 				withCredentials: true,
 				params: {
 					info: "",
@@ -236,14 +236,14 @@ export default {
 				if (!that.axios) {
 					//let protocol = location.protocol;
 					that.axios = await axios.create({
-						baseURL:`http://`+that.selectedMachine+`/`,
+						baseURL:ENTRYPOINT+`/`,
 						//cancelToken: BaseConnector.getCancelSource().token,
 						timeout: 8000,	// default session timeout in RepRapFirmware
 						withCredentials: true,
 					});
 				}
 
-				let rep = await that.axios.get('/pc_webcam', {
+				let rep = await that.axios.get('/duet/action/pc_webcam', {
 					withCredentials: true,
 					//params: {fra: 5, res: that.resolutions16_9['480p']}
 				});
@@ -272,13 +272,13 @@ export default {
 				if (this.maWebcam.devs[this.maWebcam.active] && !this.loaded){
 					if (!this.axios){
 						this.axios = await axios.create({
-							baseURL:`http://`+this.selectedMachine+`/`,
+							baseURL:ENTRYPOINT+`/`,
 							//cancelToken: BaseConnector.getCancelSource().token,
 							timeout: 8000,	// default session timeout in RepRapFirmware
 							withCredentials: true,
 						});
 					}
-					this.axios.get('/pc_webcam', {
+					this.axios.get('/duet/action/pc_webcam', {
 						withCredentials: true,
 						params: {
 							dev: this.maWebcam.devs[this.maWebcam.active],

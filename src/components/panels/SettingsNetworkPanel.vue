@@ -260,12 +260,12 @@ export default {
 				if (!this.axios) {
 					let protocol = location.protocol;
 					this.axios = await axios.create({
-						baseURL:protocol+`//`+this.selectedMachine+`/`,
+						baseURL: ENTRYPOINT+`/`,
 						timeout: 8000,	// default session timeout in RepRapFirmware
 						withCredentials: true,
 					});
 				}
-				const response = await this.axios.get('pc_getip', {
+				const response = await this.axios.get('/duet/action/pc_getip', {
 					withCredentials: true,
 					params: params
 				});
@@ -316,12 +316,12 @@ export default {
 			if (!this.axios) {
 				let protocol = location.protocol;
 				this.axios = await axios.create({
-					baseURL:protocol+`//`+this.selectedMachine+`/`,
+					baseURL:ENTRYPOINT+`/`,
 					timeout: 8000,	// default session timeout in RepRapFirmware
 					withCredentials: true,
 				});
 			}
-			const response = await this.axios.get('pc_getip', {
+			const response = await this.axios.get('/duet/action/pc_getip', {
 				withCredentials: true,
 				params: {restart: true}
 			});

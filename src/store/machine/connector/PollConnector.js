@@ -1093,13 +1093,13 @@ export default class PollConnector extends BaseConnector {
 			if (!this.axios){
 				let protocol = location.protocol;
 				this.axios = await axios.create({
-					baseURL:`${protocol}//`+hostname+`/`,
+					baseURL:`${ENTRYPOINT}/`,
 					cancelToken: BaseConnector.getCancelSource().token,
 					timeout: 8000,	// default session timeout in RepRapFirmware
 					withCredentials: true,
 				});
 			}
-			const response = await this.axios.get('pc_login', {
+			const response = await this.axios.get('/duet/action/pc_login', {
 				withCredentials: true,
 				params: { username: login, password: password }
 			});
@@ -1113,13 +1113,13 @@ export default class PollConnector extends BaseConnector {
 			if (!this.axios){
 				let protocol = location.protocol;
 				this.axios = await axios.create({
-					baseURL:`${protocol}//`+hostname+`/`,
+					baseURL:`${ENTRYPOINT}/`,
 					cancelToken: BaseConnector.getCancelSource().token,
 					timeout: 8000,	// default session timeout in RepRapFirmware
 					withCredentials: true,
 				});
 			}
-			const response = await this.axios.get('pc_logout', {
+			const response = await this.axios.get('/duet/action/pc_logout', {
 				withCredentials: true,
 				params: {}
 			});
@@ -1133,13 +1133,13 @@ export default class PollConnector extends BaseConnector {
 			if (!this.axios){
 				let protocol = location.protocol;
 				this.axios = await axios.create({
-					baseURL:`${protocol}//`+hostname+`/`,
+					baseURL:`${ENTRYPOINT}/`,
 					cancelToken: BaseConnector.getCancelSource().token,
 					timeout: 8000,	// default session timeout in RepRapFirmware
 					withCredentials: true,
 				});
 			}
-			const response = await this.axios.get('pc_shutdown', {
+			const response = await this.axios.get('/duet/action/pc_shutdown', {
 				withCredentials: true,
 				params: {}
 			});
@@ -1153,14 +1153,14 @@ export default class PollConnector extends BaseConnector {
 			if (!this.axios){
 				let protocol = location.protocol;
 				this.axios = await axios.create({
-					baseURL:`${protocol}//`+hostname+`/`,
+					baseURL:`${ENTRYPOINT}/`,
 					cancelToken: BaseConnector.getCancelSource().token,
 					timeout: 8000,	// default session timeout in RepRapFirmware
 					withCredentials: true,
 				});
 			}
 
-			const response = await this.axios.get('pc_getip', {
+			const response = await this.axios.get('/duet/action/pc_getip', {
 				withCredentials: true,
 				params: {}
 			});

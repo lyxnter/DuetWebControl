@@ -178,7 +178,7 @@ import { mapState, mapGetters, mapActions } from 'vuex'
 import { DisconnectedError } from '../../utils/errors.js'
 import Path from '../../utils/path.js'
 import axios from 'axios'
-
+import { ENTRYPOINT, HOSTNAME, PROTOCOL, PORT } from '../../config/entrypoint';
 export default {
 	data() {
 		return {
@@ -409,14 +409,14 @@ export default {
 			if (!this.axios) {
 				//let protocol = location.protocol;
 				this.axios = await axios.create({
-					baseURL:`http://`+this.selectedMachine+`/`,
+					baseURL: ENTRYPOINT+`/`,
 					//cancelToken: BaseConnector.getCancelSource().token,
 					timeout: 8000,	// default session timeout in RepRapFirmware
 					withCredentials: true,
 				});
 			}
 			console.log(this.lastConfig)
-			this.axios.get('/pc_configmachine', {
+			this.axios.get('/duet/action/pc_configmachine', {
 				withCredentials: true,
 				params: {
 					params: JSON.stringify(this.lastConfig)
@@ -470,14 +470,14 @@ export default {
 			if (!that.axios) {
 				//let protocol = location.protocol;
 				that.axios = await axios.create({
-					baseURL:`http://`+that.selectedMachine+`/`,
+					baseURL:ENTRYPOINT+`/`,
 					//cancelToken: BaseConnector.getCancelSource().token,
 					timeout: 8000,	// default session timeout in RepRapFirmware
 					withCredentials: true,
 				});
 			}
 
-			let result = await that.axios.get('/pc_configmachine', {
+			let result = await that.axios.get('/duet/action/pc_configmachine', {
 				withCredentials: true,
 			});
 
@@ -514,14 +514,14 @@ export default {
 				if (!this.axios) {
 					//let protocol = location.protocol;
 					this.axios = await axios.create({
-						baseURL:`http://`+this.selectedMachine+`/`,
+						baseURL:ENTRYPOINT+`/`,
 						//cancelToken: BaseConnector.getCancelSource().token,
 						timeout: 8000,	// default session timeout in RepRapFirmware
 						withCredentials: true,
 					});
 				}
 				console.log(this.lastConfig)
-				this.axios.get('/pc_configmachine', {
+				this.axios.get('/duet/action/pc_configmachine', {
 					withCredentials: true,
 					params: {
 						params: JSON.stringify(this.lastConfig)
