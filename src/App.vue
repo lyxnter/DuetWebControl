@@ -441,7 +441,7 @@ export default {
 		window.addEventListener('unload', this.disconnectAll);
 
 		if(((location.port === "8080") || (location.port === "8081") || (location.port === "8082"))){
-			this.connect({hostname: "192.168.1.55"});
+			this.connect({hostname: "192.168.1.54"});
 		} else if (!this.isLocal || (location.port === "80") || (location.port === "")) {
 			this.connect();
 		}
@@ -458,7 +458,7 @@ export default {
 					setTimeout(() => {
 						console.log(location.host)
 						if(((location.port === "8080") || (location.port === "8081") || (location.port === "8082"))){
-							that.connect({hostname: "192.168.1.55"});
+							that.connect({hostname: "192.168.1.54"});
 						} else if (!that.isLocal || (location.port === "80") || (location.port === "")) {
 							that.connect();
 						}

@@ -39,7 +39,18 @@ export function logCode(code = '', response, hostname = store.state.selectedMach
 			return item
 		}
 	}
-).join('')
+	).join('')
+	if (response.startsWith('{')) {
+		try {
+		  response = JSON.parse(response)
+			//{"prefix": "Progress:" , "bar" : "██████▏-------------------------------------------",  "percent": 12.26, "suffix" : "Complete"}
+			console.log(response)
+			code = response.prefix
+			response = " |" + response.bar + "| " + response.percent + "% " + response.suffix
+		} catch (e) {
+		  console.error("Parsing error:", e);
+		}
+	}
 
 // Determine type
 let type = 'info', toLog = response;

@@ -81,63 +81,179 @@ autoplay: true;
 				<p v-html="prompt"></p>
 			</v-card-text>
 			<template v-else>
-				<div class="flip-box" v-if="item.ico">
+				<div class="flip-box">
 					<div class="flip-box-inner">
 						<div class="flip-box-front">
-							<img id="buildPlate" src="" style="width: 80%; margin-left: 0%;" alt="" />
-							<v-btn color="blue darken-1" onclick="
+							<img v-if="item.ico" id="buildPlate" src="" style="width: 200px; margin-left: 0%; height: 200px;" alt="" />
+							<v-btn v-if="!item.ico" @click="$refs.fileInput.click()" @contextmenu="$emit('contextmenu', $event)" tabindex="0" color="primary darken-1">
+								<v-icon class="mr-2">cloud_upload</v-icon> {{ $t('button.upload.generic.caption') }}
+							</v-btn>
+							<canvas v-if="!item.ico" style="border:1px solid grey; width: 200px; margin-left: 0%; height: 200px;" id="canvas" @click="onClick" ></canvas>
+							<v-btn v-if="!item.ico" @click="onClick" @contextmenu="$emit('contextmenu', $event)" tabindex="0" color="gray darken-3" id="saveBtn">
+								<v-icon class="mr-2">save</v-icon> {{ $t('dialog.fileEdit.save') }}
+							</v-btn>
+							<input ref="fileInput" id="imageInput" type="file" accept="image/*" hidden multiple>
+							<v-btn v-if="item.ico" color="blue darken-1" onclick="
 							document.getElementsByTagName('video')[0].load();
 							document.getElementsByClassName('flip-box-inner')[0].style.transform = 'rotateY(180deg)';" @click="attachListener" style=" margin-top: 44px">{{ $t('generic.showPreview') }}</v-btn>
 						</div>
 						<div class="flip-box-back">
-							<video :poster="item.ico" style="width: 100%;" @timeupdate="videoUpdate" @ended="videoEnded" @progress="videoBuffer" preload>
-								<source :src="item.ico.substring(0,item.ico.length-8)+'.mp4'" type="video/mp4">
-									<img src="/img/ressources/file.png" type="image/png"/>
-								</video>
-								<div id="video-controls" style="/*display: none*/">
-									<v-btn icon id="play-pause" @click="playPause" style="margin: 0 5px 5px 0;"><v-icon>{{ playIcon }}</v-icon></v-btn>
-									<v-slider min="0" max="100" v-model="buffer" :buffer-value="bufferValue" id="seek-bar" style="width: 160px; display: inline-flex;margin-top:0px" @change="seekChange(buffer)" @mousedown="seekMouseDown" @mouseup="seekMouseUp"></v-slider>
-									<!--button type="button" id="mute"><span class="material-icons">volume_up</span>/<span class="material-icons">volume_off</span></button>
-									<input type="range" id="volume-bar" min="0" max="1" step="0.1" value="1"-->
-									<!--v-btn icon id="full-screen" style="margin:  0  0 5px 5px;"><span class="material-icons">fullscreen</span></v-btn-->
-								</div>
-								<v-btn color="blue darken-1" onclick="document.getElementsByTagName('video')[0].pause();
-								document.getElementsByClassName('flip-box-inner')[0].style.transform = 'rotateY(0deg)';" id="back" class="sm6" style="margin-top:-5px">
-								{{ $t('generic.showBuildplate') }}
-							</v-btn>
-						</div>
+							<video v-if="item.ico" :poster="item.ico" style="width: 200px; margin-left: 0%; height: 200px;" @timeupdate="videoUpdate" @ended="videoEnded" @progress="videoBuffer" preload>
+								<source :src="item.ico.substring(0,item.ico.length-8)+'.mp4'" type="video/mp4"/>
+								<img src="/img/ressources/file.png" type="image/png">
+							</video>
+							<div id="video-controls" style="/*display: none*/">
+								<v-btn icon id="play-pause" @click="playPause" style="margin: 0 5px 5px 0;"><v-icon>{{ playIcon }}</v-icon></v-btn>
+								<v-slider min="0" max="100" v-model="buffer" :buffer-value="bufferValue" id="seek-bar" style="width: 160px; display: inline-flex;margin-top:0px" @change="seekChange(buffer)" @mousedown="seekMouseDown" @mouseup="seekMouseUp"></v-slider>
+								<!--button type="button" id="mute"><span class="material-icons">volume_up</span>/<span class="material-icons">volume_off</span></button>
+								<input type="range" id="volume-bar" min="0" max="1" step="0.1" value="1"-->
+								<!--v-btn icon id="full-screen" style="margin:  0  0 5px 5px;"><span class="material-icons">fullscreen</span></v-btn-->
+							</div>
+							<v-btn color="blue darken-1" onclick="document.getElementsByTagName('video')[0].pause();
+							document.getElementsByClassName('flip-box-inner')[0].style.transform = 'rotateY(0deg)';" id="back" class="sm6" style="margin-top:-5px">
+							{{ $t('generic.showBuildplate') }}
+						</v-btn>
 					</div>
 				</div>
-				<v-card-text> <!-- Print data -->
-					{{$t('list.jobs.generatedBy')}} : {{ item.generatedBy }} <br>
-					{{$t('list.jobs.layerHeight')}}: {{ item.layerHeight }} mm <br>
-					{{$t('list.jobs.height')}}: {{ item.height }} mm <br>
-					<template v-if="item.simulatedTime != null && item.simulatedTime > 0">
-						{{$t('list.jobs.simulatedTime')}}: {{ $displayTime(item.simulatedTime) }}<br>
-					</template>
-					{{$t('list.jobs.printTime')}}: {{ $displayTime(item.printTime) }}<br>
-					{{$t('list.jobs.filament')}}: {{ item.filament.length == 1 ? item.filament[0]+" mm" : "table" }} <br>
-				</v-card-text>
-				<v-card-text> <!-- File data -->
-					<div style="text-overflow: ellipsis;overflow: hidden; width: 440px;">
-						{{$t('list.baseFileList.fileName')}}: {{ item.name }}
-					</div>
-					{{$t('list.baseFileList.size')}}: {{ $displaySize(item.size) }}<br>
-					{{$t('list.baseFileList.lastModified')}}: {{ item.lastModified.toLocaleString() }} <br>
-				</v-card-text>
-			</template>
+			</div>
+			<v-card-text> <!-- Print data -->
+				{{$t('list.jobs.generatedBy')}} : {{ item.generatedBy }} <br>
+				{{$t('list.jobs.layerHeight')}}: {{ item.layerHeight }} mm <br>
+				{{$t('list.jobs.height')}}: {{ item.height }} mm <br>
+				<template v-if="item.simulatedTime != null && item.simulatedTime > 0">
+					{{$t('list.jobs.simulatedTime')}}: {{ $displayTime(item.simulatedTime) }}<br>
+				</template>
+				{{$t('list.jobs.printTime')}}: {{ $displayTime(item.printTime) }}<br>
+				{{$t('list.jobs.filament')}}: {{ item.filament.length == 0 ? $t('generic.noValue') : (item.filament.length == 1 ? item.filament[0]+" mm" : item.filament) }} <br>
+			</v-card-text>
+			<v-card-text> <!-- File data -->
+				<div style="text-overflow: ellipsis;overflow: hidden; width: 440px;">
+					{{$t('list.baseFileList.fileName')}}: {{ item.name }}
+				</div>
+				{{$t('list.baseFileList.size')}}: {{ $displaySize(item.size) }}<br>
+				{{$t('list.baseFileList.lastModified')}}: {{ item.lastModified.toLocaleString() }} <br>
+			</v-card-text>
+		</template>
 
-			<v-card-actions>
-				<v-spacer></v-spacer>
-				<v-btn v-bind:color="(item?'red':'primary') +' darken-1'" flat @click="dismissed">{{ item?$t('generic.cancel'):$t('generic.no') }}</v-btn>
-				<v-btn :class="item?'success':'v-btn--flat primary--text text--darken-1'" @click="confirmed">{{ item?$t('generic.print'):$t('generic.yes') }}</v-btn>
-			</v-card-actions>
-		</v-card>
-	</v-dialog>
+		<v-card-actions>
+			<v-spacer></v-spacer>
+			<v-btn v-bind:color="(item?'red':'primary') +' darken-1'" flat @click="dismissed">{{ item?$t('generic.cancel'):$t('generic.no') }}</v-btn>
+			<v-btn :class="item?'success':'v-btn--flat primary--text text--darken-1'" @click="confirmed">{{ item?$t('generic.print'):$t('generic.yes') }}</v-btn>
+		</v-card-actions>
+	</v-card>
+</v-dialog>
 </template>
 
 <script>
 'use strict'
+
+import { mapState } from 'vuex'
+
+let $ = require('jquery');
+
+function CLIPBOARD_CLASS(canvas_id, autoresize) {
+	var _self = this;
+	var canvas = document.getElementById(canvas_id);
+	var imgInput = document.getElementById('imageInput');
+	var ctx = document.getElementById(canvas_id).getContext("2d");
+	var saveBtn = document.getElementById('saveBtn')
+	saveBtn.style.display = 'none'
+
+	//handlers
+	document.addEventListener('paste', function (e) { _self.paste_auto(e); }, false);
+	imgInput.onchange = function(e) { _self.file_input(e); };
+	window.ondragover = function(e) {e.preventDefault()}
+	window.ondrop = function(e) { _self.drag_n_drop(e); };
+
+	//on paste
+	this.paste_auto = async function (e) {
+		if (e.clipboardData) {
+			console.log(e.clipboardData)
+			var items = e.clipboardData.items;
+			if (!items) return;
+			console.log(items)
+			//access data directly
+			var is_image = false;
+			for (var i = 0; i < items.length; i++) {
+				console.log(items[i])
+				if (items[i].type.indexOf("image") !== -1) {
+					//image
+					var blob = items[i].getAsFile();
+					var URLObj = window.URL || window.webkitURL;
+					var source = URLObj.createObjectURL(blob);
+					this.paste_createImage(source);
+					is_image = true;
+				}
+			}
+			if(is_image == true){
+				e.preventDefault();
+				saveBtn.style.display = ''
+			}
+		}
+	};
+
+	//on change
+	this.file_input = function (e) {
+		if(e.target) {
+			var files = e.target.files;
+			if (!files) return;
+			var is_image = false;
+			for (var i = 0; i < files.length; i++) {
+				if (files[i].type.indexOf("image") !== -1) {
+					var blob = files[i]
+					var URLObj = window.URL || window.webkitURL;
+					var source = URLObj.createObjectURL(blob);
+					this.paste_createImage(source);
+					is_image = true;
+				}
+			}
+			if(is_image == true){
+				e.preventDefault();
+				saveBtn.style.display = ''
+			}
+		}
+	}
+
+	//on change
+	this.drag_n_drop = function (e) {
+		if(e.dataTransfer) {
+			var files = e.dataTransfer.files;
+			if (!files) return;
+			var is_image = false;
+			for (var i = 0; i < files.length; i++) {
+				if (files[i].type.indexOf("image") !== -1) {
+					var blob = files[i]
+					var URLObj = window.URL || window.webkitURL;
+					var source = URLObj.createObjectURL(blob);
+					this.paste_createImage(source);
+					is_image = true;
+				}
+			}
+			if(is_image == true){
+				e.preventDefault();
+				saveBtn.style.display = ''
+			}
+		}
+	}
+
+	//draw pasted image to canvas
+	this.paste_createImage = function (source) {
+		var pastedImage = new Image();
+		pastedImage.onload = function () {
+			if(autoresize == true){
+				//resize
+				canvas.width = pastedImage.width;
+				canvas.height = pastedImage.height;
+			}
+			else{
+				//clear canvas
+				ctx.clearRect(0, 0, canvas.width, canvas.height);
+			}
+			ctx.drawImage(pastedImage, 0, 0);
+		};
+		pastedImage.src = source;
+	};
+}
 
 export default {
 	data(){
@@ -146,6 +262,8 @@ export default {
 			bufferValue: 0,
 			playIcon: 'play_arrow',
 			playing: false,
+			CLIPBOARD: undefined,
+			strDownloadMime: "image/octet-stream",
 		}
 	},
 	props: {
@@ -165,6 +283,11 @@ export default {
 			type: Object,
 			required: false
 		}
+	},
+	computed: {
+		...mapState({
+			isLocal: state => state.isLocal,
+		}),
 	},
 	methods: {
 		breakAnywere() {
@@ -278,6 +401,117 @@ export default {
 				console.log('document')
 				document.exitFullscreen();
 			}
+		},
+		onClick: function() {
+			let strMime = "image/jpeg";
+			let imgData = document.getElementById('canvas').toDataURL(strMime);
+			let fileName = this.item.directory.substr(10) + '/' + this.item.name.substring(0, this.item.name.lastIndexOf("."));
+			console.log(this.item.dir, this.item.directory, this.item.name)
+			this.savePicture(imgData/*.replace(strMime, this.strDownloadMime)*/, fileName.substring(fileName.lastIndexOf("/" )+1) + "_ico.jpg");
+			while (fileName.includes(" ")) {
+				fileName = fileName.replace(" ", "_");
+			}
+			this.item.ico = "/img/GCodePreview/" + fileName + "/" + fileName.substring(fileName.lastIndexOf("/" )+1) + "_ico.jpg"
+			console.log(this.item)
+			let item = this.item
+			setTimeout(() => {
+				let ico = item.ico.substring(0, item.ico.length-7)+'bp.jpg'
+				this.validateImg(ico, "buildPlate")
+				if (document.getElementById("buildPlate").src.endsWith("/img/ressources/file.png")) {
+					ico = item.ico
+					this.validateImg(ico, "buildPlate")
+				}
+			}, 250)
+		},
+		b64toBlob: function(e, t, n) {
+			t = t || "", n = n || 512;
+			for (var o = atob(e), r = [], a = 0; a < o.length; a += n) {
+				for (var l = o.slice(a, a + n), i = new Array(l.length), s = 0; s < l.length; s++) i[s] = l.charCodeAt(s);
+				var c = new Uint8Array(i);
+				r.push(c)
+			}
+			return new Blob(r, {
+				type: t
+			})
+		},
+		savePicture: function(e, t) {
+			document.getElementById("myAwesomeForm");
+			var n = e.split(";"),
+			o = n[0].split(":")[1],
+			r = this.b64toBlob(n[1].split(",")[1], o);
+			let fileName = this.item.directory.substr(10) + '/' + this.item.name.substring(0, this.item.name.lastIndexOf("."));
+			while (fileName.includes(" ")) {
+				fileName = fileName.replace(" ", "_");
+			}
+			//console.log("t = " + t)
+			//console.log("this.item.name = " + this.item.name)
+			var f = fileName;
+			while (f.includes(" ")) {
+				f = f.replace(" ", "_");
+			}
+			while (t.includes(" ")) {
+				t = t.replace(" ", "_");
+			}
+			//console.log("uploading("+this.item.name+"):	" + f + "/" + t);
+			var start = new Date()
+			let that = this
+			$.ajax({
+				url: (this.selectedMachine?this.selectedMachine:"/") + "rr_upload?name=0:/www/img/GCodePreview/" + f + "/" + t + "&time=" + encodeURIComponent(this.timeToStr(new Date)),
+				data: r,
+				type: "POST",
+				contentType: !1,
+				processData: !1,
+				cache: !1,
+				dataType: "json",
+				async: false,
+				error: function(e) {
+					console.error(e)
+					that.$makeNotification('error', that.$t('notification.upload.error', [t]));
+				},
+				success: function() {
+					console.log("Envoi Réussi", (new Date() - start)/1000)
+					that.$makeNotification('success', that.$t('notification.upload.success', [t, Math.ceil((new Date() - start)/1000)]));
+				},
+				complete: function() {
+					console.log("Request finished.")
+				}
+			})
+		},
+		timeToStr: function(time) {
+			// Should return an ISO-like datetime string like "2016-10-24T15:39:09"
+			// Cannot use toISOString() here because it doesn't output the localtime
+			var result = "";
+			result += time.getFullYear() + "-";
+			result += (time.getMonth() + 1) + "-";
+			result += time.getDate() + "T";
+			result += time.getHours() + ":";
+			result += time.getMinutes() + ":";
+			result += time.getSeconds();
+			return result;
+		},
+		validateImg(path, id_img) {
+			console.log(path, id_img)
+			var xhr =  new XMLHttpRequest();
+			xhr.onload = function() {
+				if(xhr.status == 404) {
+					console.log(path, id_img)
+					document.getElementById(id_img).src = "/img/ressources/file.png"
+				} else {
+					document.getElementById(id_img).src = path;
+				}
+			}
+
+			xhr.ontimeout = function() {
+				console.log("timed out")
+			}
+
+			xhr.onerror = function() {
+				console.log("error")
+				document.getElementById(id_img).src = "/img/ressources/file.png"
+			}
+
+			xhr.open('GET', path , false);
+			xhr.send(null);
 		}
 	},
 	mounted() {
@@ -291,30 +525,39 @@ export default {
 				if (document.getElementsByClassName('flip-box-inner').length)
 				document.getElementsByClassName('flip-box-inner')[0].style.transform = 'rotateY(0deg)';
 
-				var xhr =  new XMLHttpRequest();
-				xhr.timeout = 2000;
-
 				console.log(this.shown ? "shown" : "hidden")
 				console.log(this.item)
 				let item = this.item
-				xhr.onload = function() {
-					if(xhr.status == 404)
-					document.getElementById("buildPlate").src = "/img/ressources/file.png"
-					else
-					document.getElementById("buildPlate").src = item.ico.substring(0, item.ico.length-7)+'bp.jpg'
+				if (item.ico) {
+					setTimeout(() => {
+						let ico = item.ico.substring(0, item.ico.length-7)+'bp.jpg'
+						this.validateImg(ico, "buildPlate")
+						if (document.getElementById("buildPlate").src.endsWith("/img/ressources/file.png")) {
+							ico = item.ico
+							this.validateImg(ico, "buildPlate")
+						}
+					}, 250)
+				} else if (!this.isLocal){
+					let that = this;
+					setTimeout(() => {
+						that.CLIPBOARD = new CLIPBOARD_CLASS("canvas", true);
+					}, 250)
+				} else {
+					setTimeout(() => {
+						item.ico = (this.selectedMachine?this.selectedMachine:"/") + "img/ressources/file.png"
+						setTimeout(() => {
+							document.getElementById("buildPlate").src = (this.selectedMachine?this.selectedMachine:"/") + ("img/ressources/file.png")
+						}, 250)
+					}, 250)
 				}
-
-				xhr.ontimeout = function() {
-					console.log("timed out")
+			} else {
+				if (document.getElementById('canvas')) {
+					var canvas = document.getElementById('canvas')
+					var context = canvas.getContext('2d');
+					context.clearRect(0, 0, canvas.width, canvas.height);
+				} else if (document.getElementById("buildPlate").src.endsWith("/img/ressources/file.png")) {
+					this.item.ico = null;
 				}
-
-				xhr.onerror = function() {
-					console.log("error")
-					document.getElementById("buildPlate").src = "/img/ressources/file.png"
-				}
-
-				xhr.open('GET', item.ico.substring(0, item.ico.length-7)+'bp.jpg' , true);
-				xhr.send(null);
 			}
 		}
 	}

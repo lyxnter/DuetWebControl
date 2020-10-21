@@ -31,9 +31,9 @@
 
 			<v-spacer></v-spacer>
 
-			<v-menu offset-y left :disabled="uiFrozen || disabled" v-tab-control :close-on-content-click="false">
+			<v-menu offset-y left :disabled="(uiFrozen || disabled)" v-tab-control :close-on-content-click="false">
 				<template slot="activator">
-					<v-btn color="primary darken-1" small class="mx-0" :disabled="uiFrozen">
+					<v-btn color=" primary darken-1 : " small class="mx-0" :disabled="(uiFrozen || disabled)">
 						{{ $t('panel.movement.compensation') }} <v-icon>arrow_drop_down</v-icon>
 					</v-btn>
 				</template>
@@ -46,8 +46,11 @@
 							</v-list-tile>
 							<v-divider></v-divider>
 						</template>
-						<v-list-tile @click="getTool.toUpperCase().startsWith('CAL') ? sendCode('G32') : null" :disabled="!getTool.toUpperCase().startsWith('CAL')">
+						<v-list-tile v-if="false" @click="getTool.toUpperCase().startsWith('CAL') ? sendCode('G32') : null" :disabled="!getTool.toUpperCase().startsWith('CAL')">
 							<v-icon class="mr-1">view_module</v-icon> {{ $t('panel.movement.runDelta') }}
+						</v-list-tile>
+						<v-list-tile :disabled="!getTool.toUpperCase().startsWith('CAL')" @click="showMeshEditDialog = true">
+							<v-icon class="mr-1">view_module</v-icon> {{ $t('panel.movement.runDelta') /*$t('panel.movement.editMesh')*/ }}
 						</v-list-tile>
 						<v-list-tile :disabled="tools.length == 0" @click="nozzleHeightCalib">
 							<v-icon class="mr-1">vertical_align_bottom</v-icon> {{ $t('panel.movement.runNozzleHeight') }}
@@ -67,9 +70,6 @@
 									<v-list style="background: #4d4d4d;">
 										<v-list-tile @click="sendCode('G29')" :disabled="!getTool.toUpperCase().startsWith('CAL')">
 											<v-icon class="mr-1">grid_on</v-icon> {{ $t('panel.movement.runMesh') }}
-										</v-list-tile>
-										<v-list-tile :disabled="!getTool.toUpperCase().startsWith('CAL')" @click="showMeshEditDialog = true">
-											<v-icon class="mr-1">view_module</v-icon> {{ $t('panel.movement.editMesh') }}
 										</v-list-tile>
 										<v-list-tile @click="sendCode('G29 S1')">
 											<v-icon class="mr-1">save</v-icon> {{ $t('panel.movement.loadMesh') }}

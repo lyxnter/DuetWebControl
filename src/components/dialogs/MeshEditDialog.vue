@@ -4,10 +4,14 @@
 }
 
 .v-list__tile__content:hover {
-	font-size: 19px;
+	/*font-size: 19px;*/
 	background: rgba(255,255,255,0.08);
 }
-
+</style>
+<style>
+.rect > .v-list__tile {
+	height: 75px;
+}
 </style>
 <template>
 	<v-layout row justify-center>
@@ -36,26 +40,28 @@
 										<div style="display: inline-block; width: 25px; height: 25px; margin: 10px 5px -5px 17px ;overflow: hidden; border-radius: 50%; margin-bottom: 0px;">
 										</div>
 										<div style="width: 15%; display: inline-block; text-align: center"> Calibration </div>
-										<div style="width: 15%; display: inline-block; text-align: center">{{ $t('panel.tools.chamber', ['']) }}</div>
+										<div style="width: 10%; display: inline-block; text-align: center; overflow: hidden; padding: 5px">{{ $t('panel.tools.chamber', ['']) }}</div>
 										<div style="width: 15%; display: inline-block; text-align: center">{{ $t('panel.tools.bed', ['']) }}</div>
-										<div style="width: 20%; display: inline-block; text-align: center">{{ $t('dialog.meshEdit.diameter') }}</div>
+										<div style="width: 15%; display: inline-block; text-align: center">{{ $t('dialog.meshEdit.diameter') }}</div>
+										<div style="width: 15%; display: inline-block; text-align: center">{{ $t('dialog.meshEdit.spacing').split(' ')[0] }}</div>
 									</v-list-tile>
-									<v-list-tile @click="getTool.toUpperCase().startsWith('CAL') ? sendCode('G32') : null" :disabled="!getTool.toUpperCase().startsWith('CAL')">
+									<v-list-tile @click="getTool.toUpperCase().startsWith('CAL') ? startCalib() : null" :disabled="!getTool.toUpperCase().startsWith('CAL')">
 										<v-list-tile-content>
 											<v-list-tile-title>
 												<div style="display: inline-block; border: 1px solid white; width: 25px; height: 25px; margin: 0 5px -5px 10px ;overflow: hidden; border-radius: 50%; margin-bottom: 0px;">
 													<img src="/img/ressources/grid-icon.png" alt="" width="25px" height="25px" style="width: 60px; margin-left: -5px; height: 60px; margin-top: -5px; filter: invert(100%); background: #B0B0B0">
 												</div>
 												<div style="width: 15%; display: inline-block; text-align: center"> OFF </div>
+												<div style="width: 10%; display: inline-block; text-align: center">{{ 'Off' }}</div>
 												<div style="width: 15%; display: inline-block; text-align: center">{{ 'Off' }}</div>
-												<div style="width: 15%; display: inline-block; text-align: center">{{ 'Off' }}</div>
-												<div style="width: 20%; display: inline-block; text-align: center">{{ 380 }}mm</div>
+												<div style="width: 15%; display: inline-block; text-align: center">{{ 380 }}mm</div>
+												<div style="width: 15%; display: inline-block; text-align: center">{{ 30 }}mm</div>
 											</v-list-tile-title>
 										</v-list-tile-content>
 									</v-list-tile>
 									<v-list-tile v-for="calibration in calibrations.filter(a => !a.custom)"
 										:key="calibration.path"
-										@click="getTool.toUpperCase().startsWith('CAL') ? sendCode('M98 P' + calibration.path) : null"
+										@click="getTool.toUpperCase().startsWith('CAL') ? startCalib(calibration.path) : null"
 										:disabled="!getTool.toUpperCase().startsWith('CAL')">
 										<v-list-tile-content>
 											<v-list-tile-title>
@@ -63,17 +69,19 @@
 													<img src="/img/ressources/grid-icon.png" alt="" width="25px" height="25px" style="width: 60px; margin-left: -5px; height: 60px; margin-top: -5px; filter: invert(100%); background: #B0B0B0">
 												</div>
 												<div style="width: 15%; display: inline-block; text-align: center">{{ calibration.name.substr(calibration.name.lastIndexOf('_')+1) }}</div>
-												<div style="width: 15%; display: inline-block; text-align: center">{{ calibration.chamber }}°C</div>
+												<div style="width: 10%; display: inline-block; text-align: center">{{ calibration.chamber }}°C</div>
 												<div style="width: 15%; display: inline-block; text-align: center">{{ calibration.bed }}°C</div>
-												<div style="width: 20%; display: inline-block; text-align: center">{{ 380 }}mm</div>
+												<div style="width: 15%; display: inline-block; text-align: center">{{ 380 }}mm</div>
+												<div style="width: 15%; display: inline-block; text-align: center">{{ 30 }}mm</div>
 											</v-list-tile-title>
 										</v-list-tile-content>
 									</v-list-tile>
 									<v-divider></v-divider>
 									<v-list-tile v-for="calibration in calibrations.filter(a => a.custom)"
 										:key="calibration.path"
-										@click="getTool.toUpperCase().startsWith('CAL') ? sendCode('M98 P' + calibration.path) : null"
-										:disabled="!getTool.toUpperCase().startsWith('CAL')">
+										@click="getTool.toUpperCase().startsWith('CAL') ? startCalib(calibration.path) : null"
+										:disabled="!getTool.toUpperCase().startsWith('CAL')"
+										:class="{rect: calibration.name.split('_')[1] == 'R'}">
 										<v-list-tile-content>
 											<v-list-tile-title>
 												<div v-if="calibration.name.split('_')[1] == 'C'" style="display: inline-block; border: 1px solid white; width: 25px; height: 25px; margin: 0 5px -5px 10px ;overflow: hidden; border-radius: 50%; margin-bottom: 0px;">
@@ -83,9 +91,14 @@
 													<img src="/img/ressources/grid-icon.png" alt="" width="25px" height="25px" style="width: 60px; margin-left: -4px; height: 60px; margin-top: -4px; filter: invert(100%); background: #B0B0B0">
 												</div>
 												<div style="width: 15%; display: inline-block; text-align: center">{{ calibration.name.substr(calibration.name.lastIndexOf('_')+1) }}</div>
-												<div style="width: 15%; display: inline-block; text-align: center">{{ calibration.chamber }}°C</div>
+												<div style="width: 10%; display: inline-block; text-align: center">{{ calibration.chamber }}°C</div>
 												<div style="width: 15%; display: inline-block; text-align: center">{{ calibration.bed }}°C</div>
-												<div style="width: 20%; display: inline-block; text-align: center">{{ calibration.diameter }}mm</div>
+												<div style="width: 15%; display: inline-block; text-align: center">
+													{{ (calibration.name.substr(calibration.name.lastIndexOf('_')+1) == 'C' ? calibration.diameter + 'mm' : calibration.diameter.substr(0, calibration.diameter.indexOf(")-(")+1)) }}
+													<br v-if="calibration.name.substr(calibration.name.lastIndexOf('_')+1) != 'C'"/>
+													{{ calibration.name.substr(calibration.name.lastIndexOf('_')+1) == 'C' ? '' : calibration.diameter.substr(calibration.diameter.indexOf(")-(")+2) }}
+												</div>
+												<div style="width: 15%; display: inline-block; text-align: center">{{ calibration.spacing }}mm</div>
 												<v-btn icon class="grey darken-1" v-on:click.stop="editContent(calibration)">
 													<v-icon> edit </v-icon>
 												</v-btn>
@@ -115,53 +128,99 @@
 									<v-tab-item key="cartesian">
 										<v-layout wrap>
 											<v-flex xs12 sm6 md6>
-												<v-text-field type="number" :label="$t('dialog.meshEdit.startCoordinate', ['X'])" v-model.number="minX" required></v-text-field>
+												<v-subheader v-if="isLocal" class="pl-0"> {{ $t('dialog.meshEdit.startCoordinate', ['X']) }} </v-subheader>
+												<v-text-field v-if="!isLocal" type="number" :label="$t('dialog.meshEdit.startCoordinate', ['X'])" v-model.number="minX" required :min="-200" :max="200" :step="10"></v-text-field>
+												<slider v-else v-model="minX" thumb-label="always" :min="-200" :max="200" :step="10"></slider>
 											</v-flex>
 											<v-flex xs12 sm6 md6>
-												<v-text-field type="number" :label="$t('dialog.meshEdit.endCoordinate', ['X'])" v-model.number="maxX" required></v-text-field>
+												<v-subheader v-if="isLocal" class="pl-0"> {{ $t('dialog.meshEdit.endCoordinate', ['X']) }} </v-subheader>
+												<v-text-field v-if="!isLocal" type="number" :label="$t('dialog.meshEdit.endCoordinate', ['X'])" v-model.number="maxX" required min="-200" max="200" step="10"></v-text-field>
+												<slider v-else v-model="maxX" thumb-label="always" :min="-200" :max="200" :step="10"></slider>
 											</v-flex>
 											<v-flex xs12 sm6 md6>
-												<v-text-field type="number" :label="$t('dialog.meshEdit.startCoordinate', ['Y'])" v-model.number="minY" required></v-text-field>
+												<v-subheader v-if="isLocal" class="pl-0"> {{ $t('dialog.meshEdit.startCoordinate', ['Y']) }} </v-subheader>
+												<v-text-field v-if="!isLocal" type="number" :label="$t('dialog.meshEdit.startCoordinate', ['Y'])" v-model.number="minY" required min="-200" max="200" step="10"></v-text-field>
+												<slider v-else v-model="minY" thumb-label="always" :min="-200" :max="200" :step="10"></slider>
 											</v-flex>
 											<v-flex xs12 sm6 md6>
-												<v-text-field type="number" :label="$t('dialog.meshEdit.endCoordinate', ['Y'])" v-model.number="maxY" required></v-text-field>
+												<v-subheader v-if="isLocal" class="pl-0"> {{ $t('dialog.meshEdit.endCoordinate', ['Y']) }} </v-subheader>
+												<v-text-field v-if="!isLocal" type="number" :label="$t('dialog.meshEdit.endCoordinate', ['Y'])" v-model.number="maxY" required min="-200" max="200" step="10"></v-text-field>
+												<slider v-else v-model="maxY" thumb-label="always" :min="-200" :max="200" :step="10"></slider>
 											</v-flex>
 											<v-flex xs12 sm6 md6>
-												<v-text-field type="number" :label="$t('dialog.meshEdit.spacingDirection', ['X'])" v-model.number="spacingX" required></v-text-field>
+												<v-subheader v-if="isLocal" class="pl-0"> {{ $t('dialog.meshEdit.spacingDirection', ['X']) }} </v-subheader>
+												<v-text-field v-if="!isLocal" type="number" :label="$t('dialog.meshEdit.spacingDirection', ['X'])" v-model.number="spacingX" required min="1" max="200" step="1"></v-text-field>
+												<slider v-else v-model="spacingX" thumb-label="always" :min="1" :max="200" :step="1"></slider>
 											</v-flex>
 											<v-flex xs12 sm6 md6>
-												<v-text-field type="number" :label="$t('dialog.meshEdit.spacingDirection', ['Y'])" v-model.number="spacingY" required></v-text-field>
+												<v-subheader v-if="isLocal" class="pl-0"> {{ $t('dialog.meshEdit.spacingDirection', ['Y']) }} </v-subheader>
+												<v-text-field v-if="!isLocal" type="number" :label="$t('dialog.meshEdit.spacingDirection', ['Y'])" v-model.number="spacingY" required min="1" max="200" step="1"></v-text-field>
+												<slider v-else v-model="spacingY" thumb-label="always" :min="1" :max="200" :step="1"></slider>
 											</v-flex>
 										</v-layout>
 									</v-tab-item>
 									<v-tab-item key="delta">
 										<v-layout wrap>
 											<v-flex xs12 sm6 md6>
-												<v-text-field type="number" :label="$t('dialog.meshEdit.radius')" v-model.number="diameter" required></v-text-field>
+												<v-subheader v-if="isLocal" class="pl-0"> {{ $t('dialog.meshEdit.radius') }} </v-subheader>
+												<v-text-field v-if="!isLocal" type="number" :label="$t('dialog.meshEdit.radius')" v-model.number="diameter" required min="10" max="400" step="10"></v-text-field>
+												<slider v-else v-model="diameter" thumb-label="always" :min="10" :max="400" :step="10"></slider>
 											</v-flex>
 											<v-flex xs12 sm6 md6>
-												<v-text-field type="number" :label="$t('dialog.meshEdit.spacing')" v-model.number="spacing" :rules="[isValid]" required></v-text-field>
+												<v-subheader v-if="isLocal" class="pl-0"> {{ $t('dialog.meshEdit.spacing') }} </v-subheader>
+												<v-text-field v-if="!isLocal" type="number" :label="$t('dialog.meshEdit.spacing')" v-model.number="spacing" required min="1" max="200" step="1"></v-text-field>
+												<slider v-else v-model="spacing" thumb-label="always" :min="1" :max="200" :step="1"></slider>
 											</v-flex>
 										</v-layout>
 									</v-tab-item>
 								</v-tabs>
 								<v-layout wrap>
 									<v-flex xs12 sm6 md6>
-										<v-text-field type="number" :label="$t('dialog.meshEdit.bed')" v-model.number="bedTemp" required></v-text-field>
+										<v-subheader v-if="isLocal" class="pl-0"> {{ $t('dialog.meshEdit.bed') }} </v-subheader>
+										<v-text-field v-if="!isLocal" type="number" :label="$t('dialog.meshEdit.bed')" v-model.number="bedTemp" required min="0" max="150" step="5"></v-text-field>
+										<slider v-else v-model="bedTemp" thumb-label="always" :min="0" :max="150" :step="5"></slider>
 									</v-flex>
 									<v-flex xs12 sm6 md6>
-										<v-text-field type="number" :label="$t('dialog.meshEdit.chamber')" v-model.number="chamberTemp" required></v-text-field>
+										<v-subheader v-if="isLocal" class="pl-0"> {{ $t('dialog.meshEdit.chamber') }} </v-subheader>
+										<v-text-field v-if="!isLocal" type="number" :label="$t('dialog.meshEdit.chamber')" v-model.number="chamberTemp" required min="0" max="80" step="5"></v-text-field>
+										<slider v-else v-model="chamberTemp" thumb-label="always" :min="0" :max="80" :step="5"></slider>
+									</v-flex>
+								</v-layout>
+								<v-layout wrap justify-center>
+									<v-flex align-center shrink>
+										<svg id="gridPreview" width="400" height="400">
+											<defs>
+												<pattern id="smallGrid" :x="(200 + minX)" :y="(200 + minY)" width="50" height="50" patternUnits="userSpaceOnUse">
+													<path d="M 50 0 L 0 0 0 50" fill="none" stroke="gray" stroke-width="0.5"/>
+												</pattern>
+												<pattern id="gridR" :x="(200 + minX)" :y="(200 + minY)" :width="spacingX" :height="spacingY" patternUnits="userSpaceOnUse">
+													<path :d="'M ' + spacingX + ' 0 L 0 0 0 ' + spacingY" fill="none" stroke="gray" stroke-width="0.5"/>
+													<path d="M 1 0 L 0 0 0 1" fill="none" :stroke="lessThanMax() == true ? 'white' : 'red'" stroke-width="2"/>
+												</pattern>
+												<pattern id="gridC" x="200" y="200" :width="spacing" :height="spacing" patternUnits="userSpaceOnUse">
+													<path :d="'M ' + spacing + ' 0 L 0 0 0 ' + spacing" fill="none" stroke="gray" stroke-width="0.5"/>
+													<path d="M 1 0 L 0 0 0 1" fill="none" :stroke="lessThanMax() == true ? 'white' : 'red'" stroke-width="2"/>
+												</pattern>
+											</defs>
+											<circle cx="200" cy="200" stroke="gray" fill="none" stroke-width="2" r="190" />
+											<rect v-if="active == 0" id="rect" :x="(200 + minX)" :y="(200 + minY)" :width="(maxX-minX)" :height="(maxY-minY)" :stroke="fitsInMachine() ? 'white' : 'red'" fill="url(#gridR)" stroke-width="0.5"/>
+											<circle v-if="active == 1" id="circle" cx="200" cy="200" :stroke="fitsInMachine() == true ? 'white' : 'red'" fill="url(#gridC)" stroke-width="0.5" :r="diameter/2" />
+										</svg>
 									</v-flex>
 								</v-layout>
 							</v-tab-item>
 						</v-tabs>
 					</v-card-text>
 					<v-card-actions>
-						<v-spacer></v-spacer>
+						<v-btn v-if="outer" color="primary darken-1" flat @click="resetInput()">
+							<v-icon class="mr-1">refresh</v-icon>
+							{{ $t('generic.reset') }}
+						</v-btn>
 						<v-btn v-if="outer" color="primary darken-1" flat @click="generateMacros()">
 							<v-icon class="mr-1">save</v-icon>
 							{{ $t('dialog.fileEdit.save') }}
 						</v-btn>
+						<v-spacer></v-spacer>
 						<v-btn color="primary darken-1" flat @click="hide">{{ $t('generic.close') }}</v-btn>
 					</v-card-actions>
 				</v-form>
@@ -186,22 +245,24 @@ export default {
 		...mapState({
 			name: state => state.machine.model.network.name,
 			getTool: state => state.user.loadedTool,
+			isLocal: state => state.isLocal,
 		})
 	},
 	data() {
 		return {
-			active: 1,
+			active: 0,
 			outer: 0,
+			activeLoaded: false,
 
-			diameter: 300,
-			spacing: 15,
+			diameter: 360,
+			spacing: 40,
 
-			minX: 0,
-			maxX: 200,
-			minY: 0,
-			maxY: 200,
-			spacingX: 20,
-			spacingY: 20,
+			minX: -130,
+			maxX: 130,
+			minY: -130,
+			maxY: 130,
+			spacingX: 40,
+			spacingY: 40,
 
 			bedTemp: 0,
 			chamberTemp: 0,
@@ -236,14 +297,41 @@ export default {
 				}
 			}
 		},
-		isValid() {
-			let radius = Math.floor( ( this.diameter/2 - 0.1 ) / this.spacing ) * this.spacing
-			let x = {min: -radius, max: radius+0.1}
-			let y = {min: -radius, max: radius+0.1}
-			let nbX = (x.max - x.min > 1 && this.spacing > 0.1) ? Math.floor((x.max - x.min)/this.spacing) + 1 : 0
-			let nbY = (y.max - y.min > 1 && this.spacing > 0.1) ? Math.floor((y.max - y.min)/this.spacing) + 1 : 0
+		lessThanMax() {
+			let nbX = 0
+			let nbY = 0
+			if (this.active == 0) {
+				nbX = (this.maxX - this.minX > 1 && this.spacingX > 0.1) ? Math.floor((this.maxX - this.minX)/this.spacingX) + 1 : 0
+				nbY = (this.maxY - this.minY > 1 && this.spacingY > 0.1) ? Math.floor((this.maxY - this.minY)/this.spacingY) + 1 : 0
+			} else if (this.active == 1) {
+				let radius = Math.floor( ( this.diameter/2 - 0.1 ) / this.spacing ) * this.spacing
+				let x = {min: -radius, max: radius+0.1}
+				let y = {min: -radius, max: radius+0.1}
+				nbX = (x.max - x.min > 1 && this.spacing > 0.1) ? Math.floor((x.max - x.min)/this.spacing) + 1 : 0
+				nbY = (y.max - y.min > 1 && this.spacing > 0.1) ? Math.floor((y.max - y.min)/this.spacing) + 1 : 0
+			}
 			let nbPts = nbX * nbY
 			return nbPts <= 441 ? nbPts <= 441 : 'Too many points'
+		},
+		fitsInMachine() {
+			if (this.active == 0) {
+				let dXminYmin = Math.sqrt((this.minX*this.minX) + (this.minY*this.minY))
+				let dXminYmax = Math.sqrt((this.minX*this.minX) + (this.maxY*this.maxY))
+				let dXmaxYmin = Math.sqrt((this.maxX*this.maxX) + (this.minY*this.minY))
+				let dXmaxYmax = Math.sqrt((this.maxX*this.maxX) + (this.maxY*this.maxY))
+				let out = ""
+				if(dXminYmin > 190)
+				out = `(${this.minX}, ${this.minY}) outside of machine limits`;
+				if(dXmaxYmin > 190)
+				out += ((out.length)?'\n':'')+`(${this.maxX}, ${this.minY}) outside of machine limits`;
+				if(dXminYmax > 190)
+				out += ((out.length)?'\n':'')+`(${this.minX}, ${this.maxY}) outside of machine limits`;
+				if(dXmaxYmax > 190)
+				out += ((out.length)?'\n':'')+`(${this.maxX}, ${this.maxY}) outside of machine limits`;
+				return out.length == 0
+			} else if (this.active == 1) {
+				return this.diameter <= 380 ? this.diameter <= 380 : 'Points outside of machine limits'
+			}
 		},
 		hide() {
 			this.$emit('update:shown', false);
@@ -290,17 +378,50 @@ export default {
 							//console.log(tools)
 							tools.forEach(item => {
 								//console.log(item)
-								let calib = {
+								function Calib(item) {
+									let keys = Object.keys(item)
+									for (let i = 0; i < keys.length; i++)
+									{
+										this[keys[i]] = item[keys[i]];
+									}
+								}
+								Calib.prototype.toString = function() {
+									let keys = Object.keys(this)
+									let out = "{\n";
+									for (let i = 0; i < keys.length; i++)
+									{
+										out += "\t'" + keys[i] + "': '" + this[keys[i]] + "' ,\n";
+									}
+									return out += "}"
+								}
+								let options = item.name.split('_')
+								options.shift()
+								options.shift()
+								let calib = new Calib({
 									name: item.name.split('_')[1] == 'C' || item.name.split('_')[1] == 'R' ? item.name.substr(0, 9) : item.name.substr(0, 10),
 									path: item.directory + "/" + item.name,
-									chamber: item.name.split('_')[2].substr(1),
-									bed: item.name.split('_')[1] == 'C' || item.name.split('_')[1] == 'R' ? item.name.split('_')[3].substr(1) : item.name.split('_')[3].substr(1, item.name.split('_')[3].length-3),
-									diameter: item.name.split('_')[1] == 'C' || item.name.split('_')[1] == 'R' ? item.name.split('_')[4].substr(1, item.name.split('_')[4].length-3) : null,
+									chamber: parseInt(options.find((index) => index.startsWith('C')).substr(1)),
+									bed: parseInt(options.find((index) => index.startsWith('B')).substr(1)),
+									diameter: item.name.split('_')[1] == 'C' || item.name.split('_')[1] == 'R' ? options.find((index) => index.startsWith('D')).substr(1) : null,
+									spacing: item.name.split('_')[1] == 'C' || item.name.split('_')[1] == 'R' ? options.find((index) => index.startsWith('S')).substr(1) :
+									null,
 									custom: item.name.split('_')[1] == 'C' || item.name.split('_')[1] == 'R'
-								};
+								});
+								if (calib.custom) {
+									calib.spacing = calib.spacing.substr(0, calib.spacing.length-2)
+								} else if (isNaN(calib.bed)){
+									calib.bed = calib.bed.substr(0, calib.bed.length-2)
+								}
+								if (!isNaN(calib.spacing))
+								{
+									calib.spacing = parseInt(calib.spacing)
+								}
+								if (!isNaN(calib.diameter))
+								{
+									calib.diameter = parseInt(calib.diameter)
+								}
 								that.calibrations.push(calib)
 							});
-							//console.log(
 							that.calibrations.sort((a,b) =>
 							{
 								if (!a.custom && b.custom) {
@@ -316,18 +437,19 @@ export default {
 									if (a.name < b.name) {
 										return -1
 									}
-									return (a.chamber > b.chamber)
+									return (a.chamber > b.chamber) ? 1 : -1
 								}
-								return (a.chamber > b.chamber)
-							})//)
+								return (a.chamber > b.chamber) ? 1 : -1
+							})
 						}
 					});
 				}
 			});
 		},
 		generateCalibration() {
-			let output = ( this.active == 1 ? `;machine_C_C${this.chamberTemp}_B${this.bedTemp}_D${this.diameter}\n\n` : `;machine_R_C${this.chamberTemp}_B${this.bedTemp}_D` + (this.maxX - this.minX) + "," + (this.maxY - this.minY) +`\n\n`)
-			output += `M291 P"Voulez vous lancer la procedure calibration geometrique?" R"Calibration automatique" S3\n\n`
+			let output = ( this.active == 1 ? `;machine_C_C${this.chamberTemp}_B${this.bedTemp}_D${this.diameter}_S${this.spacing}\n\n` : `;machine_R_C${this.chamberTemp}_B${this.bedTemp}_D(${this.minX},${this.minY})-(${this.maxX},${this.maxY})_S${this.spacingX},${this.spacingY}\n\n`)
+			output += `M291 P"Voulez vous lancer la procedure calibration geometrique?" R"Calibration automatique" S3\n
+			G4 S1\n`
 			output += "; Preheat chamber\n"
 			output += `M98 P"/macros/_Toolheads/CAL_v1.2.0/Custom calibrations/heat/0_Preheat_Chamber_${this.chamberTemp}.g"\n\n`
 			output += "; Geometric calibration\n"
@@ -335,10 +457,10 @@ export default {
 			output += "; Preheat bed\n"
 			output += `M98 P"/macros/_Toolheads/CAL_v1.2.0/Custom calibrations/heat/1_Preheat_Bed_${this.bedTemp}.g"\n\n`
 			output += "; Mesh calibration\n"
-			output += `M98 P"/macros/_Toolheads/CAL_v1.2.0/Custom calibrations/` + ( this.active == 1 ? `1_Mesh calibration ${this.diameter}.g"\n` : `1_Mesh calibration ` + (this.maxX - this.minX) + "," + (this.maxY - this.minY) +`.g"\n`)
+			output += `M98 P"/macros/_Toolheads/CAL_v1.2.0/Custom calibrations/` + ( this.active == 1 ? `1_Mesh calibration ${this.diameter}_${this.spacing}.g"\n` : `1_Mesh calibration (${this.minX},${this.minY})-(${this.maxX},${this.maxY})_${this.spacingX},${this.spacingY}.g"\n`)
 			output += "M291 P\"Calibration terminee, correction surfacique activee\" R\"Calibration automatique\" S1\n\n"
-			output += `M374 P"/macros/_Toolheads/CAL_v1.2.0/Custom surfaces/` + ( this.active == 1 ? `heightmap_C_C${this.chamberTemp}_B${this.bedTemp}_D${this.diameter}.csv"\n` : `heightmap_R_C${this.chamberTemp}_B${this.bedTemp}_D` + (this.maxX - this.minX) + "," + (this.maxY - this.minY) +`.csv"\n`)
-			output += `G29 S1 P"/macros/_Toolheads/CAL_v1.2.0/Custom surfaces/` + ( this.active == 1 ? `heightmap_C_C${this.chamberTemp}_B${this.bedTemp}_D${this.diameter}.csv"\n` : `heightmap_R_C${this.chamberTemp}_B${this.bedTemp}_D` + (this.maxX - this.minX) + "," + (this.maxY - this.minY) +`.csv"\n`)
+			output += `M374 P"/macros/_Toolheads/CAL_v1.2.0/Custom surfaces/` + ( this.active == 1 ? `heightmap_C_C${this.chamberTemp}_B${this.bedTemp}_D${this.diameter}_S${this.spacing}.csv"\n` : `heightmap_R_C${this.chamberTemp}_B${this.bedTemp}_D(${this.minX},${this.minY})-(${this.maxX},${this.maxY})_S${this.spacingX},${this.spacingY}.csv"\n`)
+			output += `G29 S1 P"/macros/_Toolheads/CAL_v1.2.0/Custom surfaces/` + ( this.active == 1 ? `heightmap_C_C${this.chamberTemp}_B${this.bedTemp}_D${this.diameter}_S${this.spacing}.csv"\n` : `heightmap_R_C${this.chamberTemp}_B${this.bedTemp}_D(${this.minX},${this.minY})-(${this.maxX},${this.maxY})_S${this.spacingX},${this.spacingY}.csv"\n`)
 			//console.log(output)
 			return output;
 		},
@@ -379,7 +501,7 @@ export default {
 			return output
 		},
 		generateMesh() {
-			let output = ( this.active == 1 ? `; 1_Mesh calibration ${this.diameter} \n\n` : `; 1_Mesh calibration ` + (this.maxX - this.minX) + "," + (this.maxY - this.minY) +`\n\n`)
+			let output = ( this.active == 1 ? `1_Mesh calibration ${this.diameter}_${this.spacing}.g"\n` : `1_Mesh calibration (${this.minX},${this.minY})-(${this.maxX},${this.maxY})_${this.spacingX},${this.spacingY}.g`) +`\n\n`
 			output += "M291 P\"Calibration surfacique en cours\" R\"Calibration automatique\" S1\n"
 			output += "M471 S\"/sys/heightmap.csv\" T\"/sys/heightmap.csv.bak\" D1\n\n"
 			output += "G29 S2".padEnd(50, ' ') + "; Clear any bed transform\n"
@@ -403,10 +525,13 @@ export default {
 		generateHeat: function() {
 			let result = []
 			let output = `;0_Preheat_Chamber_${this.chamberTemp}\n\n`
-			output += "M291 P\"Prechauffe Chambre en cours merci de retirer le plateau puis validez\" R\"Pre-chauffe\" S2\n\n"
+			output += "M291 P\"Prechauffe Chambre en cours merci de retirer le plateau puis validez\" R\"Pre-chauffe\" S2\nG4 S1\n\n"
 			output += `M191 S${this.chamberTemp}`.padEnd(40, ' ') + `; Pre-heat heated chamber to ${this.chamberTemp}°C\n`
-			output += "M291 P\"<ul><li>''OK': Attendre la stabilisation géometrique (60 min)<li>''Cancel': sauter la stabilisation</ul>\" R\"Attendre la stabilisation\" S3\n"
-			output += "G4 S3600\n"
+			output += "M291 P\"<ul><li>''OK': Attendre la stabilisation géometrique (60 min)<li>''Cancel': sauter la stabilisation</ul>\" R\"Attendre la stabilisation\" S3\nG4 S1\n"
+			output+= "M291 P\"Stabilisation en cours merci de patienter<br/>60 minutes restantes\" R\"Pre-chauffe\" S1\n"
+			output += "G4 S300\n"
+			for (let i = 0; i < 55; i+=5)
+			output+= "M291 P\"Stabilisation en cours merci de patienter<br/>" + (55-i) + " minutes restantes\" R\"Pre-chauffe\" S1\nG4 S300\n"
 			//console.log(output)
 			let content = new Blob([output]);
 			try {
@@ -420,10 +545,14 @@ export default {
 			}
 
 			output = `;1_Preheat_Bed_${this.bedTemp}\n\n`
-			output += "M291 P\"Prechauffe Plateau en cours merci de remettre le plateau puis validez\" R\"Pre-chauffe\" S2\n\n"
+			output += "M291 P\"Prechauffe Plateau en cours merci de remettre le plateau puis validez\" R\"Pre-chauffe\" S2\nG4 S1\n\n"
 			output += `M190 S${this.bedTemp}`.padEnd(40, ' ') + `; Pre-heat heated bed to ${this.bedTemp}°C\n`
-			output += "M291 P\"<ul><li>''OK': Attendre la stabilisation surfacique (60 min)<li>''Cancel': sauter la stabilisation</ul>\" R\"Attendre la stabilisation\" S3\n"
-			output += "G4 S3600\n"
+			output += "M291 P\"<ul><li>''OK': Attendre la stabilisation surfacique (60 min)<li>''Cancel': sauter la stabilisation</ul>\" R\"Attendre la stabilisation\" S3\nG4 S1\n"
+			output += "M291 P\"Stabilisation en cours merci de patienter<br/>60 minutes restantes\" R\"Pre-chauffe\" S1\n"
+			output += "G4 S300\n"
+			for (let i = 0; i < 55; i+=5)
+			output+= "M291 P\"Stabilisation en cours merci de patienter<br/>" + (55-i) + " minutes restantes\" R\"Pre-chauffe\" S1\nG4 S300\n"
+			//console.log(output)
 
 			content = new Blob([output]);
 			try {
@@ -443,7 +572,7 @@ export default {
 			let output = this.generateCalibration();
 			let content = new Blob([output]);
 			try {
-				let name = ( this.active == 1 ? `machine_C_C${this.chamberTemp}_B${this.bedTemp}_D${this.diameter}.g` : `machine_R_C${this.chamberTemp}_B${this.bedTemp}_D` + (this.maxX - this.minX) + "," + (this.maxY - this.minY) +`.g`)
+				let name = ( this.active == 1 ? `machine_C_C${this.chamberTemp}_B${this.bedTemp}_D${this.diameter}_S${this.spacing}.g` : `machine_R_C${this.chamberTemp}_B${this.bedTemp}_D(${this.minX},${this.minY})-(${this.maxX},${this.maxY})_S${this.spacingX},${this.spacingY}.g`)
 				promises.push(this.upload({ filename: filename + name, content, showProgress: false, showSuccess: false }))
 			} catch (e) {
 				this.$makeNotification('error',
@@ -456,7 +585,7 @@ export default {
 			output = this.generateMesh();
 			content = new Blob([output]);
 			try {
-				let name = ( this.active == 1 ? `1_Mesh calibration ${this.diameter}.g` : `1_Mesh calibration ` + (this.maxX - this.minX) + "," + (this.maxY - this.minY) +`.g`)
+				let name = ( this.active == 1 ? `1_Mesh calibration ${this.diameter}_${this.spacing}.g` : `1_Mesh calibration (${this.minX},${this.minY})-(${this.maxX},${this.maxY})_${this.spacingX},${this.spacingY}.g`)
 				promises.push(this.upload({ filename: filename + name, content, showProgress: false, showSuccess: false }))
 			} catch (e) {
 				this.$makeNotification('error',
@@ -468,13 +597,17 @@ export default {
 			let result = this.generateHeat()
 			result.forEach(promise => promises.push(promise));
 			Promise.all(promises).then(
-				res => {
+				() => {
 					//console.log(res);
 					this.$makeNotification('success',
 					this.$t("dialog.meshEdit.title"),
 					this.$t("dialog.meshEdit.success"),
 					5000)
-					this.loadCalibFiles()
+					this.loadCalibFiles().then(
+						() => {
+							this.outer = 0
+						}
+					)
 				}
 			)
 		},
@@ -483,7 +616,7 @@ export default {
 			//console.log(calibration)
 			this.bedTemp = calibration.bed
 			this.chamberTemp = calibration.chamber
-			this.download("/macros/_Toolheads/CAL_v1.2.0/Custom calibrations/1_Mesh calibration " + calibration.diameter + ".g").then(res => {
+			this.download("/macros/_Toolheads/CAL_v1.2.0/Custom calibrations/1_Mesh calibration " + calibration.diameter + "_" + calibration.spacing + ".g").then(res => {
 				//console.log(res)
 				let lines = res.split('\n')
 				for (let i = 0 ; i < lines.length; i++){
@@ -497,29 +630,29 @@ export default {
 							switch (letter)
 							{
 								case 'R':
-								this.diameter = parseFloat(words[j].substr(1)) * 2
+								this.diameter = parseInt(words[j].substr(1)) * 2
 								break;
 								case 'S':
 								params = words[j].substr(1).toUpperCase().split(':')
 								if (params.length == 1) {
-									this.spacing = params[0]
+									this.spacing = parseInt(params[0])
 								} else {
-									this.spacingX = params[0]
-									this.spacingY = params[1]
+									this.spacingX = parseInt(params[0])
+									this.spacingY = parseInt(params[1])
 								}
 								break;
 								case 'X': // define the probing area in Xmin - xMax
 								case 'Y': // define the probing area in Ymin - yMax
 								params = words[j].substr(1).toUpperCase().split(':')
-								this['min' + letter] = params[0]
-								this['max' + letter] = params[1]
+								this['min' + letter] = parseInt(params[0])
+								this['max' + letter] = parseInt(params[1])
 								break;
 							}
 						}
 					}
 				}
 				self.outer = 1
-				setTimeout(() => {self.active = ( calibration.name.split('_')[1] != 'C' ? 0 : 1 ) }, 100)
+				setTimeout(() => {self.active = ( calibration.name.split('_')[1] != 'C' ? 0 : 1 ) }, 250)
 			})
 		},
 		doDelete: async function() {
@@ -535,6 +668,28 @@ export default {
 			this.deleteDialog.shown = true;
 			this.deleteDialog.path = items.path
 		},
+		async startCalib(path) {
+			if (path) {
+				this.sendCode('M98 P"' + path + '"');
+			} else {
+				this.sendCode('G32')
+			}
+			setTimeout(this.hide, 250);
+		},
+		resetInput() {
+			this.diameter = 360;
+			this.spacing = 40;
+
+			this.minX = -130;
+			this.maxX = 130;
+			this.minY = -130;
+			this.maxY = 130;
+			this.spacingX = 40;
+			this.spacingY = 40;
+
+			this.bedTemp = 0;
+			this.chamberTemp = 0;
+		}
 	},
 	mounted: async function() {
 		this.loadCalibFiles()
@@ -543,6 +698,13 @@ export default {
 		shown() {
 			if (this.shown) {
 				this.loadCalibFiles()
+			}
+		},
+		outer() {
+			console.log(this.outer, this.active)
+			if (this.outer == 1 && !this.activeLoaded) {
+				this.activeLoaded = true
+				setTimeout(() => { this.active = 1 }, 100)
 			}
 		}
 	}

@@ -28,11 +28,12 @@ margin-right: 10px;
 }
 
 .local .list-icon {
-	width: 90% !important;
-	height: 90% !important;
-	margin-top: 10px;
+	width: 115px !important;
+	height: 115px !important;
+	margin-top: 11%;
 	border-radius: 10%;
 	position: relative;
+	margin-bottom: 6%
 }
 
 .list-icon {
@@ -268,6 +269,26 @@ export default {
 					this.loading = false;
 					//console.log(this.filelist);
 				},
+				async checkIsValidIco(fileIndex) {
+					const file = this.filelist[fileIndex];
+					//const that = this;
+					let validateIco = new XMLHttpRequest();
+					validateIco.timeout = 1000;
+					validateIco.onerror = function() {
+						console.log('nope ' + file.ico + ' is not valid')
+						file.ico = null;
+					}
+					validateIco.onload = function() {
+						if (validateIco.status == 404) {
+							validateIco.onerror()
+						} else {
+							console.log("yep " + file.ico + " is valid")
+						}
+					}
+					validateIco.open('GET', file.ico, true);
+					validateIco.send(null);
+
+				},
 				async requestFileInfo(directory, fileIndex, fileCount) {
 					if (this.fileinfoDirectory === directory) {
 						if (this.isConnected && fileIndex < fileCount) {
@@ -314,134 +335,137 @@ export default {
 							file.generatedBy = generatedBy;
 							file.printTime = printTime;
 							file.simulatedTime = simulatedTime;
-							/*if ( file.name.substring(file.name.lastIndexOf("/")+1,file.name.lastIndexOf(".")).length > 0){
-							var dir = ""
-							if ( file.name.substring(0,file.name.lastIndexOf(".")).length > 0){
-							dir = file.name.substring(0,file.name.lastIndexOf("."));
+							file.dir = directory;
+							if ( file.name.substring(file.name.lastIndexOf("/")+1,file.name.lastIndexOf(".")).length > 0){
+								var dir = file.name.substring(file.name.lastIndexOf("/")+1,file.name.lastIndexOf("."));
+								console.log(file);
+								//file.name =  dir;
+								while(dir.includes(" "))
+								dir = dir.replace(/ /g, "_");
+								file.ico = "http://" + this.selectedMachine + "/img/GCodePreview/"+file.directory.substring(10).replace(/ /g, "_") + "/" + dir + "/" + dir + "_ico.jpg";//fileIco;
+								this.checkIsValidIco(fileIndex)
+							} else {
+								file.directory += '/'+file.name
+								console.log(file.directory);
+							}
+
+							// Move on to the next item
+							await this.requestFileInfo(directory, fileIndex + 1, fileCount);
 						} else {
-						dir = file.name;
+							this.fileinfoProgress = -1;
+							this.fileinfoDirectory = undefined;
+						}
 					}
-					dir = dir.replace(/ /g, "_");
-					//file.ico = "http://" + this.selectedMachine + "/img/GCodePreview/" + directory.substring(10).replace(/ /g, "_") + "/" + dir + "/" + dir + "_ico.jpg";//fileIco;
-				}*/
+				},
+				async itemClick(item) {
+					if (this.uiFrozen) {
+						return;
+					}
 
-				// Move on to the next item
-				await this.requestFileInfo(directory, fileIndex + 1, fileCount);
-			} else {
-				this.fileinfoProgress = -1;
-				this.fileinfoDirectory = undefined;
-			}
-		}
-	},
-	async itemClick(item) {
-		if (this.uiFrozen) {
-			return;
-		}
+					const filename = Path.combine(this.directory, item.name);
+					if (item.isDirectory) {
+						await this.loadDirectory(filename);
+					} else if (!item.executing) {
+						item.executing = true;
+						try {
+							await this.sendCode(`M32 "${filename}"`);
+						} catch (e) {
+							if (!(e instanceof DisconnectedError)) {
+								console.warn(e);
+							}
+						}
+						item.executing = false;
+					}
+				},
+				async goUp() {
+					await this.loadDirectory(Path.extractFilePath(this.directory));
+				},
+				async showJob() {
+					this.$router.push('/Files/Jobs?path='+this.directory);
+				},
 
-		const filename = Path.combine(this.directory, item.name);
-		if (item.isDirectory) {
-			await this.loadDirectory(filename);
-		} else if (!item.executing) {
-			item.executing = true;
-			try {
-				await this.sendCode(`M32 "${filename}"`);
-			} catch (e) {
-				if (!(e instanceof DisconnectedError)) {
-					console.warn(e);
+				onItemClick(item) {
+					//console.log(item);
+					if (item.isDirectory) {
+						this.loadDirectory(Path.combine(this.directory, item.name));
+						//this.computeRowsCols();
+					} else {
+						this.fileClicked(item);
+					}
+				},
+				fileClicked(item) {
+					if (!this.state.isPrinting) {
+						this.startJobDialog.question = /*this.$t('dialog.startJob.title', [*/item.name.substring(0, item.name.lastIndexOf('.'))//]);
+						this.startJobDialog.prompt = this.$t('dialog.startJob.prompt', [item.name]);
+						this.startJobDialog.item = item;
+						this.startJobDialog.shown = true;
+					}
+				},
+				start(item) {
+					//console.log(item);
+					this.sendCode(`M32 "${Path.combine(item && item.directory ?  item.directory : this.directory, (item && item.name) ? item.name : this.selection[0].name)}"`);
+				},
+			},
+			mounted() {
+				// Perform initial load
+				if (this.isConnected) {
+					this.wasMounted = this.storages.length && this.storages[0].mounted;
+					this.loadDirectory();
+				}
+
+				// Keep track of file changes
+				const that = this;
+				this.unsubscribe = this.$store.subscribeAction(async function(action, state) {
+					if (Path.pathAffectsFilelist(getModifiedDirectories(action, state), that.directory, that.filelist)) {
+						await that.loadDirectory(that.directory);
+					}
+				});
+			},
+			beforeDestroy() {
+				this.unsubscribe();
+			},
+			watch: {
+				isConnected(to) {
+					if (to) {
+						this.wasMounted = this.storages.length && this.storages[0].mounted;
+						this.loadDirectory();
+					} else {
+						this.directory = Path.gcodes;
+						this.filelist = [];
+					}
+				},
+				selectedMachine() {
+					// TODO store current directory per selected machine
+					if (this.isConnected) {
+						this.wasMounted = this.storages.length && this.storages[0].mounted;
+						this.loadDirectory();
+					} else {
+						this.directory = Path.gcodes;
+						this.filelist = [];
+					}
+				},
+				storages: {
+					deep: true,
+					handler() {
+						// Refresh file list when the first storage is mounted or unmounted
+						if (this.isConnected && (!this.storages.length || this.wasMounted !== this.storages[0].mounted)) {
+							this.wasMounted = this.storages.length && this.storages[0].mounted;
+							this.loadDirectory();
+						}
+					}
+				},
+				getTool: {
+					handler() {
+						// Refresh file list when the first storage is mounted or unmounted
+						if (this.getTool) {
+							console.log("Loaded Tool")
+							this.loadDirectory();
+						} else {
+							this.directory = Path.gcodes;
+							this.filelist = [];
+						}
+					}
 				}
 			}
-			item.executing = false;
 		}
-	},
-	async goUp() {
-		await this.loadDirectory(Path.extractFilePath(this.directory));
-	},
-	async showJob() {
-		this.$router.push('/Files/Jobs?path='+this.directory);
-	},
-
-	onItemClick(item) {
-		//console.log(item);
-		if (item.isDirectory) {
-			this.loadDirectory(Path.combine(this.directory, item.name));
-			//this.computeRowsCols();
-		} else {
-			this.fileClicked(item);
-		}
-	},
-	fileClicked(item) {
-		if (!this.state.isPrinting) {
-			this.startJobDialog.question = /*this.$t('dialog.startJob.title', [*/item.name.substring(0, item.name.lastIndexOf('.'))//]);
-			this.startJobDialog.prompt = this.$t('dialog.startJob.prompt', [item.name]);
-			this.startJobDialog.item = item;
-			this.startJobDialog.shown = true;
-		}
-	},
-	start(item) {
-		//console.log(item);
-		this.sendCode(`M32 "${Path.combine(item && item.directory ?  item.directory : this.directory, (item && item.name) ? item.name : this.selection[0].name)}"`);
-	},
-},
-mounted() {
-	// Perform initial load
-	if (this.isConnected) {
-		this.wasMounted = this.storages.length && this.storages[0].mounted;
-		this.loadDirectory();
-	}
-
-	// Keep track of file changes
-	const that = this;
-	this.unsubscribe = this.$store.subscribeAction(async function(action, state) {
-		if (Path.pathAffectsFilelist(getModifiedDirectories(action, state), that.directory, that.filelist)) {
-			await that.loadDirectory(that.directory);
-		}
-	});
-},
-beforeDestroy() {
-	this.unsubscribe();
-},
-watch: {
-	isConnected(to) {
-		if (to) {
-			this.wasMounted = this.storages.length && this.storages[0].mounted;
-			this.loadDirectory();
-		} else {
-			this.directory = Path.gcodes;
-			this.filelist = [];
-		}
-	},
-	selectedMachine() {
-		// TODO store current directory per selected machine
-		if (this.isConnected) {
-			this.wasMounted = this.storages.length && this.storages[0].mounted;
-			this.loadDirectory();
-		} else {
-			this.directory = Path.gcodes;
-			this.filelist = [];
-		}
-	},
-	storages: {
-		deep: true,
-		handler() {
-			// Refresh file list when the first storage is mounted or unmounted
-			if (this.isConnected && (!this.storages.length || this.wasMounted !== this.storages[0].mounted)) {
-				this.wasMounted = this.storages.length && this.storages[0].mounted;
-				this.loadDirectory();
-			}
-		}
-	},
-	getTool: {
-		handler() {
-			// Refresh file list when the first storage is mounted or unmounted
-			if (this.getTool) {
-				console.log("Loaded Tool")
-				this.loadDirectory();
-			} else {
-				this.directory = Path.gcodes;
-				this.filelist = [];
-			}
-		}
-	}
-}
-}
-</script>
+		</script>

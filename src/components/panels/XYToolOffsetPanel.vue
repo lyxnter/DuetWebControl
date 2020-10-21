@@ -283,8 +283,26 @@ export default {
 		...mapActions('machine', ['getFileList', 'sendCode', 'download', 'upload']),
 		...mapMutations('settings', ['update']),
 		targetTool:async function(tool) {
-			if (this.toolHeads[tool] && tool > 0) {
-				await this.sendCode("G10 P" + tool + " X" + parseFloat(this.toolHeads[tool].x).toFixed(2) + " Y" + parseFloat(this.toolHeads[tool].y).toFixed(2));
+
+			let myTool = this.toolHeads.filter((item) => item.t == this.curTool )[0]
+			console.log(myTool)
+			let that = this;
+			this.move.axes.filter(axe => axe.letter != "Z").forEach(async function(axe) {
+				if (myTool && that.toolHeads.indexOf(myTool) > 0) {
+					myTool[axe.letter.toLowerCase()] = (parseFloat(myTool[axe.letter.toLowerCase()]) - (parseFloat(axe.machinePosition)-that.offset[axe.letter.toLowerCase()])).toFixed(2)
+				} else {
+					that.offset[axe.letter.toLowerCase()] = parseFloat(axe.machinePosition).toFixed(2);
+				}
+			})
+
+			if (myTool && that.toolHeads.indexOf(myTool) > 0) {
+				await that.sendCode("G10 P" + that.curTool + " X" + parseFloat(myTool.x).toFixed(2) + " Y" + parseFloat(myTool.y).toFixed(2));
+			}
+
+			myTool = this.toolHeads.filter((item) => item.t == tool)[0]
+			console.log(myTool, this.toolHeads)
+			if (myTool && this.toolHeads.indexOf(myTool) > 0) {
+				await this.sendCode("G10 P" + tool + " X" + parseFloat(myTool.x).toFixed(2) + " Y" + parseFloat(myTool.y).toFixed(2));
 			}
 			await this.sendCode("G1 X0 Y0 Z150 F3600");
 			if (this.curTool != tool)
@@ -581,7 +599,7 @@ export default {
 			this.toolHeads = tools;
 			this.backTools = tools;
 		},
-		sendToolMatrix: function(/*targetMatrix*/) {
+		sendToolMatrix: async function(/*targetMatrix*/) {
 			//console.log("sending new tool matrix");
 			var out = "";
 			//console.trace();
@@ -589,17 +607,18 @@ export default {
 			console.log(this.backTools)
 			for (var i = 0; i < this.toolHeads.length; i++)
 			{
-				out += (this.b4[i] == undefined?"":this.b4[i]);
-				let str = "M563 P"+ i + " S\"" + this.toolHeads[i].e + "\" D" + this.toolHeads[i].d + " H" + this.toolHeads[i].h
-				out += str.padEnd(40, ' ') + "; Define tool " + i + "\n";
-				str = "G10 P" + i +
+				out += (this.b4[i] == undefined?"":this.b4[i]) + "\n";
+				let str = "M563 P"+ this.toolHeads[i].t + " S\"" + this.toolHeads[i].e + "\" D" + this.toolHeads[i].d + (this.toolHeads[i].h ? " H" + this.toolHeads[i].h : "")
+				out += str.padEnd(40, ' ') + "; Define tool " + this.toolHeads[i].t + "\n";
+				str = "G10 P" +  this.toolHeads[i].t +
 				" X" + (parseFloat(this.toolHeads[i].x) /*- (i == 0 ? 0 : this.offset.x)*/).toFixed(2) +
 				" Y" + (parseFloat(this.toolHeads[i].y) /*- (i == 0 ? 0 : this.offset.y)*/).toFixed(2) +
 				" Z" + parseFloat(this.toolHeads[i].z).toFixed(2)
-				out += str.padEnd(40, ' ') + "; Set tool " + i + " axis offsets\n"
-				str = "G10 P" + i + " R" + this.toolHeads[i].r + " S" + this.toolHeads[i].s
-				out += str.padEnd(40, ' ') + "; Set initial tool " + i
-				+ " active and standby temperatures to " + this.toolHeads[i].s + "/" + this.toolHeads[i].r + "°C\n";
+				out += str.padEnd(40, ' ') + "; Set tool " + this.toolHeads[i].t + " axis offsets\n"
+				if (this.toolHeads[i].h) {
+					str = "G10 P" + this.toolHeads[i].t + " R" + this.toolHeads[i].r + " S" + this.toolHeads[i].s
+					out += str.padEnd(40, ' ') + "; Set initial tool " + this.toolHeads[i].t + " active and standby temperatures to " + this.toolHeads[i].s + "/" + this.toolHeads[i].r + "°C\n";
+				}
 			}
 			out += (this.b4[this.toolHeads.length] == undefined? "" : this.b4[this.toolHeads.length] );
 			//console.log(this.tools);
@@ -613,6 +632,8 @@ export default {
 				this.$t("panel.toolOffset.dialog.title"),
 				this.$t("panel.toolOffset.dialog.sucess"),
 				5000);
+				this.preloadToolMatrices()
+				this.curTool = -1;
 			} catch (e) {
 				this.$makeNotification('error',
 				this.$t("panel.toolOffset.dialog.title"),
@@ -642,7 +663,8 @@ export default {
 			(10+parseFloat(attr.sc.value)) :
 			-10-attr.sc.value ) + " F600\n\
 			G90")
-			console.log(this.toolHeads[this.curTool][attr.ax.value])
+			let myTool = this.toolHeads.filter((item) => item.t == this.curTool )[0]
+			console.log(myTool[attr.ax.value])
 		},
 		zoomIn: async function() {
 			//console.log(e)
@@ -669,15 +691,17 @@ export default {
 			this.focus.value += 5
 		},
 		saveOffset: function() {
-			console.log(this.toolHeads[this.curTool])
+			console.log(this.toolHeads)
 			console.log(this.curTool)
+			let myTool = this.toolHeads.filter((item) => item.t == this.curTool )[0]
+			console.log(myTool)
 			//let pre  = ""
 			//let post  = ""
 			this.move.axes.filter(axe => axe.letter != "Z").forEach(axe => {
-				//pre += axe.letter + " " + (parseFloat(this.toolHeads[this.curTool][axe.letter.toLowerCase()])).toFixed(2) + ", ";
-				//post += axe.letter + " " + (parseFloat(this.toolHeads[this.curTool][axe.letter.toLowerCase()]) - parseFloat(axe.machinePosition)).toFixed(2) + ", "
-				if (this.curTool != 0) {
-					this.toolHeads[this.curTool][axe.letter.toLowerCase()] = (parseFloat(this.toolHeads[this.curTool][axe.letter.toLowerCase()]) - (parseFloat(axe.machinePosition)-this.offset[axe.letter.toLowerCase()])).toFixed(2)
+				//pre += axe.letter + " " + (parseFloat(myTool[axe.letter.toLowerCase()])).toFixed(2) + ", ";
+				//post += axe.letter + " " + (parseFloat(myTool[axe.letter.toLowerCase()]) - parseFloat(axe.machinePosition)).toFixed(2) + ", "
+				if (myTool != this.toolHeads[0]) {
+					myTool[axe.letter.toLowerCase()] = (parseFloat(myTool[axe.letter.toLowerCase()]) - (parseFloat(axe.machinePosition)-this.offset[axe.letter.toLowerCase()])).toFixed(2)
 				} else {
 					this.offset[axe.letter.toLowerCase()] = parseFloat(axe.machinePosition).toFixed(2);
 				}
@@ -685,7 +709,7 @@ export default {
 			console.log(this.offset);
 			//console.log(pre + " => " + post);
 			//X -18.86, Y 10.71, Z -136.00
-			if (this.curTool != 0) {
+			if (myTool != this.toolHeads[0]) {
 				this.sendToolMatrix();
 			} else {
 				this.$makeNotification('success',
@@ -713,7 +737,7 @@ export default {
 				}
 			});
 			result = result.data
-			console.log(result);
+			//console.log(result);
 			let controls = result.controls.filter(item => item.name.includes("Exposure") || item.name.includes("Focus"))
 			//let format = result.formats.filter(item => item.current == "true")[0];
 
@@ -721,7 +745,7 @@ export default {
 			this.exposure = exposures.filter(item => item.name.toLowerCase().includes("absolute"))[0]
 			this.exposure.value = (this.exposure.max-this.exposure.min)-this.exposure.value
 			this.exposure.auto = exposures.filter(item => !item.name.toLowerCase().includes("absolute"))
-			console.log(this.exposure);
+			//console.log(this.exposure);
 
 			let focuses = controls.filter(item => item.name.includes("Focus"))
 			let tmpFocus = focuses.filter(item => item.name.toLowerCase().includes("absolute"))[0]
@@ -742,7 +766,7 @@ export default {
 			img.src = 'http://'+that.selectedMachine+':8080/?action=snapshot&dummy='+Math.random()
 			img.onload = () => {
 				if(document.getElementById('scaleableDiv') && document.getElementById('webcam')) {
-					console.log(img.width + 'x' + img.height);
+					//console.log(img.width + 'x' + img.height);
 					document.getElementById('scaleableDiv').parentElement.style.display= "";
 					document.getElementById('webcam').style.left = -((480/img.height)*img.width)/2 + "px";
 				}
@@ -795,7 +819,7 @@ export default {
 			document.getElementById('webcam').style.left = "-240px"
 			document.getElementById('webcam').style['min-width'] = "420px";
 			document.getElementById('scaleableDiv').parentElement.style.display= "none";
-			console.log(xhr)
+			//console.log(xhr)
 		}
 	},
 	watch: {
@@ -938,7 +962,7 @@ value: ((this.exposure.max - this.exposure.min) - this.exposure.value)
 					withCredentials: true,
 					params: {fra: this.framerates['5fps'], res: this.resolutions16_9['480p']}
 				});
-				console.log('480p')
+				//console.log('480p')
 				event.style.transform = "scale(" + post + ")"
 			}
 		}

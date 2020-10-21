@@ -233,7 +233,8 @@ export default function(connector) {
 					extruders: [1]
 				})
 			],
-			userVariables: []
+			userVariables: [],
+			esVersion: undefined,
 		},
 		getters: {
 			board: state => getBoardDefinition(state.electronics.type),

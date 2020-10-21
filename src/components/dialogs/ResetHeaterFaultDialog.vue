@@ -41,7 +41,7 @@ export default {
 			required: true
 		},
 		heater: {
-			type: Number,
+			type: Array,
 			required: true
 		}
 	},
@@ -54,7 +54,13 @@ export default {
 		...mapActions(['shutdown']),
 		...mapActions('machine', ['sendCode']),
 		resetFault() {
-			this.sendCode(`M562 P${this.heater}`);
+			if (typeof(this.heater) == typeof([])) {
+				for (let i = 0; i < this.heater.length; i++) {
+					this.sendCode(`M562 P` + this.heater[i]);
+				}
+			} else {
+				this.sendCode(`M562 P` + this.heater);
+			}
 			this.hide();
 		},
 		hide() {

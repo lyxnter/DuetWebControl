@@ -329,9 +329,10 @@ export default {
 		},
 		async showDrives() {
 			this.drivesShown = !this.drivesShown
-			for (let i = 0; i < 4; i++) {
+			await this.sendCode('M350 E16 I1\nM92 E415\nM566 E500\nM203 E9000\nM201 E1000\nM906 E1330')
+			for (let i = 0; i < 6; i++) {
 				if (this.drivesShown) {
-					await this.sendCode('M569 P3 S0\nM569 P4 S0\nM569 P5 S0\nM350 E16:16:16 I1\nM92 E415:415:415\nM566 E500:500:500\nM203 E9000:9000:9000\nM201 E1000:1000:1000\nM906 E1330:1330:1330')
+					await this.sendCode('M569 P' + (i+3) + ' S0\n')
 					await this.sendCode('M302 P1\nM563 P91' + i + ' S"D_E' + i + '" D' + i)
 				} else {
 					await this.sendCode('M302 P0\nM563 P91' + i + ' H-1 D-1')

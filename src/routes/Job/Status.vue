@@ -21,6 +21,9 @@
 						<v-flex xs5 sm6 md12>
 							<babystepping-panel></babystepping-panel>
 						</v-flex>
+						<v-flex xs5 sm6 md12 v-if="!isLocal">
+							<webcam-panel></webcam-panel>
+						</v-flex>
 						<v-flex class="hidden-xs-only" v-if="!isLocal">
 							<job-info-panel></job-info-panel>
 						</v-flex>
@@ -33,11 +36,16 @@
 						</v-flex>
 						<v-flex shrink>
 							<v-layout row wrap>
-								<v-flex xs6 md12>
+								<v-layout :style="isLocal ? 'width: 50%' :''" :class="isLocal ? 'column shrink' : 'row wrap'">
+									<v-flex xs6 md12 order-sm2 order-md3>
+										<job-estimations-panel></job-estimations-panel>
+									</v-flex>
+									<v-flex xs6 md12 v-if="isLocal">
+										<speed-factor-panel></speed-factor-panel>
+									</v-flex>
+								</v-layout>
+								<v-flex xs6 md12 order-sm3 order-md2>
 									<job-data-panel></job-data-panel>
-								</v-flex>
-								<v-flex xs6 md12>
-									<job-estimations-panel></job-estimations-panel>
 								</v-flex>
 							</v-layout>
 						</v-flex>

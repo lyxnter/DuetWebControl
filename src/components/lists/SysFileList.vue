@@ -39,7 +39,7 @@
 			<v-btn color="secondary" :loading="loading" :disabled="uiFrozen" @click="refresh">
 				<v-icon class="mr-1">refresh</v-icon> {{ $t('button.refresh.caption') }}
 			</v-btn>
-			<upload-btn :directory="directory" target="sys" color="primary" v-on:uploadComplete="refresh"></upload-btn>
+			<upload-btn :directory="directory" target="sys" color="primary" v-on:uploadComplete="refresh"  v-if="!isLocal || showDebug" ></upload-btn>
 		</v-layout>
 
 		<new-directory-dialog :shown.sync="showNewDirectory" :directory="directory"></new-directory-dialog>
@@ -60,7 +60,12 @@ export default {
 		...mapState('machine/model', ['state']),
 		...mapGetters(['uiFrozen']),
 		...mapGetters('machine/model', ['isPrinting']),
-		isRootDirectory() { return this.directory === Path.sys; }
+		isRootDirectory() {
+			return this.directory === Path.sys;
+		},
+		showDebug() {
+			return this.isLocal && ((location.port === "8080") || (location.port === "8081"))
+		}
 	},
 	data() {
 		return {

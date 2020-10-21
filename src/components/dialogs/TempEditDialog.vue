@@ -41,7 +41,7 @@ td:active{
         <v-card-actions>
           <v-spacer></v-spacer>
           <v-btn color="primary darken-1" flat @click="hide">{{ $t('generic.cancel') }}</v-btn>
-          <v-btn color="primary darken-1" flat type="submit">{{ $t('generic.ok') }}</v-btn>
+          <v-btn v-if="false" color="primary darken-1" flat @click="submit" type="submit">{{ $t('generic.ok') }}</v-btn>
         </v-card-actions>
       </v-form>
     </v-card>

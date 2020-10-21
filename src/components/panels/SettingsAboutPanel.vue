@@ -8,6 +8,7 @@
 			</a><br/>
 			<span v-if="lxVersion" style="width: 100%">{{ $t('panel.settingsAbout.lxVersion') + lxVersion }}</span><br/>
 			<span v-if="buildDate">{{ $t('panel.settingsAbout.buildDate') + buildDate }}</span><br/>
+			<span v-if="esVersion">{{ $t('panel.settingsAbout.esVersion') + esVersion }}</span><br/>
 		</v-card-title>
 
 		<v-card-text class="pt-0">
@@ -22,9 +23,11 @@
 'use strict';
 
 import {version, lxVersion, buildDate} from '../../../package.json'
+import { mapState } from 'vuex'
 
 export default {
 	computed: {
+		...mapState('machine/model', ['esVersion']),
 		version: () => version ,
 		lxVersion: () => lxVersion ,
 		buildDate:() => buildDate

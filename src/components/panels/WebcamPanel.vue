@@ -97,12 +97,14 @@ img {
 
 		<v-card-text class="pt-0 img-container">
 			<v-responsive v-if="webcam.embedded" :aspect-ratio="16/9">
-				<iframe :src="webcam.url" id="webcam"></iframe>
+				<iframe :src="webcam.url"></iframe>
 			</v-responsive>
-			<div v-else style="min-height: 480px; margin: 0 auto; width: max-content">
+			<!--style=""-->
+			<div v-else :style="$route.path == '/Job/Webcam' ? 'min-height: 480px; margin: 0 auto; width: max-content' : ''" >
 				<div v-if="!loaded && !waited" class="loader" style="margin-top: 25px"></div>
-				<!--img v-if="loaded" src="/img/ressources/noSignal.gif" style="position: absolute;"-->
-				<img v-else :alt="$t('panel.webcam.alt')" :src="url" :class="imgClasses" id="webcam" style="position: relative; min-width: 480px; background-image: url('/img/ressources/noSignal.gif'); display: inline-block; min-height: 360px; background-position: center; margin: 0 auto; max-width: 96%">
+				<!--img v-if="loaded" src="/img/ressources/noSignal.gif" style="position: absolute; "-->
+				<!--position: relative; min-width: 480px; min-height: 360px; margin: 0 auto; max-width: 96%"-->
+				<img v-else :alt="$t('panel.webcam.alt')" :src="url" :class="imgClasses" style=" background-image: url('/img/ressources/noSignal.gif'); display: inline-block; background-position: center;" :style="$route.path == '/Job/Webcam' ? 'position: relative; min-width: 480px; min-height: 360px; margin: 0 auto; max-width: 96%' : ''">
 			</div>
 		</v-card-text>
 	</v-card>
@@ -267,7 +269,7 @@ export default {
 			deep: true,
 			handler: async function() {
 				//console.log(pre, post)
-				if (this.maWebcam.devs[this.maWebcam.active]){
+				if (this.maWebcam.devs[this.maWebcam.active] && !this.loaded){
 					if (!this.axios){
 						this.axios = await axios.create({
 							baseURL:`http://`+this.selectedMachine+`/`,

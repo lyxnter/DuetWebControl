@@ -519,7 +519,7 @@ export default {
 			this.backTools = tools;
 		},
 		sendToolMatrix: function(targetMatrix) {
-			console.log("sending new tool matrix: ", targetMatrix);
+			//console.log("sending new tool matrix: ", targetMatrix);
 			var out
 			if (targetMatrix) {
 				out = (this.b4[0] == undefined?"":this.b4[0]+"\n");
@@ -756,6 +756,8 @@ export default {
 				//await this.sendCode({code: "G1 X0 Y0 Z150 F1200", log: false });
 
 				if (this.curTool !== parseInt(tool.h)-1){
+					let offTemps = '-273.15';
+					this.sendCode(`G10 P` + (parseInt(tool.h)-1) + ` S${offTemps} R${offTemps}`);
 					await this.sendCode({code: "T" + (parseInt(tool.h)-1), log: false });
 					this.curTool = parseInt(tool.h)-1;
 				}
@@ -772,7 +774,7 @@ export default {
 		},
 		savePid:async function (e) {
 			let that = e.target;
-			console.log("savePid clicked")
+			//console.log("savePid clicked")
 			while (that.nodeName.toLowerCase() !== "button") {
 				that = that.parentElement;
 			}
@@ -788,14 +790,14 @@ export default {
 				//console.log('M307 H' + tool.h)
 				let response = await this.sendCode({code: 'M307 H' + tool.h, log: false});
 				response = response.split('\n')[0].split(/[:,] /)
-				console.log(response);
+				//console.log(response);
 				for (let i = 0; i < response.length; i++) {
 					//console.log(response[i].substr(response[i].lastIndexOf(' ')))
 					let value = parseFloat(response[i].substr(response[i].lastIndexOf(' ')));
 					switch (response[i].substr(0, response[i].indexOf(' '))){
 						case 'Heater' :
 						value = parseFloat(response[i].substr(response[i].indexOf(' ')));
-						console.log(tool.h, value)
+						//console.log(tool.h, value)
 						if (tool.h != value)
 						return;
 						break;
@@ -827,7 +829,7 @@ export default {
 						break;
 					}
 				}
-				console.log(tool)
+				//console.log(tool)
 				this.toolHeads[attr.hnum.value] = tool;
 				if ((this.chamber.h != attr.hnum.value) && (this.bed.h != attr.hnum.value)) {
 					this.pidToolCalib = setTimeout(this.sendToolMatrix, 1000, attr.hnum.value)

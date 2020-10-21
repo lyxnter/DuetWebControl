@@ -35,7 +35,8 @@ export default {
 				yaxis: {
 					min: 0,
 					max: 280
-				}
+				},
+				fileQueue: []
 			},
 			selectedMachine: undefined,
 			DEBUG: false,

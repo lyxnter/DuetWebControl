@@ -28,7 +28,7 @@
 			</template>
 
 			<template slot="context-menu">
-				<v-list-tile v-show="isFile" @click="runFile(selection[0].name)">
+				<v-list-tile v-show="isFile" @click="selection[0].name.endsWith('.csv') ? loadHmap(selection[0].name) : runFile(selection[0].name)">
 					<v-icon class="mr-1">play_arrow</v-icon> {{ $t('list.macro.run') }}
 				</v-list-tile>
 			</template>
@@ -44,12 +44,12 @@
 			<v-btn class="hidden-sm-only" color="grey darken-3" :loading="loading" :disabled="uiFrozen" @click="refresh">
 				<v-icon class="mr-1">refresh</v-icon> {{ $t('button.refresh.caption') }}
 			</v-btn>
-			<upload-btn :directory="directory" target="macros" color="primary darken-1" v-if="!isLocal" v-on:uploadComplete="refresh"></upload-btn>
+			<upload-btn :directory="directory" target="macros" color="primary darken-1"  v-if="!isLocal || showDebug" v-on:uploadComplete="refresh"></upload-btn>
 		</v-layout>
 
 		<new-directory-dialog :shown.sync="showNewDirectory" :directory="directory"></new-directory-dialog>
 		<new-file-dialog :shown.sync="showNewFile" :directory="directory"></new-file-dialog>
-		<confirm-dialog :shown.sync="runMacroDialog.shown" :question="runMacroDialog.question" :prompt="runMacroDialog.prompt" @confirmed="runFile(runMacroDialog.filename)"></confirm-dialog>
+		<confirm-dialog :shown.sync="runMacroDialog.shown" :question="runMacroDialog.question" :prompt="runMacroDialog.prompt" @confirmed="runMacroDialog.filename.endsWith('.csv') ? loadHmap(runMacroDialog.filename) : runFile(runMacroDialog.filename)"></confirm-dialog>
 	</div>
 </template>
 
@@ -67,6 +67,9 @@ export default {
 			return (this.selection.length === 1) && !this.selection[0].isDirectory;
 		},
 		...mapState({isLocal: state => state.isLocal,}),
+		showDebug() {
+			return this.isLocal && ((location.port === "8080") || (location.port === "8081"))
+		}
 	},
 	data() {
 		return {
@@ -96,6 +99,9 @@ export default {
 		},
 		runFile(filename) {
 			this.sendCode(`M98 P"${Path.combine(this.directory, filename)}"`);
+		},
+		loadHmap(filename) {
+			this.sendCode(`G29 S1 P"${Path.combine(this.directory, filename)}"`);
 		}
 	}
 }

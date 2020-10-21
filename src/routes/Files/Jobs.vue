@@ -2,9 +2,9 @@
 .progress {
 	background: linear-gradient(to right, hsl(43, 98%, 50%) 45%, hsl(43, 98%, 75%) 50%, hsl(43, 98%, 50%) 55%) repeat scroll 0% 0% / 300% 300%;
 	background-size: 600% 600% !important;
-	animation: 2s linear 0s infinite normal none running toolHeating !important;
+	animation: 2s linear 0s infinite normal none running fileUploading !important;
 }
-@keyframes toolHeating {
+@keyframes fileUploading {
 	0% {
 		background-position: 125% 50%;
 	}

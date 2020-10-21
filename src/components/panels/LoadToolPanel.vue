@@ -87,7 +87,7 @@
 		<template v-if="!waited">
 			<v-progress-linear indeterminate></v-progress-linear>
 		</template>
-		<template v-if="waited && lastConfig != {} && lastConfig.thead">
+		<template v-if="waited && !waited && lastConfig != {} && lastConfig.thead">
 			<v-tooltip bottom>
 				<template v-slot:activator="{ on }">
 					<v-btn color="grey darken-3" :loading="loading" @click="loadLastConfig()" shrink v-on="on">
@@ -103,7 +103,7 @@
 				</span>
 			</v-tooltip>
 		</template>
-		<v-list v-if="selectedMachine !== '[default]' && waited && tools.length > 0 && !loading && false">
+		<v-list v-if="selectedMachine !== '[default]' && waited && !waited && tools.length > 0 && !loading">
 			<v-list-tile v-for="(geometry, index) in geometries" :key="index" @click="geoClick(geometry)" :class="{'toolLocal': isLocal}">
 				{{ geometry.name }}
 			</v-list-tile>
@@ -130,7 +130,7 @@
 				<v-icon class="mr-1">build</v-icon> {{ $t('loadTool.calibrationTool') }}
 			</v-btn>
 		</v-layout>
-		<v-list v-if="selectedMachine !== '[default]' && waited && tools.length > 0 && !loading && false">
+		<v-list v-if="selectedMachine !== '[default]' && !waited && waited && tools.length > 0 && !loading">
 			<v-list-tile v-for="(mesh, index) in meshes" :key="index" @click="meshClick(mesh)" :class="{'toolLocal': isLocal}">
 				{{ mesh.name }}
 			</v-list-tile>
@@ -356,7 +356,7 @@ export default {
 				this.password = '';
 			}
 		},
-		toolClick(tool) {
+		toolClick: async function(tool) {
 			setTimeout(function(that){that.setToolLoading(true);},0,this)
 
 			this.hide();
@@ -372,6 +372,20 @@ export default {
 				myTool = myTool.substring(this.load?6:8);
 				//console.log(myTool)
 			}
+
+			console.log(this.lastConfig)
+
+			if (this.lastConfig == null || typeof(this.lastConfig) != typeof({})) {
+				this.lastConfig = {}
+			}
+
+			console.log(this.lastConfig, this.lastConfig.thead)
+
+			if (!this.lastConfig.thead){
+				this.lastConfig.thead = {}
+			}
+
+			console.log(this.lastConfig.thead)
 
 			if (this.lastConfig != {} && this.lastConfig.thead) {
 				if (typeof(this.lastConfig.thead) != {}){
@@ -391,6 +405,23 @@ export default {
 				}
 				this.lastConfig.nozzle = tmpNozzle
 			}
+
+			if (!this.axios) {
+				//let protocol = location.protocol;
+				this.axios = await axios.create({
+					baseURL:`http://`+this.selectedMachine+`/`,
+					//cancelToken: BaseConnector.getCancelSource().token,
+					timeout: 8000,	// default session timeout in RepRapFirmware
+					withCredentials: true,
+				});
+			}
+			console.log(this.lastConfig)
+			this.axios.get('/pc_configmachine', {
+				withCredentials: true,
+				params: {
+					params: JSON.stringify(this.lastConfig)
+				},
+			});
 		},
 		geoClick(geo) {
 			setTimeout(function(that){that.setToolLoading(true);},0,this)
@@ -450,7 +481,8 @@ export default {
 				withCredentials: true,
 			});
 
-			that.lastConfig = result.data
+			if (result.data != null && typeof(result.data) == typeof({}))
+				that.lastConfig = result.data
 		}, 1000, this)
 	},
 	watch: {
@@ -488,7 +520,7 @@ export default {
 						withCredentials: true,
 					});
 				}
-
+				console.log(this.lastConfig)
 				this.axios.get('/pc_configmachine', {
 					withCredentials: true,
 					params: {

@@ -1,8 +1,8 @@
 {
   "name": "duetwebcontrol",
   "version": "2.0.0",
-  "lxVersion": "1.0.9.E",
-  "buildDate": "08/09/2020 11:51",
+  "lxVersion": "1.0.10.C",
+  "buildDate": "21/10/2020 13:01",
   "repository": "github:chrishamm/DuetWebControl#next",
   "homepage": "https://forum.duet3d.com/category/27/duet-web-control",
   "license": "GPL-3.0",
@@ -16,7 +16,7 @@
   },
   "dependencies": {
     "axios": "^0.18.1",
-    "chart.js": "^2.8.0",
+    "chart.js": "^2.9.4",
     "file-saver": "^2.0.2",
     "izitoast": "^1.4.0",
     "jquery": "^3.5.1",
@@ -28,9 +28,9 @@
     "three-orbitcontrols": "2.99.1",
     "threejs-export-stl": "0.0.4",
     "turbo-crc32": "^1.0.1",
-    "vue": "^2.6.10",
-    "vue-i18n": "^8.18.2",
-    "vue-router": "^3.3.4",
+    "vue": "^2.6.12",
+    "vue-i18n": "^8.22.1",
+    "vue-router": "^3.4.7",
     "vuetify": "^1.5.24",
     "vuex": "^3.5.1"
   },
@@ -46,11 +46,11 @@
     "eslint-plugin-vue": "^5.2.3",
     "material-design-icons-iconfont": "^4.0.5",
     "rimraf": "^2.7.1",
-    "stylus": "^0.54.7",
+    "stylus": "^0.54.8",
     "stylus-loader": "^3.0.1",
     "vue-cli-plugin-vuetify": "^0.4.6",
-    "vue-template-compiler": "^2.6.11",
-    "vuetify-loader": "^1.5.0",
+    "vue-template-compiler": "^2.6.12",
+    "vuetify-loader": "^1.6.0",
     "zip-webpack-plugin": "^3.0.0"
   }
 }

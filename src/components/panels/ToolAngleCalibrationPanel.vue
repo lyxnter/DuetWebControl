@@ -181,17 +181,17 @@ export default {
 	methods: {
 		...mapActions('machine', ['getFileList', 'sendCode', 'download', 'upload']),
 		preloadToolMatrices: async function() {
-			console.log('load the cfg file');
+			//console.log('load the cfg file');
 			try {
 				this.toolHeads = [];
 				// Load file list and create missing props
 				let name = this.name.substr(8, this.name.substr(8).indexOf('_'));
 				let vers = this.name.substr(this.name.lastIndexOf('v')+1);
-				console.log(name, vers)
+				//console.log(name, vers)
 				let files = await this.getFileList("0:/macros/_Toolheads");
-				console.log(files)
+				//console.log(files)
 				files = files.filter((file) => file.name.includes(name) && file.name.includes(vers))
-				console.log(files)
+				//console.log(files)
 				let that = this;
 				let inter = setInterval(function(files){
 					if (files.length == 1) {
@@ -200,7 +200,7 @@ export default {
 					let item = files.shift();
 					if (item.isDirectory)
 					{
-						console.log(item);
+						//console.log(item);
 						that.preloadToolMatrix(item.directory + "/" + item.name)
 					}
 				}, 500, files);
@@ -240,7 +240,7 @@ export default {
 						//console.log(toolName, name)
 						if(toolName.includes(name)){
 							that.select = toolName
-							console.log(toolName, name)
+							//console.log(toolName, name)
 							that.loadServoAngle(toolName);
 						}
 					}
@@ -253,10 +253,10 @@ export default {
 			}
 		},
 		loadServoAngle: async function(dir) {
-			console.log('load the servo angle');
+			//console.log('load the servo angle');
 			try {
 				// Load file list and create missing props
-				console.log(dir)
+				//console.log(dir)
 				const files = await this.getFileList("0:/macros/_Toolheads/"+dir);
 				let tools = files.filter(tool => tool.name.includes("active"))
 				//console.log(tools.length ? tools : "");
@@ -327,7 +327,7 @@ export default {
 				var first = attr.tnum.nodeValue
 				var act = attr.off.nodeValue
 				var angle = (attr.dir.nodeValue == "d" ? -1 : 1)+ this.filePath[first].data[act].s
-				console.log(angle)
+				//console.log(angle)
 				clearTimeout(this.toolAngle);
 				this.filePath[first].data[act].s = angle
 				//that.innerText = this.filePath[first].data[act].s;
@@ -353,7 +353,7 @@ export default {
 			var first = attr.tnum.nodeValue
 			var act = attr.off.nodeValue
 			var angle = parseInt(that.value)
-			console.log(angle)
+			//console.log(angle)
 			clearTimeout(this.toolAngle);
 			this.filePath[first].data[act].s = angle
 
@@ -367,11 +367,11 @@ export default {
 			let name = (this.name.lastIndexOf("~")>0 ? this.name.substring(8, this.name.lastIndexOf("~"), 2):"")
 			let vers = this.name.substr(this.name.lastIndexOf('v')-1);
 			name += vers
-			console.log(name);
+			//console.log(name);
 			//let tools = files.filter(tool => tool.name.includes(name))
 			var filepath = "0:/macros/_Toolheads/" + name + "/" + filename
 			var out = "M280 P7 S" + this.filePath[first].data[act].s
-			console.log(filepath, out)
+			//console.log(filepath, out)
 			const content = new Blob([out]);
 			try {
 				this.upload({ filename: filepath, content });
@@ -385,7 +385,7 @@ export default {
 			}
 		},
 		toolAngleEvent: async function(temp, index, active) {
-			console.log(temp, index, active)
+			//console.log(temp, index, active)
 
 			clearTimeout(this.toolAngle);
 			this.filePath[index].data[active].s = temp;
@@ -407,14 +407,14 @@ export default {
 				}
 			});
 
-			console.log(this.chart)
+			//console.log(this.chart)
 
 			this.applyDarkTheme(this.darkTheme);
 
-			console.log(this.filePath)
+			//console.log(this.filePath)
 			let that = this;
 			let response;
-			console.log(response);
+			//console.log(response);
 			let index = -1;
 			if (curT > -1)
 			index = this.filePath.findIndex(tool => tool.number == curT)
@@ -424,9 +424,9 @@ export default {
 				let tnum = tool.number
 				let tAngle = tool.data.active.s
 				//let code
-				console.log(tool)
-				console.log(tnum)
-				console.log(tAngle);
+				//console.log(tool)
+				//console.log(tnum)
+				//console.log(tAngle);
 				let angle = Math.max(0, tAngle-11) ;
 				//angle = (angle%2? angle+1 : angle)
 				let minZ = {angle: [], offset: 0}
@@ -436,7 +436,7 @@ export default {
 				response = response.substr(response.indexOf('Z')+1)
 				response = response.substr(0, response.indexOf(' '))
 				let tOff = parseFloat(response);
-				console.log(tOff)
+				//console.log(tOff)
 				do {
 					angle += 1;
 					//console.log(angle);
@@ -455,7 +455,7 @@ export default {
 						{
 							angle -= 2;
 						}
-						console.log(response);
+						//console.log(response);
 					}
 					response = response.split('\n')[0]
 					response = response.substr(response.indexOf('Z')+1)
@@ -477,7 +477,7 @@ export default {
 					}
 				} while (angle < Math.min(180, tAngle+10));
 				this.chart.data.datasets[0].data.push({x: angle, y: NaN})
-				console.log(minZ);
+				//console.log(minZ);
 				await that.sendCode({code: "G4 S10", log: false})
 				const avgAngle = arr => arr.reduce((a,b) => a + b, 0) / arr.length
 				tool.data.active.s = Math.round(avgAngle(minZ.angle))
@@ -493,13 +493,13 @@ export default {
 			const files = await this.getFileList("0:/macros/_Toolheads");
 			let name = this.name.substr(8, 5);
 			let tools = files.filter(tool => tool.name.includes(name))
-			console.log(name)
-			console.log(tools.length ? tools : "");
+			//console.log(name)
+			//console.log(tools.length ? tools : "");
 			let that = this;
 			tools.forEach(function(item) {
 				if (item.isDirectory)
 				{
-					console.log(item);
+					//console.log(item);
 					that.preloadNozzleHeight(item.directory + "/" + item.name)
 				}
 			});
@@ -508,9 +508,9 @@ export default {
 			try {
 				let files = await this.getFileList(path);
 				let name = (this.name.lastIndexOf("~")>0?this.name.substr(this.name.lastIndexOf("~")+1, 2):"");
-				console.log(name)
+				//console.log(name)
 				files = files.filter(file => file.name.includes("Nozzle") && file.name.includes(name))
-				console.log(files);
+				//console.log(files);
 				let that = this;
 				files.forEach(function (file) {
 					if(file != undefined && file.name.includes("Nozzle")) {

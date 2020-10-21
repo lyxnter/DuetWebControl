@@ -18,7 +18,7 @@
 		</v-flex>
 
 		<v-flex class="px-2">
-			<v-slider :value="innerValue.toFixed(0)" @change="$emit('input', $event)" :min="min" :max="max" :disabled="disabled && fan < 0" hide-details thumb-label="always" class="slider" :readonly="disabled" :color="disabled ? '#595959' : 'primary'" :tick-labels="labels" :ticks="fan === true ? 'always': false"></v-slider>
+			<v-slider :value="innerValue.toFixed(0)" @change="$emit('input', $event)" :min="min" :max="max" :disabled="disabled && fan < 0" hide-details thumb-label="always" class="slider" :readonly="disabled" :color="disabled ? '#595959' : 'primary'" :tick-labels="labels" :ticks="fan === true ? 'always': false" :step="step"></v-slider>
 		</v-flex>
 		<v-flex shrink>
 			<v-btn large icon :disabled="disabled || innerValue >= max" @click="change(step)" @mousedown="mouseDown(true)" @mouseup="mouseUp(true)" @mouseleave="mouseUp(true)" @touchstart="mouseDown(true)" @touchend="mouseUp(true)" class="mr-0">

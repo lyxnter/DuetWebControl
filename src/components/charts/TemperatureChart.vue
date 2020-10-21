@@ -32,7 +32,7 @@
 		<v-card-text class="content px-2 py-0" v-show="hasData">
 			<canvas ref="chart"></canvas>
 		</v-card-text>
-		<v-card v-if="false" style="margin-left: 2%; width: 96%; height: 100px">
+		<v-card v-if="$route.path=='/Debug'" style="margin-left: 2%; width: 96%; height: 100px">
 			<v-card-title class="pt-2 pb-0">
 				{{ $t('chart.smoothing.caption') }}
 			</v-card-title>
@@ -95,7 +95,7 @@ var tempSamples = {
 	}
 }
 
-function pushSeriesData(machine, heaterIndex, heater, extra, tools, that) {
+function pushSeriesData(machine, heaterIndex, heater, extra, tools, that, state) {
 	// Get series from dataset
 	const machineData = tempSamples[machine];
 	let dataset = machineData.temps.find(function(item) {
@@ -103,14 +103,38 @@ function pushSeriesData(machine, heaterIndex, heater, extra, tools, that) {
 			return item;
 		}
 	});
-	const tool = (tools.filter((tool) => tool.heaters.includes(heaterIndex)))[0]
+	let tool = (tools.filter((tool) => tool.heaters.includes(heaterIndex)))
+	if (tool.length > 1) {
+		tool = tool.filter((tool) => tool.number == state.currentTool).length > 0 ? tool.filter((tool) => tool.number == state.currentTool) : tool
+		if (tool.length > 1) {
+			let closestTemp = 2000
+			let bestTool
+			tool.forEach((i) => {
+				let localIndex = i.heaters.indexOf(heaterIndex)
+				if (heater.state == 2 && Math.abs(i.active[localIndex] - heater.current) < Math.abs(closestTemp - heater.current)) {
+					closestTemp = i.active[localIndex]
+					bestTool = i
+				} else if (heater.state == 1 && Math.abs(i.standby[localIndex] - heater.current) < Math.abs(closestTemp - heater.current)) {
+					closestTemp = i.standby[localIndex]
+					bestTool = i
+				}
+			});
+			tool = bestTool
+		} else {
+			tool = tool[0]
+		}
+	} else {
+		tool = tool[0]
+	}
+	//const output = tool.reduce((prev, curr) => Math.abs(curr- goal) < Math.abs(prev - goal) ? curr : prev);
+
 	let label
 	if (!dataset || dataset.locale !== i18n.locale) {
 		if (extra) {
 			label = heater.name;
 		} else {
 			if (tool) {
-				label = (heater.name ? heater.name : (tool.name ? tool.name : (tool.number ? tool.number : i18n.t('chart.temperature.heater', [heaterIndex]))))
+				label = (heater.name ? heater.name : (tool.name ? tool.name : i18n.t('chart.temperature.heater', [heaterIndex])))
 			} else {
 				label = heaterIndex == 0 ?
 				(i18n.t('panel.tools.bed', [''])) :
@@ -177,7 +201,7 @@ function pushSeriesData(machine, heaterIndex, heater, extra, tools, that) {
 			...mapState(['selectedMachine', 'isLocal']),
 			...mapGetters(['isConnected', 'uiFrozen']),
 			...mapGetters('machine/model', ['maxHeaterTemperature']),
-			...mapState('machine/model', ['heat', 'tools']),
+			...mapState('machine/model', ['heat', 'tools', 'state']),
 			...mapState('machine/settings', ['displayedExtraTemperatures']),
 			...mapState('settings', ['darkTheme']),
 			hasData() { return this.heat.heaters.length || this.displayedExtraTemperatures.length; }
@@ -187,7 +211,7 @@ function pushSeriesData(machine, heaterIndex, heater, extra, tools, that) {
 				dropdownShown: false,
 				chart: null,
 				pauseUpdate: false,
-				smoothing: 1,
+				smoothing: 0,
 				labels: [],
 			}
 		},
@@ -392,7 +416,7 @@ function pushSeriesData(machine, heaterIndex, heater, extra, tools, that) {
 									if (Math.floor(heater.current) > maxTemperature && heater.current < heater.max) {
 										maxTemperature += (maxTemperature < 50 ? 10 : (maxTemperature < 150 ? 25 : (maxTemperature < 300 ? 50 : 100)));
 									}
-									pushSeriesData(machine, heaterIndex, heater, false, that.tools, that);
+									pushSeriesData(machine, heaterIndex, heater, false, that.tools, that, that.state);
 									if (isHeaterConfigured(state, machine, heaterIndex)) {
 										// Display it only if is mapped to at least one tool, bed or chamber
 										usedHeaters.push({ heaterIndex, extra: false });
@@ -401,7 +425,7 @@ function pushSeriesData(machine, heaterIndex, heater, extra, tools, that) {
 							});
 
 							state.machines[machine].model.heat.extra.forEach(function(heater, heaterIndex) {
-								pushSeriesData(machine, heaterIndex, heater, true, that.tools, that);
+								pushSeriesData(machine, heaterIndex, heater, true, that.tools, that, that.state);
 								if (state.machines[state.selectedMachine].settings.displayedExtraTemperatures.indexOf(heaterIndex) !== -1) {
 									if (Math.floor(heater.current) > maxTemperature && heater.current < 1000) {
 										maxTemperature += 25;

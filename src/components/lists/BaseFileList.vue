@@ -174,12 +174,11 @@ table.v-table tbody th {
 		</td>
 		<template v-for="header in headers">
 			<td v-if="header.value === 'name'" :key="header.value">
-				<v-layout row align-center>
-					<div v-if="props.item.ico" style="background-image: url(/img/ressources/file.png); background-size: contain; height: 30px; background-position-x: 5px;">
-						<video :poster="props.item.ico" class="img_gcode" width="30px" onmouseenter="this.play()" onmouseleave="this.load()">
-							<source :src="props.item.ico.substring(0,props.item.ico.length-8)+'.mp4'" type="video/mp4"/>
-							<img src="/img/ressources/file.png" type="image/png"/>
-						</video>
+				<v-layout row align-center @click.prevent="">
+					<div v-if="props.item.ico !== undefined" style="height: 30px;"  @click.prevent="" @contextmenu.prevent="">
+						<object :data="props.item.ico" class="img_gcode" style="width: 30px; height: 30px">
+							<img :src="'/img/ressources/' + (props.item.isDirectory ? 'folder.png' : 'file.png')" :style="props.item.isDirectory?'width: 30px; height: 30px;':'height: 30px;'"/>
+						</object>
 					</div>
 					<v-icon class="mr-1" v-else>{{ props.item.isDirectory ? 'folder' : 'assignment' }}</v-icon>
 					<div style="text-overflow: ellipsis;overflow: hidden;" :style="{'max-width': $route.path=='/Files/Jobs'? '150px': ''}">
@@ -247,7 +246,7 @@ table.v-table tbody th {
 			<v-layout sm4 shrink :class="(props.item.isDirectory ? 'grey darken-2 white--text' : 'grey darken-2 white--text')">
 				<v-layout column align-center>
 					<div style="height: 150px; margin-bottom: 10px;">
-						<object :data="props.item.ico" class="img_gcode_miniature" style="margin: 10px 0px;border-radius: 10px;width: 150px;">
+						<object :data="props.item.ico" class="img_gcode_miniature" style="margin: 10px 0px;border-radius: 10px; width: 150px; height: 150px">
 							<img :src="'/img/ressources/'+(props.item.isDirectory?'folder.png':'file.png')" :style="props.item.isDirectory?'width: 150px; height: 150px; margin-top: 9%; margin-bottom: 8%;':'height: 120px; margin-top: 22%; margin-bottom: 20%; margin-left: 0%;'"/>
 						</object>
 					</div>
@@ -561,8 +560,7 @@ export default {
 		async refresh() {
 			await this.loadDirectory(this.innerDirectory);
 			await this.computeRowsCols();
-
-				this.$emit('update:filelist', to);
+			//this.$emit('update:filelist', to);
 		},
 		async loadDirectory(directory) {
 			if (!this.isConnected || this.innerLoading || !directory) {
@@ -612,6 +610,7 @@ export default {
 				this.innerValue = [];
 
 				this.$nextTick(function() {
+					console.log('emitting \'directoryLoaded\'')
 					this.$emit('directoryLoaded', directory);
 				});
 				await this.computeRowsCols();
@@ -803,7 +802,7 @@ export default {
 			try {
 				await this.machineMove({ from, to, force: true});
 			} catch (e) {
-				this.$makeNotification('error', `Failed to move ${data.items[i].name} to ${directory}`, e.message);
+				this.$makeNotification('error', `Failed to move ${from} to ${to}`, e.message);
 			}
 		},
 		async download(item) {
@@ -878,36 +877,55 @@ export default {
 			}
 			this.innerDoingFileOperation = false;
 		},
-		async remove(items) {
+		async remove(items, directory) {
 			if (!items || !(items instanceof Array)) {
 				items = this.innerValue.slice();
 			}
 
-			if (this.innerDoingFileOperation) {
+			if (this.innerDoingFileOperation && !directory) {
 				return;
 			}
-
 			this.innerDoingFileOperation = true;
-			const deletedItems = [], directory = this.directory;
+			const deletedItems = [];
+			if (!directory) {
+				directory = this.directory;
+			}
 			let notif
 			for (let i = 0; i < items.length; i++) {
 				try {
 					const item = items[i];
-					if (notif) {
-						notif.domElement.firstChild.childNodes[1].firstChild.innerHTML = 'deleting ' + item.name
+					if (item.isDirectory) {
+						let fileList = await this.getFileList(Path.combine(directory, item.name))
+						await this.remove(fileList, directory + '/' + item.name)
+						if (notif) {
+							notif.domElement.firstChild.childNodes[1].firstChild.innerHTML = 'deleting ' + item.name
+						} else {
+							notif = this.$makeNotification('info','deleting ' + item.name , '', 10000)
+						}
+						await this.machineDelete(Path.combine(directory, item.name));
+
+						deletedItems.push(items[i]);
+
+						this.innerFilelist = this.innerFilelist.filter(file => file.isDirectory !== item.isDirectory || file.name !== item.name);
+						this.innerValue = this.innerValue.filter(file => file.isDirectory !== item.isDirectory || file.name !== item.name);
 					} else {
-						notif = this.$makeNotification('info','deleting ' + item.name , '', 10000)
+						if (notif) {
+							notif.domElement.firstChild.childNodes[1].firstChild.innerHTML = 'deleting ' + item.name
+						} else {
+							notif = this.$makeNotification('info','deleting ' + item.name , '', 10000)
+						}
+						await this.machineDelete(Path.combine(directory, item.name));
+						deletedItems.push(items[i]);
+						this.innerFilelist = this.innerFilelist.filter(file => file.isDirectory !== item.isDirectory || file.name !== item.name);
+						this.innerValue = this.innerValue.filter(file => file.isDirectory !== item.isDirectory || file.name !== item.name);
 					}
-					await this.machineDelete(Path.combine(directory, item.name));
-					console.log(notif.domElement.firstChild.childNodes[1].firstChild.innerHTML)
-					deletedItems.push(items[i]);
-					this.innerFilelist = this.innerFilelist.filter(file => file.isDirectory !== item.isDirectory || file.name !== item.name);
-					this.innerValue = this.innerValue.filter(file => file.isDirectory !== item.isDirectory || file.name !== item.name);
 				} catch (e) {
 					this.$makeNotification('error', this.$t('notification.delete.errorTitle', [items[i].name]), items[i].isDirectory ? this.$t('notification.delete.errorMessageDirectory') : e.message);
 				}
 			}
-			notif.hide()
+			if (notif && directory == this.directory) {
+				notif.hide()
+			}
 			if (deletedItems.length) {
 				this.$log('success', (deletedItems.length > 1) ? this.$t('notification.delete.successMultiple', [deletedItems.length]) : this.$t('notification.delete.success', [deletedItems[0].name]));
 			}
@@ -1044,6 +1062,9 @@ export default {
 			console.log(files.length == 0 ? 'unique' : 'NOT UNIQUE');
 			return files.length == 0
 		},
+		async handlePaste(e) {
+			console.log(e)
+		}
 	},
 	mounted() {
 		//console.log("mounted")
@@ -1129,6 +1150,7 @@ export default {
 		innerFilelist(to) {
 			if (this.filelist !== to) {
 				this.$emit('update:filelist', to);
+				console.log('here?')
 			}
 		},
 		filelist(to) {

@@ -331,12 +331,13 @@ export default {
 			{
 				this.mixC = []
 			}
-			this.currentTool.mix.forEach((mix, index) => {
-				//console.log(index, mix*100);
-				this.mixC[index] = (mix * 100).toFixed(0)
-				this.mixBtn[index] = mix * 100 + '%'
-			})
-			if (this.currentTool && this.currentTool.mix.length > 1) {
+
+			if (this.currentTool && this.currentTool.mix && this.currentTool.mix.length > 1) {
+				this.currentTool.mix.forEach((mix, index) => {
+					//console.log(index, mix*100);
+					this.mixC[index] = (mix * 100).toFixed(0)
+					this.mixBtn[index] = mix * 100 + '%'
+				})
 				this.extrusionSum = Math.round(this.currentTool.mix.reduce((a,b) => (parseFloat(a)+parseFloat(b)))*100);
 			}
 		}
@@ -350,7 +351,7 @@ export default {
 					// Switch back to mixing mode if the selection panel is hidden
 					this.mix = ['mix'];
 				}
-				if (this.currentTool) {
+				if (this.currentTool && this.currentTool.mix && this.currentTool.mix.length > 1) {
 					if (this.mixC == undefined)
 					{
 						this.mixC = []

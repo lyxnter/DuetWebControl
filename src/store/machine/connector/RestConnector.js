@@ -341,7 +341,7 @@ export default class RestSocketConnector extends BaseConnector {
 		formData.set('from', from);
 		formData.set('to', to);
 		formData.set('force', !!force);
-		
+
 		try {
 			await this.axios.post('machine/file/move', formData, {
 				filename: from

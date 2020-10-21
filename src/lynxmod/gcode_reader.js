@@ -13,7 +13,7 @@ const exportSTL = require('threejs-export-stl');
 import JSZip from 'jszip'
 let $ = require('jquery');
 
-//import { makeFileTransferNotification, makeNotification } from '../plugins/toast.js'
+import { makeFileTransferNotification, makeNotification } from '../plugins/toast.js'
 
 /* ======== GCODE_READER ======== */
 
@@ -245,7 +245,8 @@ export default {
 					//self.toast.domElement.firstChild.childNodes[1].lastChild.innerText = "Please stand by while the preview is being generated"
 					//let notif = makeNotification('info', 'Generating preview', "Please wait while we generate the preview for the gcode uploaded", null);
 
-					//console.log(self.boundingBox)
+					console.log(self.boundingBox)
+
 					let out  = "";
 
 					out += "G28\nG1 X0 Y0 Z100 F18000\n";
@@ -254,23 +255,29 @@ export default {
 					out += "G1 X" + self.boundingBox.min.x.toFixed(2) + " Y" + self.boundingBox.min.y.toFixed(2) + " Z" + (self.boundingBox.min.z + 10).toFixed(2) + " F6000\n"
 
 					for (let i = 0; i < 5; i++) {
+
+						out += "M3 S0\n";
 						if ((self.boundingBox.max.z - self.boundingBox.min.z) > 10) {
 							out += "G1 X" + self.boundingBox.min.x.toFixed(2) + " Y" + self.boundingBox.min.y.toFixed(2) + " Z" + (self.boundingBox.min.z + 10).toFixed(2) + " F6000\n"
 							out += "G1 X" + self.boundingBox.min.x.toFixed(2) + " Y" + self.boundingBox.min.y.toFixed(2) + " Z" + self.boundingBox.min.z.toFixed(2) + " F" + (60 * (10 - self.boundingBox.min.z)).toFixed(2) + "\n"
 						} else {
 							out += "G1 X" + self.boundingBox.min.x.toFixed(2) + " Y" + self.boundingBox.min.y.toFixed(2) + " Z" + self.boundingBox.min.z.toFixed(2) + " F" + (60 * (self.boundingBox.max.z - self.boundingBox.min.z)).toFixed(2) + "\n"
 						}
+						out += "M3 S10\n";
 						out += "G1 X" + self.boundingBox.max.x.toFixed(2) + " Y" + self.boundingBox.min.y.toFixed(2) + " Z" + self.boundingBox.min.z.toFixed(2) + " F6000\n"
 						out += "G1 X" + self.boundingBox.max.x.toFixed(2) + " Y" + self.boundingBox.max.y.toFixed(2) + " Z" + self.boundingBox.min.z.toFixed(2) + " F6000\n"
 						out += "G1 X" + self.boundingBox.min.x.toFixed(2) + " Y" + self.boundingBox.max.y.toFixed(2) + " Z" + self.boundingBox.min.z.toFixed(2) + " F6000\n"
 						out += "G1 X" + self.boundingBox.min.x.toFixed(2) + " Y" + self.boundingBox.min.y.toFixed(2) + " Z" + self.boundingBox.min.z.toFixed(2) + " F6000\n"
+						out += "M3 S0\n";
 
 						out += "G1 X" + self.boundingBox.min.x.toFixed(2) + " Y" + self.boundingBox.min.y.toFixed(2) + " Z" + self.boundingBox.max.z.toFixed(2) + " F6000\n"
+						out += "M3 S10\n";
 						out += "G1 X" + self.boundingBox.max.x.toFixed(2) + " Y" + self.boundingBox.min.y.toFixed(2) + " Z" + self.boundingBox.max.z.toFixed(2) + " F6000\n"
 						out += "G1 X" + self.boundingBox.max.x.toFixed(2) + " Y" + self.boundingBox.max.y.toFixed(2) + " Z" + self.boundingBox.max.z.toFixed(2) + " F6000\n"
 						out += "G1 X" + self.boundingBox.min.x.toFixed(2) + " Y" + self.boundingBox.max.y.toFixed(2) + " Z" + self.boundingBox.max.z.toFixed(2) + " F6000\n"
 						out += "G1 X" + self.boundingBox.min.x.toFixed(2) + " Y" + self.boundingBox.min.y.toFixed(2) + " Z" + self.boundingBox.max.z.toFixed(2) + " F6000\n"
 					}
+					out += "M3 S0\n";
 					out += "G28\n"
 
 					let bboxPath = path.split('/')
@@ -282,7 +289,7 @@ export default {
 
 					if( !self.axios) {
 						self.axios = await Axios.create({
-							baseURL:`http://192.168.1.54/`,
+							baseURL:`http://192.168.1.53/`,
 							//cancelToken: BaseConnector.getCancelSource().token,
 							timeout: 8000,	// default session timeout in RepRapFirmware
 							withCredentials: true,
@@ -301,36 +308,38 @@ export default {
 						}
 					})
 
-					/*if ((location.port === "8080") || (location.port === "8081") || (location.port === "8082")) {
-						//$("#firstLayer")[0].value = 0;
-						//$("#lastLayer")[0].value = nbLayers;
-						//$("#firstLayer")[0].max = nbLayers;
-						//$("#lastLayer")[0].max = nbLayers;
-						//console.log(self.gcodeLayers)
+					if (true == false) {
+						if ((location.port === "8080") || (location.port === "8081") || (location.port === "8082")) {
+							//$("#firstLayer")[0].value = 0;
+							//$("#lastLayer")[0].value = nbLayers;
+							//$("#firstLayer")[0].max = nbLayers;
+							//$("#lastLayer")[0].max = nbLayers;
+							//console.log(self.gcodeLayers)
 
-						// Download files
-						const zip = new JSZip();
+							// Download files
+							const zip = new JSZip();
 
-						let layers = self.scene.preview.pointCloud[0]
-						let sceneGeometry = new THREE.Geometry();
-						let files = []
-						for( var i = (layers[0]?0:1); i < layers.length; i++){
-							files.push(exportSTL.fromGeometry( layers[i], true ))
-							let mesh = new THREE.Mesh(layers[i])
-							mesh.updateMatrix();
-							sceneGeometry.merge(mesh.geometry, mesh.matrix)
+							let layers = self.scene.preview.pointCloud[0]
+							let sceneGeometry = new THREE.Geometry();
+							let files = []
+							for( var i = (layers[0]?0:1); i < layers.length; i++){
+								files.push(exportSTL.fromGeometry( layers[i], true ))
+								let mesh = new THREE.Mesh(layers[i])
+								mesh.updateMatrix();
+								sceneGeometry.merge(mesh.geometry, mesh.matrix)
+							}
+							files.push(exportSTL.fromGeometry( sceneGeometry, true ))
+							var blob;
+							files.forEach((file, index) => {
+								blob = new Blob( [file], {type: exportSTL.mimeType})
+								zip.file(self.fileInput.name.substring(0, self.fileInput.name.lastIndexOf('.')) + (index < files.length -1 ? "_" + index : "") + '.stl', blob)
+							})
+							zip.generateAsync({type: "blob"}).then(function(content) {
+								// see FileSaver.js
+								saveAs(content, self.fileInput.name.substring(0, self.fileInput.name.lastIndexOf('.')) + ".zip");
+							});
 						}
-						files.push(exportSTL.fromGeometry( sceneGeometry, true ))
-						var blob;
-						files.forEach((file, index) => {
-							blob = new Blob( [file], {type: exportSTL.mimeType})
-							zip.file(self.fileInput.name.substring(0, self.fileInput.name.lastIndexOf('.')) + (index < files.length -1 ? "_" + index : "") + '.stl', blob)
-						})
-						zip.generateAsync({type: "blob"}).then(function(content) {
-							// see FileSaver.js
-							saveAs(content, self.fileInput.name.substring(0, self.fileInput.name.lastIndexOf('.')) + ".zip");
-						});
-					}*/
+					}
 
 					self.scene.preview.initRender(self);
 					self.scene.preview.animate();
@@ -1164,10 +1173,8 @@ export default {
 			break;
 
 			default:
-			if (this.DEBUG || true) {
-				console.log("unknown command: " + args.cmd);
-				console.log(args);
-			}
+			console.log("unknown command: " + args.cmd);
+			console.log(args);
 			break;
 		}
 	},

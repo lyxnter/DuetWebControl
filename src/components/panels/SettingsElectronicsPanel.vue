@@ -24,7 +24,7 @@
 					{{ $t('panel.settingsElectronics.dwsFirmware', [$display(network.interfaces[0].firmwareVersion)]) }}
 				</template>
 				<br>
-				{{ $t('panel.settingsElectronics.updateNote') }}
+				{{ isLocal ? null : $t('panel.settingsElectronics.updateNote') }}
 			</template>
 			<template v-else>
 				(not connected)
@@ -41,6 +41,7 @@ import { mapState, mapGetters, mapActions } from 'vuex'
 export default {
 	computed: {
 		...mapGetters(['isConnected']),
+		...mapState(['isLocal']),
 		...mapState('machine/model', ['electronics', 'network'])
 	},
 	methods: {

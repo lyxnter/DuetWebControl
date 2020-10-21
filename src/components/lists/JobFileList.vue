@@ -53,6 +53,10 @@
 		<v-list-tile v-show="isFile && !state.isPrinting" @click="simulate">
 			<v-icon class="mr-1">fast_forward</v-icon> {{ $t('list.jobs.simulate') }}
 		</v-list-tile>
+		<v-list-tile v-if="false" v-show="isFile && !state.isPrinting" @click="sendPreview">
+			<v-icon class="mr-1">cloud_upload</v-icon> {{ $t('list.jobs.sendPreview') }}
+		</v-list-tile>
+
 	</template>
 </base-file-list>
 
@@ -202,6 +206,26 @@ export default {
 			this.clearFileInfo(this.directory);
 			this.$refs.filelist.refresh();
 		},
+		async checkIsValidIco(fileIndex) {
+			const file = this.filelist[fileIndex];
+			//const that = this;
+			let validateIco = new XMLHttpRequest();
+			validateIco.timeout = 1000;
+			validateIco.onerror = function() {
+				file.ico = null;
+				console.log('nope not valid')
+			}
+			validateIco.onload = function() {
+				if (validateIco.status == 404) {
+					validateIco.onerror()
+				} else {
+					console.log("yep it's valid")
+				}
+			}
+			validateIco.open('GET', file.ico, true);
+			validateIco.send(null);
+
+		},
 		async requestFileInfo(directory, fileIndex, fileCount) {
 			if (this.fileinfoDirectory === directory) {
 				if (this.isConnected && fileIndex < fileCount) {
@@ -212,8 +236,9 @@ export default {
 					try {
 						// Request file info
 						if (!file.isDirectory) {
+							console.log(Path.combine(directory, file.name))
 							const fileInfo = await this.getFileInfo(Path.combine(directory, file.name));
-
+							console.log(fileInfo)
 							// Start again if the number of files has changed
 							if (fileCount !== this.filelist.length) {
 								this.fileinfoProgress = 0;
@@ -255,6 +280,7 @@ export default {
 						while(dir.includes(" "))
 						dir = dir.replace(/ /g, "_");
 						file.ico = "http://" + this.selectedMachine + "/img/GCodePreview/"+directory.substring(10).replace(/ /g, "_") + "/" + dir + "/" + dir + "_ico.jpg";//fileIco;
+						this.checkIsValidIco(fileIndex)
 					} else {
 						file.dir += '/'+file.name
 						//console.log(file.dir);
@@ -297,6 +323,21 @@ export default {
 		},
 		simulate(item) {
 			this.sendCode(`M37 P"${Path.combine(this.directory, (item && item.name) ? item.name : this.selection[0].name)}"`);
+		},
+		sendPreview(item) {
+			let file = (item && item.name) ? item : this.selection[0]
+			const directory = file.directory
+			console.log(file);
+			if ( file.name.substring(file.name.lastIndexOf("/")+1,file.name.lastIndexOf(".")).length > 0){
+				var dir = file.name.substring(file.name.lastIndexOf("/")+1,file.name.lastIndexOf("."));
+				//console.log(file.dir);
+				//file.name =  dir;
+				while(dir.includes(" "))
+				dir = dir.replace(/ /g, "_");
+				file.ico = "http://" + this.selectedMachine + "/img/GCodePreview/"+directory.substring(10).replace(/ /g, "_") + "/" + dir + "/" + dir + "_ico.jpg";//fileIco;
+
+
+			}
 		},
 		filterSearch(e) {
 			this.filteredList = e

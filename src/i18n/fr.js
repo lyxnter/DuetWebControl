@@ -104,6 +104,10 @@ export default {
 			preheat: 'Préchauffer pour {0}',
 		},
 		upload: {
+			generic: {
+				caption: 'Envoyer fichier(s)',
+				title: 'Envoyer un ou plusieurs fichiers (le glisser/déposer est supporté)'
+			},
 			gcodes: {
 				caption: 'Envoyer fichier(s) G-Code',
 				title: 'Envoyer un ou plusieurs fichiers G-Code (le glisser/déposer est supporté)'
@@ -383,7 +387,8 @@ export default {
 			busy: 'Occupé',
 			changingTool: 'Changement d\'outil',
 			idle: 'Repos',
-			unknown: 'Inconnu'
+			unknown: 'Inconnu',
+			upgrading: 'Mise à jour...',
 		},
 		rpm: 'TPM',
 		sdCard: 'Carte SD {0}',
@@ -718,7 +723,8 @@ export default {
 			lxVersion: "Version Lynxter: ",
 			buildDate: "Compilé le: ",
 			for: 'pour',
-			licensedUnder: 'Sous licence selon les termes de la'
+			licensedUnder: 'Sous licence selon les termes de la',
+			esVersion: "Version système embarqué: ",
 		},
 		settingsAppearance: {
 			caption: 'Apparence',

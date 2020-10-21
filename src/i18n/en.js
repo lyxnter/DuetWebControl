@@ -394,7 +394,8 @@ export default {
 			busy: 'Busy',
 			changingTool: 'Changing Tool',
 			idle: 'Idle',
-			unknown: 'Unknown'
+			unknown: 'Unknown',
+			upgrading: 'Upgrading',
 		},
 		rpm: 'RPM',
 		sdCard: 'SD Card {0}',
@@ -733,6 +734,7 @@ export default {
 			updatededBy: 'updated by',
 			buildDate: "Build date: ",
 			lxVersion: "Lynxter version: ",
+			esVersion: "Embedded System version: ",
 			for: 'for',
 			licensedUnder: 'Licensed under the terms of the'
 		},

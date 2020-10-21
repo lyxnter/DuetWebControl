@@ -660,6 +660,7 @@ export default class PollConnector extends BaseConnector {
 				case 'B': return 'busy';
 				case 'T': return 'changingTool';
 				case 'I': return 'idle';
+				case 'U' : return 'upgrading';
 			}
 			return 'unknown';
 		}
@@ -746,7 +747,8 @@ export default class PollConnector extends BaseConnector {
 							// Unfortunately we cannot populate anything else here yet
 						}
 					]
-				}
+				},
+				esVersion: (response.data.ESVersion ? response.data.ESVersion : undefined)
 			};
 
 			await this.dispatch('update', configData);
@@ -1074,10 +1076,11 @@ export default class PollConnector extends BaseConnector {
 			}));
 		}
 		async getFileInfo(filename) {
+			console.log(filename)
 			const response = await this.axios.get('rr_fileinfo', {
 				params: filename ? { name: filename } : {}
 			});
-
+			console.log(response)
 			if (response.data.err) {
 				throw new OperationFailedError(`err ${response.data.err}`);
 			}
