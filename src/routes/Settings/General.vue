@@ -46,3 +46,17 @@
 		</v-flex>
 	</v-layout>
 </template>
+<script>
+'use strict'
+
+import { mapState } from 'vuex'
+
+export default {
+	computed: {
+		...mapState({
+			isLocal: state => state.isLocal,
+		}),
+	}
+}
+//alert(new Date());
+</script>

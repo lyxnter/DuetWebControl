@@ -46,11 +46,12 @@
 <script>
 'use strict'
 
-import { mapState, mapMutations } from 'vuex'
+import { mapState,mapGetters, mapMutations } from 'vuex'
 
 export default {
 	computed: {
 		...mapState(['settings']),
+		...mapGetters(['uiFrozen']),
 		timelapseURL: {
 			get() { return (this.settings.timelapse.url ? this.settings.timelapse.url : window.origin + ":8080/?action=stream"); },
 			set(value) { this.update({ timelapse: { url: (window.origin + ":8080/?action=stream" == value ? "" : value) } }); }

@@ -232,6 +232,7 @@ text:hover {
 
 import { mapActions, mapState, mapMutations } from 'vuex'
 import axios from 'axios'
+import { ENTRYPOINT, HOSTNAME, PROTOCOL, PORT } from '../../config/entrypoint';
 
 export default {
 	data () {

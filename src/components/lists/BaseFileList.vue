@@ -120,7 +120,7 @@ table.v-table tbody th {
 
 		<template slot="no-data">
 			<slot name="no-data">
-				<v-alert :value="true" type="#504e4d" class="ma-0" @contextmenu.prevent="">
+				<v-alert :value="true" class="ma-0" @contextmenu.prevent="">
 					{{ $t('list.baseFileList.noFiles') }}
 				</v-alert>
 			</slot>

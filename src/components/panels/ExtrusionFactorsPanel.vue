@@ -42,7 +42,7 @@
 			</v-flex>
 		</v-layout>
 
-		<v-alert type="secondary" :value="!visibleExtruders.length">
+		<v-alert :value="!visibleExtruders.length">
 			{{ $t('panel.extrusionFactors.noExtruders') }}
 		</v-alert>
 	</v-card>

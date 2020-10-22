@@ -372,7 +372,7 @@ const store = new Vuex.Store({
 			if (Array.isArray(iface.cfg)) {
 				tmpUser.ifaces = iface.cfg.filter(iface => iface.ifname == "enp1s0" || iface.ifname == "enp2s0");
 			} else {
-				tmpUser.ifaces = iface;
+				tmpUser.ifaces = iface.cfg;
 			}
 
 			tmpUser.ifaces.ip = iface.ip.substr(0, iface.ip.indexOf('/'))

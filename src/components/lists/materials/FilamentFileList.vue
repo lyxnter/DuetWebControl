@@ -19,7 +19,7 @@
 
 		<base-file-list ref="filelist" v-model="selection" :directory.sync="directory" :loading.sync="loading" :doingFileOperation="doingFileOperation" sort-table="filaments" @fileClicked="fileClicked" :no-delete="isRootDirectory" :no-rename="filamentSelected" no-drag-drop>
 			<template slot="no-data">
-				<v-alert :value="true" type="primary darken-1" class="ma-0" @contextmenu.prevent="">
+				<v-alert :value="true" class="ma-0" @contextmenu.prevent="">
 					{{ isRootDirectory ? $t('list.filament.noFilaments') : $t('list.baseFileList.noFiles') }}
 				</v-alert>
 			</template>
