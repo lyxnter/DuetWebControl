@@ -1170,4 +1170,24 @@ export default class PollConnector extends BaseConnector {
 			}
 			return response;
 		}
+		async getCommandList() {
+			let commandList = [];
+
+				const response = await this.axios.get('/duet/duet_gcodes', {
+					params: {
+						page: 1,
+					}
+				});
+				console.log(response);
+				if (response.status == 200) {
+					//commandList = [{	name: 'Frozen Yogurt',	calories: 159,	fat: 6.0,	carbs: 24,	protein: 4.0,	iron: '1%'}];
+					commandList = response.data['hydra:member'];
+					console.log(commandList);
+					return commandList;
+				} else {
+					console.error('error get duet_gcodes')
+					return commandList;
+				}
+			}
+
 	}

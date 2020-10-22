@@ -487,6 +487,7 @@ export default {
 			caption: 'Contrôle de la machine',
 			dashboard: 'Tableau de bord',
 			console: 'Console',
+			command: 'Commandes',
 			heightmap: 'Carte de compensation'
 		},
 		job: {

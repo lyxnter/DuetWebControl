@@ -497,6 +497,7 @@ export default {
 			caption: 'Machine Control',
 			dashboard: 'Dashboard',
 			console: 'G-Code Console',
+			command: 'Commands',
 			heightmap: 'Height Map'
 		},
 		job: {
