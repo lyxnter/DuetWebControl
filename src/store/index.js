@@ -235,8 +235,13 @@ const store = new Vuex.Store({
 				hostname = (state.selectedMachine !== defaultMachine ? state.selectedMachine: (location.hostname != 'localhost' ? location.host : '192.168.1.243'));
 
 				let result = await connector.doLoadAddresses(hostname);
-				//console.log(result);
-				let ifaces = result.data.cfg.filter(iface => (iface.ifname == "enp1s0" || iface.ifname == "enp2s0"))
+				var ifaces = null;
+				if (Array.isArray(result.data.cfg)) {
+					var ifaces = result.data.cfg.filter(iface => (iface.ifname == "enp1s0" || iface.ifname == "enp2s0"));
+				} else {
+					var ifaces = result.data.cfg;
+				}
+
 				ifaces.ip = result.data.ip.substr(0, result.data.ip.indexOf('/'))
 				//console.log(this.state.user.ifaces)
 				//console.log(ifaces)
@@ -364,7 +369,12 @@ const store = new Vuex.Store({
 		setIfaces(state, iface) {
 			let tmpUser = state.user;
 			state.user = {};
-			tmpUser.ifaces = iface.cfg.filter(iface => iface.ifname == "enp1s0" || iface.ifname == "enp2s0");
+			if (Array.isArray(iface.cfg)) {
+				tmpUser.ifaces = iface.cfg.filter(iface => iface.ifname == "enp1s0" || iface.ifname == "enp2s0");
+			} else {
+				tmpUser.ifaces = iface;
+			}
+
 			tmpUser.ifaces.ip = iface.ip.substr(0, iface.ip.indexOf('/'))
 			state.user = tmpUser;
 			//console.log(tmpUser);

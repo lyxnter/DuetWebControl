@@ -115,6 +115,7 @@ img {
 
 import { mapState } from 'vuex'
 import axios from 'axios'
+import { ENTRYPOINT, HOSTNAME, PROTOCOL, PORT } from '../../config/entrypoint';
 
 export default {
 	computed: {
