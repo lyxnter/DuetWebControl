@@ -1071,6 +1071,18 @@ export default class PollConnector extends BaseConnector {
 			return fileList.map(item => ({
 				isDirectory: item.isDirectory || item.type === 'd',
 				name: item.name,
+				fileprod: item.fileprod,
+				fileprod_name: item.fileprod_name,
+				fileprod_id: item.fileprod_id,
+				fileprod_stl: item.fileprod_stl,
+				fileprod_machine: item.fileprod_machine,
+				fileprod_surface: item.fileprod_surface,
+				fileprod_material: item.fileprod_material,
+				fileprod_nozzle: item.fileprod_nozzle,
+				fileprod_quantity: item.fileprod_quantity,
+				fileprod_timeExecution: item.fileprod_timeExecution,
+				fileprod_materialConsumed: item.fileprod_materialConsumed,
+				fileprod_toolHeadDef: item.fileprod_toolHeadDef,
 				size: (item.type === 'd') ? null : item.size,
 				directory: item.directory ? item.directory : directory,
 				lastModified: item.lastModified ? item.lastModified : strToTime(item.date)
