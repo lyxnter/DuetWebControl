@@ -7,13 +7,13 @@ let THREE = require('three') ;
 import { displaySpeed } from '../plugins/display.js'
 import i18n from '../i18n'
 import Axios from 'axios'
-import { strToTime, timeToStr } from '../utils/time.js'
+import { /*strToTime,*/ timeToStr } from '../utils/time.js'
 
 const exportSTL = require('threejs-export-stl');
 import JSZip from 'jszip'
 let $ = require('jquery');
 
-import { makeFileTransferNotification, makeNotification } from '../plugins/toast.js'
+//import { makeFileTransferNotification, makeNotification } from '../plugins/toast.js'
 
 /* ======== GCODE_READER ======== */
 
@@ -247,67 +247,70 @@ export default {
 
 					console.log(self.boundingBox)
 
-					let out  = "";
+					if (document.title.includes("S600D - LAS")) {
+						let out  = "";
 
-					out += "G28\nG1 X0 Y0 Z100 F18000\n";
+						out += "G28\nG1 X0 Y0 Z100 F18000\n";
 
-					out += "G1 X" +  ((self.boundingBox.max.x + self.boundingBox.min.x)/2).toFixed(2) + " Y" + ((self.boundingBox.max.y + self.boundingBox.min.y)/2).toFixed(2) + " Z" + (self.boundingBox.min.z + 10).toFixed(2) + " F6000\n"
-					out += "G1 X" + self.boundingBox.min.x.toFixed(2) + " Y" + self.boundingBox.min.y.toFixed(2) + " Z" + (self.boundingBox.min.z + 10).toFixed(2) + " F6000\n"
+						out += "G1 X" +  ((self.boundingBox.max.x + self.boundingBox.min.x)/2).toFixed(2) + " Y" + ((self.boundingBox.max.y + self.boundingBox.min.y)/2).toFixed(2) + " Z" + (self.boundingBox.min.z + 10).toFixed(2) + " F6000\n"
+						out += "G1 X" + self.boundingBox.min.x.toFixed(2) + " Y" + self.boundingBox.min.y.toFixed(2) + " Z" + (self.boundingBox.min.z + 10).toFixed(2) + " F6000\n"
 
-					for (let i = 0; i < 5; i++) {
+						for (let i = 0; i < 5; i++) {
 
-						out += "M3 S0\n";
-						if ((self.boundingBox.max.z - self.boundingBox.min.z) > 10) {
-							out += "G1 X" + self.boundingBox.min.x.toFixed(2) + " Y" + self.boundingBox.min.y.toFixed(2) + " Z" + (self.boundingBox.min.z + 10).toFixed(2) + " F6000\n"
-							out += "G1 X" + self.boundingBox.min.x.toFixed(2) + " Y" + self.boundingBox.min.y.toFixed(2) + " Z" + self.boundingBox.min.z.toFixed(2) + " F" + (60 * (10 - self.boundingBox.min.z)).toFixed(2) + "\n"
-						} else {
-							out += "G1 X" + self.boundingBox.min.x.toFixed(2) + " Y" + self.boundingBox.min.y.toFixed(2) + " Z" + self.boundingBox.min.z.toFixed(2) + " F" + (60 * (self.boundingBox.max.z - self.boundingBox.min.z)).toFixed(2) + "\n"
+							out += "M3 S0\n";
+							if ((self.boundingBox.max.z - self.boundingBox.min.z) > 10) {
+								out += "G1 X" + self.boundingBox.min.x.toFixed(2) + " Y" + self.boundingBox.min.y.toFixed(2) + " Z" + (self.boundingBox.min.z + 10).toFixed(2) + " F6000\n"
+								out += "G1 X" + self.boundingBox.min.x.toFixed(2) + " Y" + self.boundingBox.min.y.toFixed(2) + " Z" + self.boundingBox.min.z.toFixed(2) + " F" + (60 * (10 - self.boundingBox.min.z)).toFixed(2) + "\n"
+							} else {
+								out += "G1 X" + self.boundingBox.min.x.toFixed(2) + " Y" + self.boundingBox.min.y.toFixed(2) + " Z" + self.boundingBox.min.z.toFixed(2) + " F" + (60 * (self.boundingBox.max.z - self.boundingBox.min.z)).toFixed(2) + "\n"
+							}
+							out += "M3 S10\n";
+							out += "G1 X" + self.boundingBox.max.x.toFixed(2) + " Y" + self.boundingBox.min.y.toFixed(2) + " Z" + self.boundingBox.min.z.toFixed(2) + " F6000\n"
+							out += "G1 X" + self.boundingBox.max.x.toFixed(2) + " Y" + self.boundingBox.max.y.toFixed(2) + " Z" + self.boundingBox.min.z.toFixed(2) + " F6000\n"
+							out += "G1 X" + self.boundingBox.min.x.toFixed(2) + " Y" + self.boundingBox.max.y.toFixed(2) + " Z" + self.boundingBox.min.z.toFixed(2) + " F6000\n"
+							out += "G1 X" + self.boundingBox.min.x.toFixed(2) + " Y" + self.boundingBox.min.y.toFixed(2) + " Z" + self.boundingBox.min.z.toFixed(2) + " F6000\n"
+							out += "M3 S0\n";
+
+							out += "G1 X" + self.boundingBox.min.x.toFixed(2) + " Y" + self.boundingBox.min.y.toFixed(2) + " Z" + self.boundingBox.max.z.toFixed(2) + " F6000\n"
+							out += "M3 S10\n";
+							out += "G1 X" + self.boundingBox.max.x.toFixed(2) + " Y" + self.boundingBox.min.y.toFixed(2) + " Z" + self.boundingBox.max.z.toFixed(2) + " F6000\n"
+							out += "G1 X" + self.boundingBox.max.x.toFixed(2) + " Y" + self.boundingBox.max.y.toFixed(2) + " Z" + self.boundingBox.max.z.toFixed(2) + " F6000\n"
+							out += "G1 X" + self.boundingBox.min.x.toFixed(2) + " Y" + self.boundingBox.max.y.toFixed(2) + " Z" + self.boundingBox.max.z.toFixed(2) + " F6000\n"
+							out += "G1 X" + self.boundingBox.min.x.toFixed(2) + " Y" + self.boundingBox.min.y.toFixed(2) + " Z" + self.boundingBox.max.z.toFixed(2) + " F6000\n"
 						}
-						out += "M3 S10\n";
-						out += "G1 X" + self.boundingBox.max.x.toFixed(2) + " Y" + self.boundingBox.min.y.toFixed(2) + " Z" + self.boundingBox.min.z.toFixed(2) + " F6000\n"
-						out += "G1 X" + self.boundingBox.max.x.toFixed(2) + " Y" + self.boundingBox.max.y.toFixed(2) + " Z" + self.boundingBox.min.z.toFixed(2) + " F6000\n"
-						out += "G1 X" + self.boundingBox.min.x.toFixed(2) + " Y" + self.boundingBox.max.y.toFixed(2) + " Z" + self.boundingBox.min.z.toFixed(2) + " F6000\n"
-						out += "G1 X" + self.boundingBox.min.x.toFixed(2) + " Y" + self.boundingBox.min.y.toFixed(2) + " Z" + self.boundingBox.min.z.toFixed(2) + " F6000\n"
 						out += "M3 S0\n";
+						out += "G28\n"
 
-						out += "G1 X" + self.boundingBox.min.x.toFixed(2) + " Y" + self.boundingBox.min.y.toFixed(2) + " Z" + self.boundingBox.max.z.toFixed(2) + " F6000\n"
-						out += "M3 S10\n";
-						out += "G1 X" + self.boundingBox.max.x.toFixed(2) + " Y" + self.boundingBox.min.y.toFixed(2) + " Z" + self.boundingBox.max.z.toFixed(2) + " F6000\n"
-						out += "G1 X" + self.boundingBox.max.x.toFixed(2) + " Y" + self.boundingBox.max.y.toFixed(2) + " Z" + self.boundingBox.max.z.toFixed(2) + " F6000\n"
-						out += "G1 X" + self.boundingBox.min.x.toFixed(2) + " Y" + self.boundingBox.max.y.toFixed(2) + " Z" + self.boundingBox.max.z.toFixed(2) + " F6000\n"
-						out += "G1 X" + self.boundingBox.min.x.toFixed(2) + " Y" + self.boundingBox.min.y.toFixed(2) + " Z" + self.boundingBox.max.z.toFixed(2) + " F6000\n"
-					}
-					out += "M3 S0\n";
-					out += "G28\n"
+						let bboxPath = path.split('/')
+						bboxPath.pop()
+						bboxPath = '0:/gcodes/' + bboxPath.join('/') + '/' + 'BBox ' + file.name
 
-					let bboxPath = path.split('/')
-					let fName = bboxPath.pop()
-					bboxPath = '0:/gcodes/' + bboxPath.join('/') + '/' + 'BBox ' + file.name
+						let content = new Blob([out]);
+						//self.upload({ filename: bboxPath, content, showProgress: false, showSuccess: false });
 
-					let content = new Blob([out]);
-					//self.upload({ filename: bboxPath, content, showProgress: false, showSuccess: false });
-
-					if( !self.axios) {
-						self.axios = await Axios.create({
-							baseURL:`http://192.168.1.53/`,
-							//cancelToken: BaseConnector.getCancelSource().token,
-							timeout: 8000,	// default session timeout in RepRapFirmware
-							withCredentials: true,
-						});
-					}
-					self.axios.post('rr_upload', content, {
-						isFileTransfer: true,
-						params: {
-							name: bboxPath,
-							time: timeToStr(file.lastModified ? new Date(file.lastModified) : new Date())
-						},
-						timeout: 0,
-						transformRequest(data, headers) {
-							delete headers.post['Content-Type'];
-							return data;
+						if( !self.axios) {
+							self.axios = await Axios.create({
+								baseURL: location.protocol + `//` + location.host + '/',
+								//cancelToken: BaseConnector.getCancelSource().token,
+								timeout: 8000,	// default session timeout in RepRapFirmware
+								withCredentials: true,
+							});
 						}
-					})
 
+						self.axios.post('rr_upload', content, {
+							isFileTransfer: true,
+							params: {
+								name: bboxPath,
+								time: timeToStr(file.lastModified ? new Date(file.lastModified) : new Date())
+							},
+							timeout: 0,
+							transformRequest(data, headers) {
+								delete headers.post['Content-Type'];
+								return data;
+							}
+						})
+					}
+					/*
 					if (true == false) {
 						if ((location.port === "8080") || (location.port === "8081") || (location.port === "8082")) {
 							//$("#firstLayer")[0].value = 0;
@@ -334,12 +337,12 @@ export default {
 								blob = new Blob( [file], {type: exportSTL.mimeType})
 								zip.file(self.fileInput.name.substring(0, self.fileInput.name.lastIndexOf('.')) + (index < files.length -1 ? "_" + index : "") + '.stl', blob)
 							})
-							zip.generateAsync({type: "blob"}).then(function(content) {
-								// see FileSaver.js
-								saveAs(content, self.fileInput.name.substring(0, self.fileInput.name.lastIndexOf('.')) + ".zip");
-							});
+							//zip.generateAsync({type: "blob"}).then(function(content) {
+							// see FileSaver.js
+							//saveAs(content, self.fileInput.name.substring(0, self.fileInput.name.lastIndexOf('.')) + ".zip");
+							//});
 						}
-					}
+					}*/
 
 					self.scene.preview.initRender(self);
 					self.scene.preview.animate();

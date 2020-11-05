@@ -34,7 +34,7 @@
 									<v-icon class="mr-1">edit</v-icon> {{ $t('dialog.meshEdit.new') }}
 								</span>
 							</v-tab>
-							<v-tab-item key="0_presets">
+							<v-tab-item :touchless="true" key="0_presets">
 								<v-card style="background: #4d4d4d; padding: 0 20px">
 									<v-list-tile>
 										<div style="display: inline-block; width: 25px; height: 25px; margin: 10px 5px -5px 17px ;overflow: hidden; border-radius: 50%; margin-bottom: 0px;">
@@ -110,7 +110,7 @@
 									</v-list-tile>
 								</v-card>
 							</v-tab-item>
-							<v-tab-item key="1_custom">
+							<v-tab-item :touchless="true" key="1_custom">
 								<v-tabs v-model="active" grow>
 									<v-tabs-slider color="primary"></v-tabs-slider>
 									<v-tab key="cartesian" style="font-size: medium">
@@ -125,65 +125,65 @@
 										</div>
 										{{ $t('dialog.meshEdit.circle') }}
 									</v-tab>
-									<v-tab-item key="cartesian">
+									<v-tab-item :touchless="true" @touchstart.stop key="cartesian">
 										<v-layout wrap>
 											<v-flex xs12 sm6 md6>
 												<v-subheader v-if="isLocal" class="pl-0"> {{ $t('dialog.meshEdit.startCoordinate', ['X']) }} </v-subheader>
 												<v-text-field v-if="!isLocal" type="number" :label="$t('dialog.meshEdit.startCoordinate', ['X'])" v-model.number="minX" required :min="-200" :max="200" :step="10"></v-text-field>
-												<slider v-else v-model="minX" thumb-label="always" :min="-200" :max="200" :step="10"></slider>
+												<slider v-else v-model="minX" thumb-label="always" :min="-200" :max="200" :step="10" @input="onInput($event, 'minX')"></slider>
 											</v-flex>
 											<v-flex xs12 sm6 md6>
 												<v-subheader v-if="isLocal" class="pl-0"> {{ $t('dialog.meshEdit.endCoordinate', ['X']) }} </v-subheader>
 												<v-text-field v-if="!isLocal" type="number" :label="$t('dialog.meshEdit.endCoordinate', ['X'])" v-model.number="maxX" required min="-200" max="200" step="10"></v-text-field>
-												<slider v-else v-model="maxX" thumb-label="always" :min="-200" :max="200" :step="10"></slider>
+												<slider v-else v-model="maxX" thumb-label="always" :min="-200" :max="200" :step="10" @input="onInput($event, 'maxX')"></slider>
 											</v-flex>
 											<v-flex xs12 sm6 md6>
 												<v-subheader v-if="isLocal" class="pl-0"> {{ $t('dialog.meshEdit.startCoordinate', ['Y']) }} </v-subheader>
 												<v-text-field v-if="!isLocal" type="number" :label="$t('dialog.meshEdit.startCoordinate', ['Y'])" v-model.number="minY" required min="-200" max="200" step="10"></v-text-field>
-												<slider v-else v-model="minY" thumb-label="always" :min="-200" :max="200" :step="10"></slider>
+												<slider v-else v-model="minY" thumb-label="always" :min="-200" :max="200" :step="10" @input="onInput($event, 'minY')"></slider>
 											</v-flex>
 											<v-flex xs12 sm6 md6>
 												<v-subheader v-if="isLocal" class="pl-0"> {{ $t('dialog.meshEdit.endCoordinate', ['Y']) }} </v-subheader>
 												<v-text-field v-if="!isLocal" type="number" :label="$t('dialog.meshEdit.endCoordinate', ['Y'])" v-model.number="maxY" required min="-200" max="200" step="10"></v-text-field>
-												<slider v-else v-model="maxY" thumb-label="always" :min="-200" :max="200" :step="10"></slider>
+												<slider v-else v-model="maxY" thumb-label="always" :min="-200" :max="200" :step="10" @input="onInput($event, 'maxY')"></slider>
 											</v-flex>
 											<v-flex xs12 sm6 md6>
 												<v-subheader v-if="isLocal" class="pl-0"> {{ $t('dialog.meshEdit.spacingDirection', ['X']) }} </v-subheader>
 												<v-text-field v-if="!isLocal" type="number" :label="$t('dialog.meshEdit.spacingDirection', ['X'])" v-model.number="spacingX" required min="1" max="200" step="1"></v-text-field>
-												<slider v-else v-model="spacingX" thumb-label="always" :min="1" :max="200" :step="1"></slider>
+												<slider v-else v-model="spacingX" thumb-label="always" :min="1" :max="200" :step="1" @input="onInput($event, 'spacingX')"></slider>
 											</v-flex>
 											<v-flex xs12 sm6 md6>
 												<v-subheader v-if="isLocal" class="pl-0"> {{ $t('dialog.meshEdit.spacingDirection', ['Y']) }} </v-subheader>
 												<v-text-field v-if="!isLocal" type="number" :label="$t('dialog.meshEdit.spacingDirection', ['Y'])" v-model.number="spacingY" required min="1" max="200" step="1"></v-text-field>
-												<slider v-else v-model="spacingY" thumb-label="always" :min="1" :max="200" :step="1"></slider>
+												<slider v-else v-model="spacingY" thumb-label="always" :min="1" :max="200" :step="1" @input="onInput($event, 'spacingY')"></slider>
 											</v-flex>
 										</v-layout>
 									</v-tab-item>
-									<v-tab-item key="delta">
+									<v-tab-item :touchless="true" @touchstart.stop key="delta">
 										<v-layout wrap>
 											<v-flex xs12 sm6 md6>
 												<v-subheader v-if="isLocal" class="pl-0"> {{ $t('dialog.meshEdit.radius') }} </v-subheader>
 												<v-text-field v-if="!isLocal" type="number" :label="$t('dialog.meshEdit.radius')" v-model.number="diameter" required min="10" max="400" step="10"></v-text-field>
-												<slider v-else v-model="diameter" thumb-label="always" :min="10" :max="400" :step="10"></slider>
+												<slider v-else v-model="diameter" thumb-label="always" :min="10" :max="400" :step="10" @input="onInput($event, 'diameter')"></slider>
 											</v-flex>
 											<v-flex xs12 sm6 md6>
 												<v-subheader v-if="isLocal" class="pl-0"> {{ $t('dialog.meshEdit.spacing') }} </v-subheader>
 												<v-text-field v-if="!isLocal" type="number" :label="$t('dialog.meshEdit.spacing')" v-model.number="spacing" required min="1" max="200" step="1"></v-text-field>
-												<slider v-else v-model="spacing" thumb-label="always" :min="1" :max="200" :step="1"></slider>
+												<slider v-else v-model="spacing" thumb-label="always" :min="1" :max="200" :step="1" @input="onInput($event, 'spacing')"></slider>
 											</v-flex>
 										</v-layout>
 									</v-tab-item>
 								</v-tabs>
-								<v-layout wrap>
+								<v-layout wrap @touchstart.stop>
 									<v-flex xs12 sm6 md6>
 										<v-subheader v-if="isLocal" class="pl-0"> {{ $t('dialog.meshEdit.bed') }} </v-subheader>
 										<v-text-field v-if="!isLocal" type="number" :label="$t('dialog.meshEdit.bed')" v-model.number="bedTemp" required min="0" max="150" step="5"></v-text-field>
-										<slider v-else v-model="bedTemp" thumb-label="always" :min="0" :max="150" :step="5"></slider>
+										<slider	v-else v-model="bedTemp" thumb-label="always" :min="0" :max="150" :step="5" @input="onInput($event, 'bedTemp')"></slider>
 									</v-flex>
 									<v-flex xs12 sm6 md6>
 										<v-subheader v-if="isLocal" class="pl-0"> {{ $t('dialog.meshEdit.chamber') }} </v-subheader>
 										<v-text-field v-if="!isLocal" type="number" :label="$t('dialog.meshEdit.chamber')" v-model.number="chamberTemp" required min="0" max="80" step="5"></v-text-field>
-										<slider v-else v-model="chamberTemp" thumb-label="always" :min="0" :max="80" :step="5"></slider>
+										<slider v-else v-model="chamberTemp" thumb-label="always" :min="0" :max="80" :step="5" @input="onInput($event, 'chamberTemp')"></slider>
 									</v-flex>
 								</v-layout>
 								<v-layout wrap justify-center>
@@ -274,6 +274,7 @@ export default {
 				item: undefined,
 				shown: false
 			},
+			myEvent: '',
 		}
 	},
 	props: {
@@ -288,7 +289,7 @@ export default {
 			if (this.$refs.form.validate()) {
 				this.hide();
 
-				this.sendCode(`M141 S${this.chamberTemp}\nM190 R${this.bedTemp}\nM191 S${this.chamberTemp}`);
+				this.sendCode(`M141 S${this.chamberTemp}\nM190 R${this.bedTemp}\nM191 R${this.chamberTemp}`);
 				// foutre le BL touch maintenant
 				if (this.geometry === 'delta') {
 					this.sendCode(`M557 R${this.diameter/2} S${this.spacing}`);
@@ -449,7 +450,7 @@ export default {
 		generateCalibration() {
 			let output = ( this.active == 1 ? `;machine_C_C${this.chamberTemp}_B${this.bedTemp}_D${this.diameter}_S${this.spacing}\n\n` : `;machine_R_C${this.chamberTemp}_B${this.bedTemp}_D(${this.minX},${this.minY})-(${this.maxX},${this.maxY})_S${this.spacingX},${this.spacingY}\n\n`)
 			output += `M291 P"Voulez vous lancer la procedure calibration geometrique?" R"Calibration automatique" S3\n
-			G4 S1\n`
+			G4 S1\n\nG28\n`
 			output += "; Preheat chamber\n"
 			output += `M98 P"/macros/_Toolheads/CAL_v1.2.0/Custom calibrations/heat/0_Preheat_Chamber_${this.chamberTemp}.g"\n\n`
 			output += "; Geometric calibration\n"
@@ -526,7 +527,9 @@ export default {
 			let result = []
 			let output = `;0_Preheat_Chamber_${this.chamberTemp}\n\n`
 			output += "M291 P\"Prechauffe Chambre en cours merci de retirer le plateau puis validez\" R\"Pre-chauffe\" S2\nG4 S1\n\n"
-			output += `M191 S${this.chamberTemp}`.padEnd(40, ' ') + `; Pre-heat heated chamber to ${this.chamberTemp}°C\n`
+			output += `M140 S${this.chamberTemp}`.padEnd(40, ' ') + `; Pre-heat heated bed to ${this.chamberTemp}°C\n`
+			output += `M191 R${this.chamberTemp}`.padEnd(40, ' ') + `; Pre-heat heated chamber to ${this.chamberTemp}°C\n`
+			output += `M190 R${this.chamberTemp}`.padEnd(40, ' ') + `; Pre-heat heated bed to ${this.chamberTemp}°C\n`
 			output += "M291 P\"<ul><li>''OK': Attendre la stabilisation géometrique (60 min)<li>''Cancel': sauter la stabilisation</ul>\" R\"Attendre la stabilisation\" S3\nG4 S1\n"
 			output+= "M291 P\"Stabilisation en cours merci de patienter<br/>60 minutes restantes\" R\"Pre-chauffe\" S1\n"
 			output += "G4 S300\n"
@@ -546,7 +549,7 @@ export default {
 
 			output = `;1_Preheat_Bed_${this.bedTemp}\n\n`
 			output += "M291 P\"Prechauffe Plateau en cours merci de remettre le plateau puis validez\" R\"Pre-chauffe\" S2\nG4 S1\n\n"
-			output += `M190 S${this.bedTemp}`.padEnd(40, ' ') + `; Pre-heat heated bed to ${this.bedTemp}°C\n`
+			output += `M190 R${this.bedTemp}`.padEnd(40, ' ') + `; Pre-heat heated bed to ${this.bedTemp}°C\n`
 			output += "M291 P\"<ul><li>''OK': Attendre la stabilisation surfacique (60 min)<li>''Cancel': sauter la stabilisation</ul>\" R\"Attendre la stabilisation\" S3\nG4 S1\n"
 			output += "M291 P\"Stabilisation en cours merci de patienter<br/>60 minutes restantes\" R\"Pre-chauffe\" S1\n"
 			output += "G4 S300\n"
@@ -689,6 +692,11 @@ export default {
 
 			this.bedTemp = 0;
 			this.chamberTemp = 0;
+		},
+		onInput(e, target){
+			// @input="onInput($event, '')"
+			console.log(e, target)
+			this[target] = e;
 		}
 	},
 	mounted: async function() {

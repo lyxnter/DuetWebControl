@@ -85,11 +85,11 @@ autoplay: true;
 					<div class="flip-box-inner">
 						<div class="flip-box-front">
 							<img v-if="item.ico" id="buildPlate" src="" style="width: 200px; margin-left: 0%; height: 200px;" alt="" />
-							<v-btn v-if="!item.ico" @click="$refs.fileInput.click()" @contextmenu="$emit('contextmenu', $event)" tabindex="0" color="primary darken-1">
-								<v-icon class="mr-2">cloud_upload</v-icon> {{ $t('button.upload.generic.caption') }}
+							<v-btn v-if="!item.ico" :disabled="isLocal" @click="$refs.fileInput.click()" @contextmenu="$emit('contextmenu', $event)" tabindex="0" color="primary darken-1">
+								<v-icon class="mr-2">cloud_upload</v-icon> {{ $t('button.upload.preview.caption') }}
 							</v-btn>
 							<canvas v-if="!item.ico" style="border:1px solid grey; width: 200px; margin-left: 0%; height: 200px;" id="canvas" @click="onClick" ></canvas>
-							<v-btn v-if="!item.ico" @click="onClick" @contextmenu="$emit('contextmenu', $event)" tabindex="0" color="gray darken-3" id="saveBtn">
+							<v-btn v-if="!isLocal && !item.ico" @click="onClick" @contextmenu="$emit('contextmenu', $event)" tabindex="0" color="gray darken-3" id="saveBtn">
 								<v-icon class="mr-2">save</v-icon> {{ $t('dialog.fileEdit.save') }}
 							</v-btn>
 							<input ref="fileInput" id="imageInput" type="file" accept="image/*" hidden multiple>

@@ -143,7 +143,11 @@ export default {
 			update: {
 				caption: 'Envoyer mise à jour',
 				title: 'Envoyer un paquet de mise à jour (le glisser/déposer est supporté)'
-			}
+			},
+			preview: {
+				caption: 'Envoyer apercu',
+				title: 'Envoyer un ou plusieurs apercu (le glisser/déposer est supporté)'
+			},
 		}
 	},
 	chart: {
