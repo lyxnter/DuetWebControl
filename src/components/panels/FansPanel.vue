@@ -35,7 +35,7 @@
 				<span>
 					{{ (fan === -1) ? $t('panel.fans.toolFan') : (fans[fan].name ? fans[fan].name : $t('panel.fans.fan', [fan])) }}
 				</span>
-				<slider :value="getFanValue(fan)" @input="setFanValue(fan, $event)" :disabled="uiFrozen" :fan="fan"></slider>
+				<slider :value="getFanValue(fan)" @input="setFanValue(fan, $event)" :disabled="uiFrozen" :fan="fan" :step="1"></slider>
 			</v-flex>
 		</v-layout>
 

@@ -87,12 +87,17 @@ export default {
 			preload: 'Preload {0}',
 			prime: 'Prime {0}',
 			unload: 'Unload {0}',
+			preheat: 'preheat {0}'
 		},
 		preheat: {
 			caption: 'Preheat',
 			preheat: 'Preheat for {0}',
 		},
 		upload: {
+			generic: {
+				caption: 'Upload File(s)',
+				title: 'Upload one or more files (drag&drop is supported as well)'
+			},
 			gcodes: {
 				caption: 'Upload G-Code File(s)',
 				title: 'Upload one or more G-Code files (drag&drop is supported as well)'
@@ -132,7 +137,11 @@ export default {
 			update: {
 				caption: 'Upload Update',
 				title: 'Upload an update package (drag&drop is supported as well)'
-			}
+			},
+			preview: {
+				caption: 'Upload preview',
+				title: 'Upload one or more preview files (drag&drop is supported as well)'
+			},
 		}
 	},
 	chart: {

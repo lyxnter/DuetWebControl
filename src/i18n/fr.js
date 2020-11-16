@@ -143,7 +143,11 @@ export default {
 			update: {
 				caption: 'Envoyer mise à jour',
 				title: 'Envoyer un paquet de mise à jour (le glisser/déposer est supporté)'
-			}
+			},
+			preview: {
+				caption: 'Envoyer apercu',
+				title: 'Envoyer un ou plusieurs apercu (le glisser/déposer est supporté)'
+			},
 		}
 	},
 	chart: {
@@ -814,7 +818,7 @@ export default {
 			timelapseResolution: 'Résolution du timelapse',
 			timelapseInterval: 'Capture a intervalle régulier',
 			timelapseUpdateInterval: 'Prendre une image toutes les {} s',
-			timelapseLayer: 'Prendre une image a chaque couche',
+			timelapseLayer: 'Capture a chaque couche',
 			timelapseMinFramerate: 'framerate min Timelapse',
 			timelapseMaxFramerate: 'framerate max Timelapse',
 			timelapseTargetDuration: 'Durée finale Timelapse'

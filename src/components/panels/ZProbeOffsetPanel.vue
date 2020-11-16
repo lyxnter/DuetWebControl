@@ -519,6 +519,7 @@ export default {
 			this.currentValue = val
 			this.decrementDisabled = (val === this.min);
 			this.incrementDisabled = (val === this.max);
+			this.zOffset = setTimeout(this.sendToolOffset, 2000);
 		}
 	},
 }

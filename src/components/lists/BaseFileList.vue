@@ -575,28 +575,55 @@ export default {
 
 			this.innerLoading = true;
 			let len = 0
-			let tool
+			let tool = {}
 			try {
 				// Load file list and create missing props
 				let files = await this.getFileList(directory);
-				tool = this.getTool.substring(0,5);
-				if (this.getTool.substr(0,3).toUpperCase() == "CAL") {
-					tool = this.getTool.substr(0,3)
+
+				let params = this.getTool.split('_')
+				tool.name = params[0];
+				console.log(params)
+				if (tool.name.length && params.length > 1) {
+					tool.appro = params.length == 4 ? params[1] : '';
+					tool.model = params.length == 4 ? params[2].split("~")[0] : ''
+					tool.opt = params.length == 4 && params[2].split("~").length == 2 ? params[2].split("~")[1] : ''
+					tool.vers = params.length == 4 ? params[3].substring(1, params[3].length) : params[1].substring(1, params[1].length)
 				}
 				//console.log(tool)
 				//console.log(this.innerDirectory + " => " + directory)
 				if (directory.split('/').length >= this.innerDirectory.split('/').length) {
-					len = files.filter(item => item.name.startsWith(tool) && !item.directory.includes(tool)).length
-					if(len > 0) {
-						files = files.filter(item => item.name.startsWith(tool) && !item.directory.includes(tool))
-					} else {
-						tool = this.getTool.substring(0,3);
-						len = files.filter(item => item.name.startsWith(tool) && !item.directory.includes(tool)).length
+					if (tool.name.length) {
+						len = files.filter(item => item.name.startsWith(tool.name) && !item.directory.includes(tool.name)).length
 						if(len > 0) {
-							files = files.filter(item => item.name.startsWith(tool) && !item.directory.includes(tool))
+							files = files.filter(item => item.name.startsWith(tool.name) && !item.directory.includes(tool.name))
+							if (tool.appro.length) {
+								len = files.filter(item => item.name.includes(tool.appro) && !item.directory.includes(tool.appro)).length
+								if(len > 0) {
+									files = files.filter(item => item.name.includes(tool.appro) && !item.directory.includes(tool.appro))
+								}
+							}
+							if (tool.model.length) {
+								len = files.filter(item => item.name.includes(tool.model) && !item.directory.includes(tool.model)).length
+								if(len > 0) {
+									files = files.filter(item => item.name.includes(tool.model) && !item.directory.includes(tool.model))
+								}
+							}
+							if (tool.opt.length) {
+								len = files.filter(item => item.name.includes(tool.opt) && !item.directory.includes(tool.opt)).length
+								if(len > 0) {
+									files = files.filter(item => item.name.includes(tool.opt) && !item.directory.includes(tool.opt))
+								}
+							}
+							if (tool.vers.length) {
+								len = files.filter(item => item.name.includes(tool.vers) && !item.directory.includes(tool.vers)).length
+								if(len > 0) {
+									files = files.filter(item => item.name.includes(tool.vers) && !item.directory.includes(tool.vers))
+								}
+							}
 						}
 					}
 				}
+				len = files.length
 				files.forEach(function(item) {
 					this.headers.forEach(function(header) {
 						if (!item.hasOwnProperty(header.value)) {
@@ -610,7 +637,6 @@ export default {
 				this.innerValue = [];
 
 				this.$nextTick(function() {
-					console.log('emitting \'directoryLoaded\'')
 					this.$emit('directoryLoaded', directory);
 				});
 				await this.computeRowsCols();
@@ -623,7 +649,7 @@ export default {
 			this.innerLoading = false;
 
 			//console.log(this.innerFilelist);
-			if( len == 1 && this.innerFilelist[0].isDirectory && this.innerFilelist[0].name.startsWith(tool) && !this.innerFilelist[0].directory.includes(tool)) {
+			if( len == 1 && this.innerFilelist[0].isDirectory && this.innerFilelist[0].name.startsWith(tool.name) && !this.innerFilelist[0].directory.includes(tool.name)) {
 				//console.log(this.innerFilelist[0].directory + "/" + this.innerFilelist[0].name);
 				await this.loadDirectory(this.innerFilelist[0].directory + "/" + this.innerFilelist[0].name)
 			}
@@ -1150,11 +1176,9 @@ export default {
 		innerFilelist(to) {
 			if (this.filelist !== to) {
 				this.$emit('update:filelist', to);
-				console.log('here?')
 			}
 		},
 		filelist(to) {
-			console.log(to)
 			if (this.innerFilelist !== to && this.innerFilelist != [] && to != []) {
 				this.innerFilelist = to
 			}
