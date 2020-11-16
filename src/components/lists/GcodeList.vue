@@ -248,8 +248,7 @@ export default {
 									} else {
 										dir = item.name;
 									}
-									dir = dir.replace(/ /g, "_");
-									item.ico = "http://" + that.selectedMachine + "/img/GCodePreview/" + (item.directory.substring(10).length > 0 ? item.directory.substring(10).replace(/ /g, "_") + "/" : "") + dir + "/" + dir + "_ico.jpg";//fileIco;
+									item.ico = "http://" + that.selectedMachine + "/img/GCodePreview/" + (item.directory.substring(10).length > 0 ? item.directory.substring(10) + "/" : "") + dir + "/" + dir + "_ico.jpg";//fileIco;
 									//console.log(item.name+": "+item.lastModified);
 								} else {
 									item.treated = false;
@@ -340,9 +339,7 @@ export default {
 								var dir = file.name.substring(file.name.lastIndexOf("/")+1,file.name.lastIndexOf("."));
 								console.log(file);
 								//file.name =  dir;
-								while(dir.includes(" "))
-								dir = dir.replace(/ /g, "_");
-								file.ico = "http://" + this.selectedMachine + "/img/GCodePreview/"+file.directory.substring(10).replace(/ /g, "_") + "/" + dir + "/" + dir + "_ico.jpg";//fileIco;
+								file.ico = "http://" + this.selectedMachine + "/img/GCodePreview/"+file.directory.substring(10) + "/" + dir + "/" + dir + "_ico.jpg";//fileIco;
 								this.checkIsValidIco(fileIndex)
 							} else {
 								file.directory += '/'+file.name

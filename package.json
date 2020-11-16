@@ -1,8 +1,8 @@
 {
   "name": "duetwebcontrol",
   "version": "2.0.0",
-  "lxVersion": "1.0.10.D",
-  "buildDate": "04/11/2020 09:17",
+  "lxVersion": "1.0.10.E",
+  "buildDate": "16/11/2020 09:00",
   "repository": "github:chrishamm/DuetWebControl#next",
   "homepage": "https://forum.duet3d.com/category/27/duet-web-control",
   "license": "GPL-3.0",

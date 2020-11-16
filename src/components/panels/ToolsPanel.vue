@@ -175,7 +175,7 @@ table.extra tr > td:first-child {
 						<div v-if="(shown || !isLocal) && materials != {} && window.width > 385" @click.stop.prevent.self="">
 							<v-menu offset-y left :disabled="uiFrozen || isBusy" v-tab-control :close-on-content-click="false">
 								<template slot="activator">
-									<v-btn color="secondary darken-1" small class="mx-0" :disabled="uiFrozen">
+									<v-btn color="secondary darken-1" small class="mx-0" :disabled="uiFrozen || isBusy">
 										{{ window.width > 475 ? $t('button.preloadPrime.caption') : $t('button.preloadPrime.caption').split('/')[0] }} <v-icon v-if="window.width > 405">arrow_drop_down</v-icon>
 									</v-btn>
 								</template>
@@ -608,7 +608,7 @@ table.extra tr > td:first-child {
 		<div v-if="(shown || !isLocal) && materials != {} && window.width > 385 && Object.entries(materials).filter(item => item[1].filter(item => item.indexOf('Pre-heat Machine') >= 0).length).length > 0" @click.stop.prevent.self="">
 			<v-menu offset-y left :disabled="uiFrozen || isBusy" v-tab-control :close-on-content-click="false">
 				<template slot="activator">
-					<v-btn color="secondary darken-1" small class="mx-0" :disabled="uiFrozen">
+					<v-btn color="secondary darken-1" small class="mx-0" :disabled="uiFrozen || isBusy">
 						{{ $t('button.preloadPrime.preheat', ['']) }} <v-icon>arrow_drop_down</v-icon>
 					</v-btn>
 				</template>
@@ -764,7 +764,7 @@ export default {
 		},
 		...mapState(['isLocal', 'user']),
 		isBusy() {
-			return (['pausing', 'paused', 'resuming', 'processing', 'simulating', 'busy', 'changingTool'].indexOf(this.state.status) !== -1)
+			return (['pausing', 'resuming', 'processing', 'simulating', 'busy', 'changingTool'].indexOf(this.state.status) !== -1)
 		}
 	},
 	data() {

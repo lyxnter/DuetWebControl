@@ -818,7 +818,7 @@ export default {
 			timelapseResolution: 'Résolution du timelapse',
 			timelapseInterval: 'Capture a intervalle régulier',
 			timelapseUpdateInterval: 'Prendre une image toutes les {} s',
-			timelapseLayer: 'Prendre une image a chaque couche',
+			timelapseLayer: 'Capture a chaque couche',
 			timelapseMinFramerate: 'framerate min Timelapse',
 			timelapseMaxFramerate: 'framerate max Timelapse',
 			timelapseTargetDuration: 'Durée finale Timelapse'

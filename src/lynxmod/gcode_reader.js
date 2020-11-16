@@ -141,8 +141,6 @@ export default {
 				this.fileSize = this.fileInput.size;
 				//jQuery.get(ajaxPrefix + "rr_mkdir?dir=0:/www/img/GCodepreview");
 				var name = path; //this.fileInput.name.substring(0, this.fileInput.name.lastIndexOf("."));
-				while (name.includes(" "))
-				name = name.replace(" ", "_");
 				this.scene.preview.fileName = name;
 				//console.log(ajaxPrefix + "rr_mkdir?dir=0:/www/img/GCodepreview/"+ name);
 				var totalCount = 1;

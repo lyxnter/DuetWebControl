@@ -332,18 +332,9 @@ export default {
 				var n = e.split(";"),
 				o = n[0].split(":")[1],
 				r = this.b64toBlob(n[1].split(",")[1], o);
-				while (this.fileName.includes(" ")) {
-					this.fileName = this.fileName.replace(" ", "_");
-				}
 				//console.log("t = " + t)
 				//console.log("this.fileName = " + this.fileName)
 				var f = this.fileName;
-				while (f.includes(" ")) {
-					f = f.replace(" ", "_");
-				}
-				while (t.includes(" ")) {
-					t = t.replace(" ", "_");
-				}
 				//console.log("uploading("+this.fileName+"):	" + f + "/" + t);
 				$.ajax({
 					url: (this.selectedMachine?this.selectedMachine:"/") + "rr_upload?name=0:/www/img/GCodePreview/" + f + "/" + t + "&time=" + encodeURIComponent(this.timeToStr(new Date)),
