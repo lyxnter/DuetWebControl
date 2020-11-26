@@ -61,7 +61,7 @@
 </base-file-list>
 
 <v-layout class="hidden-md-and-up mt-2" row wrap justify-space-around>
-	<sd-card-btn :directory="directory" @storageSelected="selectStorage" v-if="!isLocal"></sd-card-btn>
+	<sd-card-btn :directory="directory" @storageSelected="selectStorage" v-if="false"></sd-card-btn>
 	<v-btn :disabled="uiFrozen" @click="showNewDirectory = true" v-if="!isLocal">
 		<v-icon class="mr-1">create_new_folder</v-icon> {{ $t('button.newDirectory.caption') }}
 	</v-btn>
@@ -90,7 +90,7 @@ export default {
 		...mapState('machine/cache', ['fileInfos']),
 		...mapState('machine/model', ['state', 'storages']),
 		...mapState('settings', ['language']),
-		...mapGetters(['isConnected', 'uiFrozen']),
+		...mapGetters(['isConnected', 'uiFrozen', 'getTool']),
 		...mapGetters('machine/model', ['isPrinting']),
 		...mapState({selectedMachine: state => state.selectedMachine}),
 		...mapState({isLocal: state => state.isLocal,}),
@@ -150,7 +150,7 @@ export default {
 					unit: 'mm'
 				},
 				{
-					text: () => i18n.t('list.jobs.filament'),
+					text: () => i18n.t('list.jobs.material.generic'),
 					value: 'filament',
 					unit: 'filaments'
 				},
@@ -225,13 +225,10 @@ export default {
 			validateIco.timeout = 1000;
 			validateIco.onerror = function() {
 				file.ico = null;
-				console.log('nope not valid')
 			}
 			validateIco.onload = function() {
 				if (validateIco.status == 404) {
 					validateIco.onerror()
-				} else {
-					console.log("yep it's valid")
 				}
 			}
 			validateIco.open('GET', file.ico, true);
@@ -248,9 +245,7 @@ export default {
 					try {
 						// Request file info
 						if (!file.isDirectory) {
-							console.log(Path.combine(directory, file.name))
 							const fileInfo = await this.getFileInfo(Path.combine(directory, file.name));
-
 							// Start again if the number of files has changed
 							if (fileCount !== this.filelist.length) {
 								this.fileinfoProgress = 0;
@@ -289,9 +284,7 @@ export default {
 						var dir = file.name.substring(file.name.lastIndexOf("/")+1,file.name.lastIndexOf("."));
 						//console.log(file.dir);
 						//file.name =  dir;
-						while(dir.includes(" "))
-						dir = dir.replace(/ /g, "_");
-						file.ico = "http://" + this.selectedMachine + "/img/GCodePreview/"+directory.substring(10).replace(/ /g, "_") + "/" + dir + "/" + dir + "_ico.jpg";//fileIco;
+						file.ico = "http://" + this.selectedMachine + "/img/GCodePreview/"+directory.substring(10) + "/" + dir + "/" + dir + "_ico.jpg";//fileIco;
 						this.checkIsValidIco(fileIndex)
 					} else {
 						file.dir += '/'+file.name
@@ -345,8 +338,7 @@ export default {
 				//console.log(file.dir);
 				//file.name =  dir;
 				while(dir.includes(" "))
-				dir = dir.replace(/ /g, "_");
-				file.ico = "http://" + this.selectedMachine + "/img/GCodePreview/"+directory.substring(10).replace(/ /g, "_") + "/" + dir + "/" + dir + "_ico.jpg";//fileIco;
+				file.ico = "http://" + this.selectedMachine + "/img/GCodePreview/"+directory.substring(10) + "/" + dir + "/" + dir + "_ico.jpg";//fileIco;
 
 
 			}

@@ -42,7 +42,7 @@
 								<slider style="margin: 5px" :key="Math.random()" :disabled="uiFrozen || disabled" :min="0" :max="100" v-model="mixC[index]" @input="setExtrusionMix(index, $event)" :labels="extruderMix" :fan="true" step="1"></slider><br/>
 							</v-layout><br/>
 							<div style="height: 5px; overflow: hidden; border-radius: 5px;" :style="{margin: isLocal ? '5px 60px 5px 90px' : '5px 60px 5px 145px', background: 'linear-gradient(to right, red, hsl(43, 98%, 50%) ' + (30/currentTool.extruders.length) + '%, hsl(43, 98%, 50%) ' + (80/currentTool.extruders.length) + '%, green ' + (90/currentTool.extruders.length) + '%, green ' + (110/currentTool.extruders.length) + '%, hsl(43, 98%, 50%) ' + (120/currentTool.extruders.length) + '%, hsl(43, 98%, 50%) ' + (170/currentTool.extruders.length) + '%, red ' + (200/currentTool.extruders.length) + '%)'}">
-								<div style="height: 100%; width: 2px; border-radius: 1px; background:black; overflow: hidden" :style="{'margin-left': (extrusionSum/currentTool.extruders.length + '%')}">
+								<div style="height: 100%; width: 2px; border-radius: 1px; background: black; overflow: hidden" :style="{'margin-left': (extrusionSum/currentTool.extruders.length + '%')}">
 								</div>
 							</div>
 						</v-flex>
@@ -63,21 +63,24 @@
 					<v-layout :class="(currentTool && currentTool.extruders.length > 1 && mix == 'mix' && mixC) ? 'column' : 'row'">
 						<v-flex class="ma-1">
 							<p class="mb-1"  v-bind:class="{local: isLocal}">
-								{{ $t('panel.extrude.amount', ['mm']) }}
+								{{ $t('panel.extrude.amount', [(getTool.substr(0,3) == 'LIQ' || getTool.substr(0,3) == 'PAS') ? 'ml' :
+								(getTool.substr(0,3) == 'FIL' || getTool.substr(0,3) == 'PEL') ? 'mm' : '']) }}
 							</p>
 							<v-btn-toggle v-model="amount" mandatory>
-								<v-btn v-for="(amount, index) in extruderAmounts" :key="index" :value="amount" :disabled="uiFrozen || disabled" @contextmenu.prevent="editAmount(index)"  v-bind:class="{local: isLocal}">
-									{{ amount }}
+								<v-btn v-for="(amount, index) in extruderAmounts" :key="index" :value="(getTool.substr(0,3) == 'LIQ' || getTool.substr(0,3) == 'PAS') ? amount*10 : amount" :disabled="uiFrozen || disabled" @contextmenu.prevent="editAmount(index)"  v-bind:class="{local: isLocal}">
+									{{ (getTool.substr(0,3) == 'LIQ' || getTool.substr(0,3) == 'PAS') ? amount*0.03 : amount }}
 								</v-btn>
 							</v-btn-toggle>
 						</v-flex>
 						<v-flex class="ma-1">
 							<p class="mb-1" v-bind:class="{local: isLocal}">
-								{{ $t('panel.extrude.feedrate', ['mm/s']) }}
+								{{ $t('panel.extrude.feedrate', [
+									(getTool.substr(0,3) == 'LIQ' || getTool.substr(0,3) == 'PAS') ? 'ml/min' :
+									(getTool.substr(0,3) == 'FIL' || getTool.substr(0,3) == 'PEL') ? 'mm/s' : '']) }}
 							</p>
 							<v-btn-toggle v-model="feedrate" mandatory>
-								<v-btn v-for="(feedrate, index) in extruderFeedrates" :key="index" :value="feedrate" :disabled="uiFrozen || disabled" @contextmenu.prevent="editFeedrate(index)"  v-bind:class="{local: isLocal}">
-									{{ feedrate }}
+								<v-btn v-for="(feedrate, index) in extruderFeedrates" :key="index" :value="(getTool.substr(0,3) == 'LIQ' || getTool.substr(0,3) == 'PAS') ? (feedrate*(16/15)) : feedrate" :disabled="uiFrozen || disabled" @contextmenu.prevent="editFeedrate(index)"  v-bind:class="{local: isLocal}">
+									{{ (getTool.substr(0,3) == 'LIQ' || getTool.substr(0,3) == 'PAS') ? (feedrate/5) : feedrate }}
 								</v-btn>
 							</v-btn-toggle>
 						</v-flex>
@@ -107,7 +110,7 @@ import { mapState, mapGetters, mapActions, mapMutations } from 'vuex'
 
 export default {
 	computed: {
-		...mapGetters(['uiFrozen']),
+		...mapGetters(['uiFrozen', 'getTool']),
 		...mapState('machine/model', ['heat', 'tools']),
 		...mapGetters('machine/model', ['currentTool']),
 		...mapState('machine/settings', ['extruderAmounts', 'extruderFeedrates']),

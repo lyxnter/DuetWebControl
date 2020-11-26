@@ -46,7 +46,7 @@
 </style>
 <template>
 	<v-layout column>
-		<v-layout row>
+		<v-layout row style="z-index:204">
 			<v-btn v-if="isLocal" color="" @click="confirmShutdownDialog.shown = !confirmShutdownDialog.shown">
 				<v-icon mr-1 >
 					power_settings_new

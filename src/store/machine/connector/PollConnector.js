@@ -1093,7 +1093,6 @@ export default class PollConnector extends BaseConnector {
 			const response = await this.axios.get('/duet/action/rr_fileinfo', {
 				params: filename ? { name: filename } : {}
 			});
-			console.log(response)
 			if (response.data.err) {
 				throw new OperationFailedError(`err ${response.data.err}`);
 			}

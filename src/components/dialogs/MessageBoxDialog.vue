@@ -51,6 +51,7 @@
 				<v-btn v-if="messageBox.mode === 1 || messageBox.mode === 3" color="primary darken-1" flat @click="cancel">
 					{{ $t(messageBox.mode === 1 ? 'generic.close' : 'generic.cancel') }}
 				</v-btn>
+				<v-spacer v-if="isLocal && messageBox.mode === 3"></v-spacer>
 				<v-btn v-if="messageBox.mode === 2 || messageBox.mode === 3" color="primary darken-1" flat @click="ok">
 					{{ $t('generic.ok') }}
 				</v-btn>
@@ -70,6 +71,9 @@ export default {
 		// no need to observe isConnected here because the default machine instance never displays a messagebox anyway
 		...mapState('machine/model', ['messageBox', 'move']),
 		...mapState('machine/settings', ['moveFeedrate']),
+			...mapState({
+				isLocal: state => state.isLocal,
+			}),
 		...mapGetters('machine/settings', ['moveSteps', 'numMoveSteps']),
 		displayedAxes() {
 			const axisControls = this.messageBox.axisControls;

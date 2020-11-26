@@ -35,7 +35,7 @@
 			</v-flex>
 
 			<v-flex order-sm1 order-md2 class="ma-1" :style="{width:(isLocal?'100%':'')}">
-				<slider v-model="fanValue" :disabled="!canControlFans" :fan="fan" thumb-label="always"></slider>
+				<slider v-model="fanValue" :disabled="!canControlFans" :fan="fan" thumb-label="always" :step="1"></slider>
 			</v-flex>
 		</v-layout>
 	</v-card>

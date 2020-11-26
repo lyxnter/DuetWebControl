@@ -85,14 +85,14 @@ autoplay: true;
 					<div class="flip-box-inner">
 						<div class="flip-box-front">
 							<img v-if="item.ico" id="buildPlate" src="" style="width: 200px; margin-left: 0%; height: 200px;" alt="" />
-							<v-btn v-if="!item.ico" @click="$refs.fileInput.click()" @contextmenu="$emit('contextmenu', $event)" tabindex="0" color="primary darken-1">
-								<v-icon class="mr-2">cloud_upload</v-icon> {{ $t('button.upload.generic.caption') }}
+							<v-btn v-if="!item.ico" :disabled="isLocal" @click="$refs.fileInput.click()" @contextmenu="$emit('contextmenu', $event)" tabindex="0" color="primary darken-1">
+								<v-icon class="mr-2">cloud_upload</v-icon> {{ $t('button.upload.preview.caption') }}
 							</v-btn>
-							<canvas v-if="!item.ico" style="border:1px solid grey; width: 200px; margin-left: 0%; height: 200px;" id="canvas" @click="onClick" ></canvas>
-							<v-btn v-if="!item.ico" @click="onClick" @contextmenu="$emit('contextmenu', $event)" tabindex="0" color="gray darken-3" id="saveBtn">
+							<canvas v-if="!item.ico" style="border:1px solid grey; width: 200px; margin-left: 0%; height: 200px;" id="canvas" @click="onClick"  @change="onClick"></canvas>
+							<v-btn v-if="!isLocal && !item.ico" @click="onClick" @contextmenu="$emit('contextmenu', $event)" tabindex="0" color="gray darken-3" id="saveBtn">
 								<v-icon class="mr-2">save</v-icon> {{ $t('dialog.fileEdit.save') }}
 							</v-btn>
-							<input ref="fileInput" id="imageInput" type="file" accept="image/*" hidden multiple>
+							<input ref="fileInput" id="imageInput" type="file" accept="image/*" hidden multiple @change="onClick">
 							<v-btn v-if="item.ico" color="blue darken-1" onclick="
 							document.getElementsByTagName('video')[0].load();
 							document.getElementsByClassName('flip-box-inner')[0].style.transform = 'rotateY(180deg)';" @click="attachListener" style=" margin-top: 44px">{{ $t('generic.showPreview') }}</v-btn>
@@ -124,7 +124,11 @@ autoplay: true;
 					{{$t('list.jobs.simulatedTime')}}: {{ $displayTime(item.simulatedTime) }}<br>
 				</template>
 				{{$t('list.jobs.printTime')}}: {{ $displayTime(item.printTime) }}<br>
-				{{$t('list.jobs.filament')}}: {{ item.filament.length == 0 ? $t('generic.noValue') : (item.filament.length == 1 ? item.filament[0]+" mm" : item.filament) }} <br>
+				{{ getTool.substr(0,3) == 'LIQ' ? $t('list.jobs.material.liquid') :
+				getTool.substr(0,3) == 'PAS' ? $t('list.jobs.material.paste') :
+				getTool.substr(0,3) == 'FIL' ? $t('list.jobs.material.filament') : $t('list.jobs.material.generic')}} :
+				{{ item.filament.length == 0 ? $t('generic.noValue') : (item.filament.length == 1 ? ((getTool.substr(0,3) == 'LIQ' || getTool.substr(0,3) == 'PAS') ? (item.filament[0]*0.0030).toFixed(2) +' ml' :
+				(getTool.substr(0,3) == 'FIL' || getTool.substr(0,3) == 'PEL') ? item.filament[0] + ' mm' : '') : item.filament) }} <br>
 			</v-card-text>
 			<v-card-text> <!-- File data -->
 				<div style="text-overflow: ellipsis;overflow: hidden; width: 440px;">
@@ -160,7 +164,7 @@ autoplay: true;
 <script>
 'use strict'
 
-import { mapState } from 'vuex'
+import { mapState, mapGetters } from 'vuex'
 
 let $ = require('jquery');
 
@@ -255,14 +259,15 @@ function CLIPBOARD_CLASS(canvas_id, autoresize) {
 		pastedImage.onload = function () {
 			if(autoresize == true){
 				//resize
-				canvas.width = pastedImage.width;
-				canvas.height = pastedImage.height;
+				canvas.width = Math.min(pastedImage.width, pastedImage.height);
+				canvas.height = Math.min(pastedImage.width, pastedImage.height);
 			}
-			else{
+			else
+			{
 				//clear canvas
 				ctx.clearRect(0, 0, canvas.width, canvas.height);
 			}
-			ctx.drawImage(pastedImage, 0, 0);
+			ctx.drawImage(pastedImage, (-(pastedImage.width - canvas.width)/2), (-(pastedImage.height - canvas.height)/2));
 		};
 		pastedImage.src = source;
 	};
@@ -301,6 +306,7 @@ export default {
 		...mapState({
 			isLocal: state => state.isLocal,
 		}),
+		...mapGetters(['getTool']),
 	},
 	methods: {
 		breakAnywere() {
@@ -415,26 +421,27 @@ export default {
 				document.exitFullscreen();
 			}
 		},
-		onClick: function() {
-			let strMime = "image/jpeg";
-			let imgData = document.getElementById('canvas').toDataURL(strMime);
-			let fileName = this.item.directory.substr(10) + '/' + this.item.name.substring(0, this.item.name.lastIndexOf("."));
-			console.log(this.item.dir, this.item.directory, this.item.name)
-			this.savePicture(imgData/*.replace(strMime, this.strDownloadMime)*/, fileName.substring(fileName.lastIndexOf("/" )+1) + "_ico.jpg");
-			while (fileName.includes(" ")) {
-				fileName = fileName.replace(" ", "_");
-			}
-			this.item.ico = "/img/GCodePreview/" + fileName + "/" + fileName.substring(fileName.lastIndexOf("/" )+1) + "_ico.jpg"
-			console.log(this.item)
-			let item = this.item
-			setTimeout(() => {
-				let ico = item.ico.substring(0, item.ico.length-7)+'bp.jpg'
-				this.validateImg(ico, "buildPlate")
-				if (document.getElementById("buildPlate").src.endsWith("/img/ressources/file.png")) {
-					ico = item.ico
+		onClick: function(e) {
+			if (e.type == 'click') {
+				let strMime = "image/jpeg";
+				let imgData = document.getElementById('canvas').toDataURL(strMime);
+				let fileName = this.item.directory.substr(10) + '/' + this.item.name.substring(0, this.item.name.lastIndexOf("."));
+				console.log(this.item.dir, this.item.directory, this.item.name)
+				this.savePicture(imgData/*.replace(strMime, this.strDownloadMime)*/, fileName.substring(fileName.lastIndexOf("/" )+1) + "_ico.jpg");
+				this.item.ico = "/img/GCodePreview/" + fileName + "/" + fileName.substring(fileName.lastIndexOf("/" )+1) + "_ico.jpg"
+				console.log(this.item)
+				let item = this.item
+				setTimeout(() => {
+					let ico = item.ico.substring(0, item.ico.length-7)+'bp.jpg'
 					this.validateImg(ico, "buildPlate")
-				}
-			}, 250)
+					if (document.getElementById("buildPlate").src.endsWith("/img/ressources/file.png")) {
+						ico = item.ico
+						this.validateImg(ico, "buildPlate")
+					}
+				}, 250)
+			} else {
+				setTimeout(this.onClick, 250, {type: 'click'})
+			}
 		},
 		b64toBlob: function(e, t, n) {
 			t = t || "", n = n || 512;
@@ -453,18 +460,9 @@ export default {
 			o = n[0].split(":")[1],
 			r = this.b64toBlob(n[1].split(",")[1], o);
 			let fileName = this.item.directory.substr(10) + '/' + this.item.name.substring(0, this.item.name.lastIndexOf("."));
-			while (fileName.includes(" ")) {
-				fileName = fileName.replace(" ", "_");
-			}
 			//console.log("t = " + t)
 			//console.log("this.item.name = " + this.item.name)
 			var f = fileName;
-			while (f.includes(" ")) {
-				f = f.replace(" ", "_");
-			}
-			while (t.includes(" ")) {
-				t = t.replace(" ", "_");
-			}
 			//console.log("uploading("+this.item.name+"):	" + f + "/" + t);
 			var start = new Date()
 			let that = this

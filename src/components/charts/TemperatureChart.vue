@@ -211,7 +211,7 @@ function pushSeriesData(machine, heaterIndex, heater, extra, tools, that, state)
 				dropdownShown: false,
 				chart: null,
 				pauseUpdate: false,
-				smoothing: 0,
+				smoothing: 1,
 				labels: [],
 			}
 		},

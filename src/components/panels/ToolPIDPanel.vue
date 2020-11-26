@@ -43,7 +43,7 @@
 						<v-flex v-for="(tool, index) in toolHeads.filter((tool) => tool.h && tool.h < 7)" :key="tool.h" xl3 lg4 md4 sm6 xs12>
 							<v-layout column style="border-right: 1px solid #333; border-bottom: 1px solid #222; margin: 5px; text-align: center; background: #505050;" v-if="!tool.hide">
 								<v-layout style="font-size: larger;" row>
-									<span v-html="$t('panel.toolPID.pid', [''])"></span>&nbsp;<strong @click="targetTool" :id="tool.h"> T{{tool.h-1}}</strong>
+									<span v-html="$t('panel.toolPID.pid', ['T' + tools.filter(head => head.heaters.includes(tool.h))[0].number])"></span>&nbsp;<strong @click="targetTool" :id="tool.h"></strong> (H{{ tool.h }})
 								</v-layout>
 								<v-divider></v-divider>
 								<v-layout column>
@@ -121,7 +121,7 @@
 						<v-flex xl3 lg4 md4 sm6 xs12 v-if="bed != {} && heat.heaters[bed.h]">
 							<v-layout column style="border-right: 1px solid #333; border-bottom: 1px solid #222; margin: 5px; text-align: center; background: #505050;" v-if="!bed.hide">
 								<v-layout style="font-size: larger;" row>
-									<span v-html="$t('panel.toolPID.pid', [''])"></span>&nbsp;<strong> Bed</strong>
+									<span v-html="$t('panel.toolPID.pid', ['Bed'])"></span>&nbsp;<strong></strong>(H{{bed.h}})
 								</v-layout>
 								<v-divider></v-divider>
 								<v-layout column>
@@ -201,7 +201,7 @@
 						<v-flex xl3 lg4 md4 sm6 xs12 v-if="chamber != {} && heat.heaters[chamber.h]">
 							<v-layout column style="border-right: 1px solid #333; border-bottom: 1px solid #222; margin: 5px; text-align: center; background: #505050;" v-if="!chamber.hide">
 								<v-layout style="font-size: larger;" row>
-									<span v-html="$t('panel.toolPID.pid', [''])"></span>&nbsp;<strong> Chamber </strong>
+									<span v-html="$t('panel.toolPID.pid', ['Chamber'])"></span>&nbsp;<strong></strong>(H{{chamber.h}})
 								</v-layout>
 								<v-divider></v-divider>
 								<v-layout column>

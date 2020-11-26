@@ -55,7 +55,7 @@ export default {
 			if (this.state.isSimulating) {
 				return this.$t(this.isPaused ? 'panel.jobControl.resumeSimulation' : 'panel.jobControl.pauseSimulation');
 			}
-			if (this.state.mode === 'FFF') {
+			if (this.state.mode === 'FFF' || this.state.mode === null) {
 				return this.$t(this.isPaused ? 'panel.jobControl.resumePrint' : 'panel.jobControl.pausePrint');
 			}
 			return this.$t(this.isPaused ? 'panel.jobControl.resumeJob' : 'panel.jobControl.pauseJob');
@@ -64,7 +64,7 @@ export default {
 			if (this.state.isSimulating) {
 				return this.$t('panel.jobControl.cancelSimulation');
 			}
-			if (this.state.mode === 'FFF') {
+			if (this.state.mode === 'FFF' || this.state.mode === null) {
 				return this.$t('panel.jobControl.cancelPrint');
 			}
 			return this.$t('panel.jobControl.cancelJob');
@@ -82,7 +82,7 @@ export default {
 			if (this.job.lastFileSimulated) {
 				return this.$t('panel.jobControl.repeatSimulation');
 			}
-			if (this.state.mode === 'FFF') {
+			if (this.state.mode === 'FFF' || this.state.mode === null) {
 				return this.$t('panel.jobControl.repeatPrint');
 			}
 			return this.$t('panel.jobControl.repeatJob');

@@ -9,6 +9,7 @@ export default {
 		},
 		dataTable: {
 			itemsPerPageText: 'Rows per page:',
+			rowsPerPageText: 'Rows per page:',
 			ariaLabel: {
 				sortDescending: ': Sorted descending. Activate to remove sorting.',
 				sortAscending: ': Sorted ascending. Activate to sort descending.',
@@ -87,12 +88,17 @@ export default {
 			preload: 'Preload {0}',
 			prime: 'Prime {0}',
 			unload: 'Unload {0}',
+			preheat: 'preheat {0}'
 		},
 		preheat: {
 			caption: 'Preheat',
 			preheat: 'Preheat for {0}',
 		},
 		upload: {
+			generic: {
+				caption: 'Upload File(s)',
+				title: 'Upload one or more files (drag&drop is supported as well)'
+			},
 			gcodes: {
 				caption: 'Upload G-Code File(s)',
 				title: 'Upload one or more G-Code files (drag&drop is supported as well)'
@@ -132,7 +138,11 @@ export default {
 			update: {
 				caption: 'Upload Update',
 				title: 'Upload an update package (drag&drop is supported as well)'
-			}
+			},
+			preview: {
+				caption: 'Upload preview',
+				title: 'Upload one or more preview files (drag&drop is supported as well)'
+			},
 		}
 	},
 	chart: {
@@ -146,7 +156,12 @@ export default {
 			layer: 'Layer {0}',
 			layerDuration: 'Duration: {0}',
 			layerHeight: 'Layer Height: {0}',
-			filamentUsage: 'Filament Usage: {0}',
+			material: {
+				genericUsage: 'Material usage',
+				filamentUsage: 'Filament usage',
+				liquidUsage: 'Liquid usage',
+				pasteUsage: 'Paste usage',
+			},
 			fractionPrinted: 'File Progress: {0}'
 		},
 		temperature: {
@@ -241,6 +256,7 @@ export default {
 			title: 'Custom calibration',
 			radius: 'Probe diameter',
 			spacing: 'Spacing',
+			spacingTitle: 'Spacing',
 			startCoordinate: 'Start coordinate in {0} direction',
 			endCoordinate: 'End coordinate in {0} direction',
 			spacingDirection: 'Spacing in {0} direction',
@@ -251,6 +267,13 @@ export default {
 			diameter: 'Diameter ',
 			success: 'New calibration added',
 			new: "New calibration",
+			name: 'Name',
+			preheatChamber: `;0_Preheat_Chamber_{0}\n\nM291 P"Pre-heating chamber remove the bed then press OK" R"Pre-heating" S2\nG4 S1\n\nM140 S{0} ; Pre-heat heated bed to {0}°C\nM191 R{0} ; Pre-heat heated chamber to {0}°C\nM190 R{0} ; Pre-heat heated bed to {0}°C\nG4 S1\nM291 P"<ul><li>''OK': Wait for the geometry to stabilise (60 min)<li>''Cancel': Skip the stabilisation</ul>" R"Wait for the stabilisation" S3\nG4 S1\nM291 P"Stabilization in progress please wait<br/>60 minutes remaining" R"Stabilizing" S1\nG4 S300\nM291 P"Stabilization in progress please wait<br/>55 minutes remaining" R"Stabilizing" S1\nG4 S300\nM291 P"Stabilization in progress please wait<br/>50 minutes remaining" R"Stabilizing" S1\nG4 S300\nM291 P"Stabilization in progress please wait<br/>45 minutes remaining" R"Stabilizing" S1\nG4 S300\nM291 P"Stabilization in progress please wait<br/>40 minutes remaining" R"Stabilizing" S1\nG4 S300\nM291 P"Stabilization in progress please wait<br/>35 minutes remaining" R"Stabilizing" S1\nG4 S300\nM291 P"Stabilization in progress please wait<br/>30 minutes remaining" R"Stabilizing" S1\nG4 S300\nM291 P"Stabilization in progress please wait<br/>25 minutes remaining" R"Stabilizing" S1\nG4 S300\nM291 P"Stabilization in progress please wait<br/>20 minutes remaining" R"Stabilizing" S1\nG4 S300\nM291 P"Stabilization in progress please wait<br/>15 minutes remaining" R"Stabilizing" S1\nG4 S300\nM291 P"Stabilization in progress please wait<br/>10 minutes remaining" R"Stabilizing" S1\nG4 S300\nM291 P"Stabilization in progress please wait<br/>5 minutes remaining" R"Stabilizing" S1\nG4 S300`,
+			preheatBed: `;1_Preheat_Bed_{0}\n\nM291 P"Pre-heating bed put the bed on then press OK" R"Pre-heating bed" S2\nG4 S1\n\nM190 R{0}; Pre-heat heated bed to {0}°C\nG4 S1\nM291 P"<ul><li>''OK': Wait for the surface to stabilise (60 min)<li>''Cancel': Skip the stabilisation</ul>" R"Wait for the stabilisation" S3\nG4 S1\nM291 P"Stabilization in progress please wait<br/>60 minutes remaining" R"Stabilizing" S1\nG4 S300\nM291 P"Stabilization in progress please wait<br/>55 minutes remaining" R"Stabilizing" S1\nG4 S300\nM291 P"Stabilization in progress please wait<br/>50 minutes remaining" R"Stabilizing" S1\nG4 S300\nM291 P"Stabilization in progress please wait<br/>45 minutes remaining" R"Stabilizing" S1\nG4 S300\nM291 P"Stabilization in progress please wait<br/>40 minutes remaining" R"Stabilizing" S1\nG4 S300\nM291 P"Stabilization in progress please wait<br/>35 minutes remaining" R"Stabilizing" S1\nG4 S300\nM291 P"Stabilization in progress please wait<br/>30 minutes remaining" R"Stabilizing" S1\nG4 S300\nM291 P"Stabilization in progress please wait<br/>25 minutes remaining" R"Stabilizing" S1\nG4 S300\nM291 P"Stabilization in progress please wait<br/>20 minutes remaining" R"Stabilizing" S1\nG4 S300\nM291 P"Stabilization in progress please wait<br/>15 minutes remaining" R"Stabilizing" S1\nG4 S300\nM291 P"Stabilization in progress please wait<br/>10 minutes remaining" R"Stabilizing" S1\nG4 S300\nM291 P"Stabilization in progress please wait<br/>5 minutes remaining" R"Stabilizing" S1\nG4 S300\n`,
+			meshCalibrationC: `;1_Mesh calibration {0}_{1}.g\n\nM291 P"Surface calibration in progress" R"Automatic calibration" S1\nM471 S"/sys/heightmap.csv" T"/sys/heightmap.csv.bak" D1\nM290 R0 S0 ; clear babystepping \nG29 S2 					; Clear any bed transform\nG28  					; Home all towers\nM98 P/macros/_Toolheads/CAL_v1.2.0/Sensor/Alarm release & Touch SW\nM98 P/macros/_Toolheads/CAL_v1.2.0/Sensor/Retract\nG1 X0 Y0 Z20 F7000			; Approach tool - BL Touch\nM557 R{2} S{1}				; Define mesh compensation grid\nG30					; Probe the bed at the current XY position. When the probe is triggered, set the Z coordinate to the probe trigger height\nG29 S0					; Proceed mesh compensation by probing, saving heightmap.csv correction map file and displaying the matrix\nG29 S1					; Activate meshgrid compensation\nG28  					; Home all towers\nM280 P7 S90 I0				; Retract probe - BL Touch`,
+			meshCalibrationR: `;1_Mesh calibration ({0},{1})-({2},{3})_{4},{5}.g\n\nM291 P"Surface calibration in progress" R"Automatic calibration" S1\nM471 S"/sys/heightmap.csv" T"/sys/heightmap.csv.bak" D1\nM290 R0 S0 ; clear babystepping \nG29 S2 					; Clear any bed transform\nG28  					; Home all towers\nM98 P/macros/_Toolheads/CAL_v1.2.0/Sensor/Alarm release & Touch SW\nM98 P/macros/_Toolheads/CAL_v1.2.0/Sensor/Retract\nG1 X{6} Y{7} Z20 F7000			; Approach tool - BL Touch\nM557 X{0}:{2} Y{1}:{3} S{4}:{5}				; Define mesh compensation grid\nG30					; Probe the bed at the current XY position. When the probe is triggered, set the Z coordinate to the probe trigger height\nG29 S0					; Proceed mesh compensation by probing, saving heightmap.csv correction map file and displaying the matrix\nG29 S1					; Activate meshgrid compensation\nG28  					; Home all towers\nM280 P7 S90 I0				; Retract probe - BL Touch`,
+			confirmRun: `M291 P"Do you want to start the geometric calibration procedure? (Ch: {0}, Bed: {1})" R"Automatic calibration" S3\nG4 S1\n\nG28\n`,
+			calibComplete: `M291 P"Calibration complete, surfacic compensation enabled" R"Automatic calibration" S1\n\n`
 		},
 		newDirectory: {
 			title: 'New Directory',
@@ -423,7 +446,12 @@ export default {
 		printed: 'Printed {0}, 100 % complete',
 		noJob: 'No Job running.',
 		layer: 'Layer {0} of {1}',
-		filament: 'Filament Usage: {0}',
+		material: {
+			generic: 'Material usage: {0}',
+			filament: 'Filament usage: {0}',
+			liquid: 'Liquid usage: {0}',
+			paste: 'Paste usage: {0}'
+		},
 		filamentRemaining: '{0} remaining'
 	},
 	list: {
@@ -489,7 +517,12 @@ export default {
 		jobs: {
 			height: 'Object Height',
 			layerHeight: 'Layer Height',
-			filament: 'Filament Usage',
+			material: {
+				generic: 'Material usage',
+				filament: 'Filament usage',
+				liquid: 'Liquid usage',
+				paste: 'Paste usage',
+			},
 			printTime: 'Print Time',
 			simulatedTime: 'Simulated Time',
 			generatedBy: 'Generated by',
@@ -714,7 +747,12 @@ export default {
 		},
 		jobEstimations: {
 			caption: 'Estimations based on',
-			filament: 'Filament Usage',
+			material: {
+				generic: 'Material usage',
+				filament: 'Filament usage',
+				liquid: 'Liquid usage',
+				paste: 'Paste usage',
+			},
 			file: 'File Progress',
 			layer: 'Layer Time',
 			slicer: 'Slicer',
@@ -724,7 +762,12 @@ export default {
 			caption: 'Job Information',
 			height: 'Height:',
 			layerHeight: 'Layer Height:',
-			filament: 'Filament Usage:',
+			material: {
+				generic: 'Material usage',
+				filament: 'Filament usage',
+				liquid: 'Liquid usage',
+				paste: 'Paste usage',
+			},
 			generatedBy: 'Generated by:'
 		},
 		movement: {
@@ -804,7 +847,7 @@ export default {
 		settingsMachine: {
 			caption: 'Machine-Specific',
 			revertDWC: 'Revert to DWC1',
-			babystepAmount: 'Babystep amount ({0})',
+			babystepAmount: 'Babystep interval ({0})',
 			moveFeedrate: 'Feedrate for move buttons ({0})'
 		},
 		settingsNetwork: {
@@ -841,7 +884,7 @@ export default {
 			timelapseURL: 'Timelapse URL (optional)',
 			timelapseResolution: 'Timelapse resolution',
 			timelapseInterval: 'Take a picture at regular interval',
-			timelapseUpdateInterval: 'Take a picture every {} s',
+			timelapseUpdateInterval: 'Take a picture every {} (s)',
 			timelapseLayer: 'Take a picture at every layer',
 			timelapseMinFramerate: 'Min framerate',
 			timelapseMaxFramerate: 'Max framerate',
@@ -899,7 +942,7 @@ export default {
 			noTool: 'Load a tool first'
 		},
 		webcam: {
-			caption: 'Webcam Surveillance',
+			caption: 'Surveillance Webcam',
 			alt: '(webcam image)',
 			advanced: 'Advanced webcam controls'
 		},
@@ -937,9 +980,9 @@ export default {
 			}
 		},
 		toolPID: {
-			caption: 'PID calibration',
+			caption: 'Calibration PID',
 			tool: 'Tool',
-			pid: 'Calibration PID <b>{0}</b>',
+			pid: 'Calibrate <b>{0}</b>\'s PID',
 			calibration: 'calibration T°',
 			pwm: 'calibration PWM',
 			run: 'Run PID tuning',
