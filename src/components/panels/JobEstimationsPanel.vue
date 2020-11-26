@@ -14,7 +14,10 @@
 				<v-flex order-sm2>
 					<v-layout :class="isLocal?'row':'column'">
 						<v-flex tag="strong">
-							{{ $t('panel.jobEstimations.filament') }}
+							{{getTool.substr(0,3) == 'LIQ' ? $t('panel.jobEstimations.material.liquid') :
+							 	getTool.substr(0,3) == 'PAS' ? $t('panel.jobEstimations.material.paste') :
+								getTool.substr(0,3) == 'FIL' ? $t('panel.jobEstimations.material.filament') :
+								$t('panel.jobEstimations.material.generic')}}
 						</v-flex>
 						<v-flex>
 							{{ $displayTime(job.timesLeft.filament, true) }}
@@ -75,6 +78,7 @@ export default {
 	computed: {
 		...mapState(['isLocal']),
 		...mapState('machine/model', ['job', 'state']),
+		...mapGetters(['getTool']),
 		...mapGetters('machine/model', ['isPrinting', 'isSimulating'])
 	}
 }

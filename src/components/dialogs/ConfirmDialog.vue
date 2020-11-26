@@ -124,7 +124,11 @@ autoplay: true;
 					{{$t('list.jobs.simulatedTime')}}: {{ $displayTime(item.simulatedTime) }}<br>
 				</template>
 				{{$t('list.jobs.printTime')}}: {{ $displayTime(item.printTime) }}<br>
-				{{$t('list.jobs.filament')}}: {{ item.filament.length == 0 ? $t('generic.noValue') : (item.filament.length == 1 ? item.filament[0]+" mm" : item.filament) }} <br>
+				{{ getTool.substr(0,3) == 'LIQ' ? $t('list.jobs.material.liquid') :
+				getTool.substr(0,3) == 'PAS' ? $t('list.jobs.material.paste') :
+				getTool.substr(0,3) == 'FIL' ? $t('list.jobs.material.filament') : $t('list.jobs.material.generic')}} :
+				{{ item.filament.length == 0 ? $t('generic.noValue') : (item.filament.length == 1 ? ((getTool.substr(0,3) == 'LIQ' || getTool.substr(0,3) == 'PAS') ? (item.filament[0]*0.0030).toFixed(2) +' ml' :
+				(getTool.substr(0,3) == 'FIL' || getTool.substr(0,3) == 'PEL') ? item.filament[0] + ' mm' : '') : item.filament) }} <br>
 			</v-card-text>
 			<v-card-text> <!-- File data -->
 				<div style="text-overflow: ellipsis;overflow: hidden; width: 440px;">
@@ -147,7 +151,7 @@ autoplay: true;
 <script>
 'use strict'
 
-import { mapState } from 'vuex'
+import { mapState, mapGetters } from 'vuex'
 
 let $ = require('jquery');
 
@@ -289,6 +293,7 @@ export default {
 		...mapState({
 			isLocal: state => state.isLocal,
 		}),
+		...mapGetters(['getTool']),
 	},
 	methods: {
 		breakAnywere() {

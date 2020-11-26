@@ -213,11 +213,16 @@ table.v-table tbody th {
 				<td v-else-if="header.unit === 'filaments' && !isLocal" :key="header.value">
 					<v-tooltip bottom :disabled="!props.item[header.value] || props.item[header.value].length <= 1">
 						<span slot="activator">
-							{{ displayLoadingValue(props.item, header.value, 1, 'mm') }}
+							{{ (((props.item.dir.substr(10).startsWith('LIQ') || props.item.dir.substr(10).startsWith('PAS')) && !props.item.isDirectory && props.item[header.value].length > 0) ?
+							($display(parseFloat(props.item[header.value]*0.0030), 2, 'ml')) :
+							(displayLoadingValue(props.item, header.value, 1, ((props.item.dir.substr(10).startsWith('FIL') || props.item.dir.substr(10).startsWith('PEL')) ? 'mm' : '')))) }}
 						</span>
 
 						<span>
-							{{ $display(props.item[header.value], 1, 'mm') }}
+							{{ (((props.item.dir.substr(10).startsWith('LIQ') || props.item.dir.substr(10).startsWith('PAS')) && !props.item.isDirectory && props.item[header.value].length > 0) ?
+							($display(parseFloat(props.item[header.value]*0.0030), 2, 'ml')) :
+							($display(props.item[header.value], 1,
+							((props.item.dir.substr(10).startsWith('FIL') || props.item.dir.substr(10).startsWith('PEL')) ? 'mm' : '')))) }}
 						</span>
 					</v-tooltip>
 				</td>
@@ -582,7 +587,7 @@ export default {
 
 				let params = this.getTool.split('_')
 				tool.name = params[0];
-				console.log(params)
+				//console.log(params)
 				if (tool.name.length && params.length > 1) {
 					tool.appro = params.length == 4 ? params[1] : '';
 					tool.model = params.length == 4 ? params[2].split("~")[0] : ''

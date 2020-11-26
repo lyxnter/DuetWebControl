@@ -161,7 +161,12 @@ export default {
 			layer: 'Couche {0}',
 			layerDuration: 'Durée: {0}',
 			layerHeight: 'Hauteur de couche: {0}',
-			filamentUsage: 'Utilisation de filament: {0}',
+			material: {
+				genericUsage: 'Utilisation de matière: {0}',
+				filamentUsage: 'Utilisation de filament: {0}',
+				liquidUsage: 'Utilisation de liquide: {0}',
+				pasteUsage: 'Utilisation de pâte: {0}',
+			},
 			fractionPrinted: 'Progrès du fichier: {0}'
 		},
 		temperature: {
@@ -245,6 +250,7 @@ export default {
 			new: "Nouvelle calibration",
 			radius: 'Diamètre de palpage (mm)',
 			spacing: 'Espacement des points (mm)',
+			spacingTitle: 'Intervale',
 			startCoordinate: 'Position {0} min (mm)',
 			endCoordinate: 'Position {0} max (mm)',
 			spacingDirection: 'Espacement des points en {0} (mm)',
@@ -253,7 +259,14 @@ export default {
 			rectangle: 'Rectangle',
 			circle: 'Cercle',
 			diameter: 'Diamètre ',
-			success: 'Nouvelle calibration ajoutée a la liste'
+			success: 'Nouvelle calibration ajoutée a la liste',
+			name: 'Nom',
+			preheatChamber: `;0_Preheat_Chamber_{0}\n\nM291 P"Prechauffe Chambre en cours merci de retirer le plateau puis validez" R"Pre-chauffe" S2\nG4 S1\n\nM140 S{0} ; Pre-heat heated bed to {0}°C\nM191 R{0} ; Pre-heat heated chamber to {0}°C\nM190 R{0} ; Pre-heat heated bed to {0}°C\nM291 P"<ul><li>''OK': Attendre la stabilisation géometrique (60 min)<li>''Annuler': sauter la stabilisation</ul>" R"Attendre la stabilisation" S3\nG4 S1\nM291 P"Stabilisation en cours merci de patienter<br/>60 minutes restantes" R"Pre-chauffe" S1\nG4 S300\nM291 P"Stabilisation en cours merci de patienter<br/>55 minutes restantes" R"Pre-chauffe" S1\nG4 S300\nM291 P"Stabilisation en cours merci de patienter<br/>50 minutes restantes" R"Pre-chauffe" S1\nG4 S300\nM291 P"Stabilisation en cours merci de patienter<br/>45 minutes restantes" R"Pre-chauffe" S1\nG4 S300\nM291 P"Stabilisation en cours merci de patienter<br/>40 minutes restantes" R"Pre-chauffe" S1\nG4 S300\nM291 P"Stabilisation en cours merci de patienter<br/>35 minutes restantes" R"Pre-chauffe" S1\nG4 S300\nM291 P"Stabilisation en cours merci de patienter<br/>30 minutes restantes" R"Pre-chauffe" S1\nG4 S300\nM291 P"Stabilisation en cours merci de patienter<br/>25 minutes restantes" R"Pre-chauffe" S1\nG4 S300\nM291 P"Stabilisation en cours merci de patienter<br/>20 minutes restantes" R"Pre-chauffe" S1\nG4 S300\nM291 P"Stabilisation en cours merci de patienter<br/>15 minutes restantes" R"Pre-chauffe" S1\nG4 S300\nM291 P"Stabilisation en cours merci de patienter<br/>10 minutes restantes" R"Pre-chauffe" S1\nG4 S300\nM291 P"Stabilisation en cours merci de patienter<br/>05 minutes restantes" R"Pre-chauffe" S1\nG4 S300\n`,
+			preheatBed: `;1_Preheat_Bed_{0}\n\nM291 P"Prechauffe Plateau en cours merci de remettre le plateau puis validez" R"Pre-chauffe" S2\nG4 S1\n\nM190 R{0}; Pre-heat heated bed to {0}°C\nM291 P"<ul><li>''OK': Attendre la stabilisation surfacique (60 min)<li>''Annuler': sauter la stabilisation</ul>" R"Attendre la stabilisation" S3\nG4 S1\nM291 P"Stabilisation en cours merci de patienter<br/>60 minutes restantes" R"Pre-chauffe" S1\nG4 S300\nM291 P"Stabilisation en cours merci de patienter<br/>55 minutes restantes" R"Pre-chauffe" S1\nG4 S300\nM291 P"Stabilisation en cours merci de patienter<br/>50 minutes restantes" R"Pre-chauffe" S1\nG4 S300\nM291 P"Stabilisation en cours merci de patienter<br/>45 minutes restantes" R"Pre-chauffe" S1\nG4 S300\nM291 P"Stabilisation en cours merci de patienter<br/>40 minutes restantes" R"Pre-chauffe" S1\nG4 S300\nM291 P"Stabilisation en cours merci de patienter<br/>35 minutes restantes" R"Pre-chauffe" S1\nG4 S300\nM291 P"Stabilisation en cours merci de patienter<br/>30 minutes restantes" R"Pre-chauffe" S1\nG4 S300\nM291 P"Stabilisation en cours merci de patienter<br/>25 minutes restantes" R"Pre-chauffe" S1\nG4 S300\nM291 P"Stabilisation en cours merci de patienter<br/>20 minutes restantes" R"Pre-chauffe" S1\nG4 S300\nM291 P"Stabilisation en cours merci de patienter<br/>15 minutes restantes" R"Pre-chauffe" S1\nG4 S300\nM291 P"Stabilisation en cours merci de patienter<br/>10 minutes restantes" R"Pre-chauffe" S1\nG4 S300\nM291 P"Stabilisation en cours merci de patienter<br/>05 minutes restantes" R"Pre-chauffe" S1\nG4 S300\n`,
+			meshCalibrationC: `;1_Mesh calibration {0}_{1}.g\n\nM291 P"Calibration surfacique en cours" R"Calibration automatique" S1\nM471 S"/sys/heightmap.csv" T"/sys/heightmap.csv.bak" D1\nM290 R0 S0 ; clear babystepping \nG29 S2 					; Clear any bed transform\nG28  					; Home all towers\nM98 P/macros/_Toolheads/CAL_v1.2.0/Sensor/Alarm release & Touch SW\nM98 P/macros/_Toolheads/CAL_v1.2.0/Sensor/Retract\nG1 X0 Y0 Z20 F7000			; Approach tool - BL Touch\nM557 R{2} S{1}				; Define mesh compensation grid\nG30					; Probe the bed at the current XY position. When the probe is triggered, set the Z coordinate to the probe trigger height\nG29 S0					; Proceed mesh compensation by probing, saving heightmap.csv correction map file and displaying the matrix\nG29 S1					; Activate meshgrid compensation\nG28  					; Home all towers\nM280 P7 S90 I0				; Retract probe - BL Touch`,
+			meshCalibrationR: `;1_Mesh calibration ({0},{1})-({2},{3})_{4},{5}.g\n\nM291 P"Calibration surfacique en cours" R"Calibration automatique" S1\nM471 S"/sys/heightmap.csv" T"/sys/heightmap.csv.bak" D1\nM290 R0 S0 ; clear babystepping \nG29 S2 					; Clear any bed transform\nG28  					; Home all towers\nM98 P/macros/_Toolheads/CAL_v1.2.0/Sensor/Alarm release & Touch SW\nM98 P/macros/_Toolheads/CAL_v1.2.0/Sensor/Retract\nG1 X{6} Y{7} Z20 F7000			; Approach tool - BL Touch\nM557 X{0}:{2} Y{1}:{3} S{4}:{5}				; Define mesh compensation grid\nG30					; Probe the bed at the current XY position. When the probe is triggered, set the Z coordinate to the probe trigger height\nG29 S0					; Proceed mesh compensation by probing, saving heightmap.csv correction map file and displaying the matrix\nG29 S1					; Activate meshgrid compensation\nG28  					; Home all towers\nM280 P7 S90 I0				; Retract probe - BL Touch`,
+			confirmRun: `M291 P"Voulez vous lancer la procedure calibration geometrique? (Ch: {0}, Pl: {1})" R"Calibration automatique" S3\nG4 S1\n\nG28\n`,
+			calibComplete: `M291 P"Calibration terminee, correction surfacique activee" R"Calibration automatique" S1\n\n`
 		},
 		newDirectory: {
 			title: 'Nouveau dossier',
@@ -420,7 +433,12 @@ export default {
 		printed: 'Impression {0}, 100 % complète',
 		noJob: 'Aucun travail en cours.',
 		layer: 'Couche {0} sur {1}',
-		filament: 'Utilisation de filament: {0}',
+		material: {
+			generic: 'Utilisation de matière: {0}',
+			filament: 'Utilisation de filament: {0}',
+			liquid: 'Utilisation de liquide: {0}',
+			paste: 'Utilisation de pâte: {0}',
+		},
 		filamentRemaining: '{0} restant'
 	},
 	list: {
@@ -472,7 +490,12 @@ export default {
 		jobs: {
 			height: 'Hauteur objet',
 			layerHeight: 'Hauteur de couche',
-			filament: 'Utilisation de filament',
+			material: {
+				generic: 'Utilisation de matière',
+				filamentUsage: 'Utilisation de filament',
+				liquidUsage: 'Utilisation de liquide',
+				pasteUsage: 'Utilisation de pâte',
+			},
 			printTime: 'Temps d\'impression',
 			simulatedTime: 'Temps simulé',
 			generatedBy: 'Généré par',
@@ -690,7 +713,12 @@ export default {
 		},
 		jobEstimations: {
 			caption: 'Estimations basée sur',
-			filament: 'Utilisation de filament',
+			material: {
+				generic: 'Utilisation de matière',
+				filament: 'Utilisation de filament',
+				liquid: 'Utilisation de liquide',
+				paste: 'Utilisation de pâte',
+			},
 			file: 'Progrès du fichier',
 			layer: 'Couche précédente',
 			slicer: 'Trancheur',
@@ -700,7 +728,12 @@ export default {
 			caption: "Information sur l'impression",
 			height: 'Hauteur:',
 			layerHeight: 'Hauteur de couche:',
-			filament: 'Utilisation de filament:',
+			material: {
+				generic: 'Utilisation de matière',
+				filament: 'Utilisation de filament',
+				liquid: 'Utilisation de liquide',
+				paste: 'Utilisation de pâte',
+			},
 			generatedBy: 'Généré par:'
 		},
 		movement: {
@@ -817,7 +850,7 @@ export default {
 			timelapseURL: 'URL du Timelapse (optionnel)',
 			timelapseResolution: 'Résolution du timelapse',
 			timelapseInterval: 'Capture a intervalle régulier',
-			timelapseUpdateInterval: 'Prendre une image toutes les {} s',
+			timelapseUpdateInterval: 'Prendre une image toutes les {} (s)',
 			timelapseLayer: 'Capture a chaque couche',
 			timelapseMinFramerate: 'framerate min Timelapse',
 			timelapseMaxFramerate: 'framerate max Timelapse',

@@ -128,7 +128,7 @@ export const Routing = ( [
 			},
 			// Timelapses
 			{
-				icon: 'report',
+				icon: 'video_library',
 				caption: 'menu.files.timelapses',
 				path: '/Files/Timelapse',
 				component: Lynxter.Timelapse,

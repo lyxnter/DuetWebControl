@@ -1076,11 +1076,9 @@ export default class PollConnector extends BaseConnector {
 			}));
 		}
 		async getFileInfo(filename) {
-			console.log(filename)
 			const response = await this.axios.get('rr_fileinfo', {
 				params: filename ? { name: filename } : {}
 			});
-			console.log(response)
 			if (response.data.err) {
 				throw new OperationFailedError(`err ${response.data.err}`);
 			}

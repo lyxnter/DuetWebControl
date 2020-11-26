@@ -90,7 +90,7 @@ export default {
 		...mapState('machine/cache', ['fileInfos']),
 		...mapState('machine/model', ['state', 'storages']),
 		...mapState('settings', ['language']),
-		...mapGetters(['isConnected', 'uiFrozen']),
+		...mapGetters(['isConnected', 'uiFrozen', 'getTool']),
 		...mapGetters('machine/model', ['isPrinting']),
 		...mapState({selectedMachine: state => state.selectedMachine}),
 		...mapState({isLocal: state => state.isLocal,}),
@@ -138,7 +138,7 @@ export default {
 					unit: 'mm'
 				},
 				{
-					text: () => i18n.t('list.jobs.filament'),
+					text: () => i18n.t('list.jobs.material.generic'),
 					value: 'filament',
 					unit: 'filaments'
 				},
