@@ -19,7 +19,7 @@
 
 		<base-file-list ref="filelist" v-model="selection" :directory.sync="directory" :loading.sync="loading" sort-table="display" @fileClicked="fileClicked">
 			<template slot="no-data">
-				<v-alert :value="true" type="info" class="ma-0" @contextmenu.prevent="">
+				<v-alert :value="true" class="ma-0" @contextmenu.prevent="">
 					{{ $t('list.display.noFiles') }}
 				</v-alert>
 			</template>

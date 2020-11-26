@@ -20,13 +20,14 @@ import {
 import { quickPatch } from '../../../utils/patch.js'
 import { bitmapToArray } from '../../../utils/numbers.js'
 import { strToTime, timeToStr } from '../../../utils/time.js'
+import { ENTRYPOINT, HOSTNAME, PROTOCOL, PORT } from '../../../config/entrypoint';
 
 export default class PollConnector extends BaseConnector {
 	static async connect(hostname, username, password) {
 		let response;
 		try {
-			let protocol = location.protocol;
-			response = await axios.get(`${protocol}//${hostname}/rr_connect`, {
+			let protocol = PROTOCOL;
+			response = await axios.get(`${ENTRYPOINT}/duet/action/rr_connect`, {
 				params: {
 					password,
 					time: timeToStr(new Date())
@@ -75,7 +76,7 @@ export default class PollConnector extends BaseConnector {
 		this.sessionTimeout = responseData.sessionTimeout || 8000;	/// default timeout in RRF is 8000ms
 		let protocol = location.protocol;
 		this.axios = axios.create({
-			baseURL: `${protocol}//${hostname}/`,
+			baseURL: `${ENTRYPOINT}/`,
 			cancelToken: this.cancelSource.token,
 			timeout: this.sessionTimeout,
 			withCredentials: true,
@@ -93,7 +94,7 @@ export default class PollConnector extends BaseConnector {
 		// Attempt to reconnect
 		try {
 			let protocol = location.protocol;
-			const response = await axios.get(`${protocol}//${this.hostname}/rr_connect`, {
+			const response = await axios.get(`${ENTRYPOINT}/duet/action/rr_connect`, {
 				params: {
 					password: this.password,
 					time: timeToStr(new Date())
@@ -184,7 +185,7 @@ export default class PollConnector extends BaseConnector {
 	}
 
 	async disconnect() {
-		await this.axios.get('rr_disconnect');
+		await this.axios.get('/duet/action/rr_disconnect');
 	}
 
 	unregister() {
@@ -233,7 +234,7 @@ export default class PollConnector extends BaseConnector {
 		this.justConnected ||
 		(this.updateLoopCounter % this.settings.extendedUpdateEvery) === 0 ||
 		(this.verbose && (this.updateLoopCounter % 2) === 0) ? 2 : (wasPrinting ? 3 : 1);
-		const response = await this.axios.get(`rr_status?type=${statusType}`);
+		const response = await this.axios.get(`/duet/action/rr_status?type=${statusType}`);
 		const isPrinting = ['D', 'S', 'R', 'P', 'M'].indexOf(response.data.status) !== -1;
 		const newData = {};
 
@@ -689,7 +690,7 @@ export default class PollConnector extends BaseConnector {
 		}
 		// Call this only from updateLoop()
 		async getGCodeReply(seq = this.lastStatusResponse.seq) {
-			const response = await this.axios.get('rr_reply', {
+			const response = await this.axios.get('/duet/action/rr_reply', {
 				responseType: 'arraybuffer' 	// responseType: 'text' is broken, see https://github.com/axios/axios/issues/907
 			});
 			const reply = Buffer.from(response.data).toString().trim();
@@ -713,7 +714,7 @@ export default class PollConnector extends BaseConnector {
 		}
 		// Call this only from updateLoop()
 		async getConfigResponse() {
-			const response = await this.axios.get('rr_config');
+			const response = await this.axios.get('/duet/action/rr_config');
 			const configData = {
 				electronics: {
 					name: response.data.firmwareElectronics,
@@ -754,7 +755,7 @@ export default class PollConnector extends BaseConnector {
 			await this.dispatch('update', configData);
 		}
 		async sendCode(code) {
-			const response = await this.axios.get('rr_gcode', {
+			const response = await this.axios.get('/duet/action/rr_gcode', {
 				params: { gcode: code }
 			});
 
@@ -857,7 +858,7 @@ export default class PollConnector extends BaseConnector {
 						try {
 							// Create file transfer and start it
 							options.params.part = totalCount
-							that.axios.post('rr_upload', payload, options)
+							that.axios.post('/duet/action/rr_upload', payload, options)
 							.then(function(response) {
 								instructionPos = chunkReader.GetReadPos();
 								myResponse = response;
@@ -927,7 +928,7 @@ export default class PollConnector extends BaseConnector {
 				} else {
 					try {
 						// Create file transfer and start it
-						that.axios.post('rr_upload', payload, options)
+						that.axios.post('/duet/action/rr_upload', payload, options)
 						.then(function(response) {
 							if (response.data.err === 0) {
 								//that.dispatch('onFileUploaded', { filename, content });
@@ -950,7 +951,7 @@ export default class PollConnector extends BaseConnector {
 			});
 		}
 		async delete(filename) {
-			const response = await this.axios.get('rr_delete', {
+			const response = await this.axios.get('/duet/action/rr_delete', {
 				params: { name: filename }
 			});
 
@@ -961,7 +962,7 @@ export default class PollConnector extends BaseConnector {
 			await this.dispatch('onFileOrDirectoryDeleted', filename);
 		}
 		async move({ from, to, force, silent }) {
-			const response = await this.axios.get('rr_move', {
+			const response = await this.axios.get('/duet/action/rr_move', {
 				params: {
 					old: from,
 					new: to,
@@ -978,7 +979,7 @@ export default class PollConnector extends BaseConnector {
 			}
 		}
 		async makeDirectory(directory) {
-			const response = await this.axios.get('rr_mkdir', {
+			const response = await this.axios.get('/duet/action/rr_mkdir', {
 				params: { dir: directory }
 			});
 
@@ -1010,7 +1011,7 @@ export default class PollConnector extends BaseConnector {
 
 				try {
 					// Create file transfer and start it
-					that.axios.get('rr_download', options)
+					that.axios.get('/duet/action/rr_download', options)
 					.then(function(response) {
 						if (type === 'text') {
 							// see above...
@@ -1039,7 +1040,7 @@ export default class PollConnector extends BaseConnector {
 
 			let fileList = [], next = 0;
 			do {
-				const response = await this.axios.get('rr_filelist', {
+				const response = await this.axios.get('/duet/action/rr_filelist', {
 					params: {
 						dir: directory,
 						first: next
@@ -1070,13 +1071,26 @@ export default class PollConnector extends BaseConnector {
 			return fileList.map(item => ({
 				isDirectory: item.isDirectory || item.type === 'd',
 				name: item.name,
+				fileprod: item.fileprod,
+				fileprod_name: item.fileprod_name,
+				fileprod_id: item.fileprod_id,
+				fileprod_stl: item.fileprod_stl,
+				fileprod_machine: item.fileprod_machine,
+				fileprod_surface: item.fileprod_surface,
+				fileprod_material: item.fileprod_material,
+				fileprod_nozzle: item.fileprod_nozzle,
+				fileprod_quantity: item.fileprod_quantity,
+				fileprod_timeExecution: item.fileprod_timeExecution,
+				fileprod_materialConsumed: item.fileprod_materialConsumed,
+				fileprod_toolHeadDef: item.fileprod_toolHeadDef,
 				size: (item.type === 'd') ? null : item.size,
 				directory: item.directory ? item.directory : directory,
 				lastModified: item.lastModified ? item.lastModified : strToTime(item.date)
 			}));
 		}
 		async getFileInfo(filename) {
-			const response = await this.axios.get('rr_fileinfo', {
+			console.log(filename)
+			const response = await this.axios.get('/duet/action/rr_fileinfo', {
 				params: filename ? { name: filename } : {}
 			});
 			if (response.data.err) {
@@ -1090,13 +1104,13 @@ export default class PollConnector extends BaseConnector {
 			if (!this.axios){
 				let protocol = location.protocol;
 				this.axios = await axios.create({
-					baseURL:`${protocol}//`+hostname+`/`,
+					baseURL:`${ENTRYPOINT}/`,
 					cancelToken: BaseConnector.getCancelSource().token,
 					timeout: 8000,	// default session timeout in RepRapFirmware
 					withCredentials: true,
 				});
 			}
-			const response = await this.axios.get('pc_login', {
+			const response = await this.axios.get('/duet/action/pc_login', {
 				withCredentials: true,
 				params: { username: login, password: password }
 			});
@@ -1110,13 +1124,13 @@ export default class PollConnector extends BaseConnector {
 			if (!this.axios){
 				let protocol = location.protocol;
 				this.axios = await axios.create({
-					baseURL:`${protocol}//`+hostname+`/`,
+					baseURL:`${ENTRYPOINT}/`,
 					cancelToken: BaseConnector.getCancelSource().token,
 					timeout: 8000,	// default session timeout in RepRapFirmware
 					withCredentials: true,
 				});
 			}
-			const response = await this.axios.get('pc_logout', {
+			const response = await this.axios.get('/duet/action/pc_logout', {
 				withCredentials: true,
 				params: {}
 			});
@@ -1130,13 +1144,13 @@ export default class PollConnector extends BaseConnector {
 			if (!this.axios){
 				let protocol = location.protocol;
 				this.axios = await axios.create({
-					baseURL:`${protocol}//`+hostname+`/`,
+					baseURL:`${ENTRYPOINT}/`,
 					cancelToken: BaseConnector.getCancelSource().token,
 					timeout: 8000,	// default session timeout in RepRapFirmware
 					withCredentials: true,
 				});
 			}
-			const response = await this.axios.get('pc_shutdown', {
+			const response = await this.axios.get('/duet/action/pc_shutdown', {
 				withCredentials: true,
 				params: {}
 			});
@@ -1150,14 +1164,14 @@ export default class PollConnector extends BaseConnector {
 			if (!this.axios){
 				let protocol = location.protocol;
 				this.axios = await axios.create({
-					baseURL:`${protocol}//`+hostname+`/`,
+					baseURL:`${ENTRYPOINT}/`,
 					cancelToken: BaseConnector.getCancelSource().token,
 					timeout: 8000,	// default session timeout in RepRapFirmware
 					withCredentials: true,
 				});
 			}
 
-			const response = await this.axios.get('pc_getip', {
+			const response = await this.axios.get('/duet/action/pc_getip', {
 				withCredentials: true,
 				params: {}
 			});
@@ -1167,4 +1181,24 @@ export default class PollConnector extends BaseConnector {
 			}
 			return response;
 		}
+		async getCommandList() {
+			let commandList = [];
+
+				const response = await this.axios.get('/duet/duet_gcodes', {
+					params: {
+						page: 1,
+					}
+				});
+				console.log(response);
+				if (response.status == 200) {
+					//commandList = [{	name: 'Frozen Yogurt',	calories: 159,	fat: 6.0,	carbs: 24,	protein: 4.0,	iron: '1%'}];
+					commandList = response.data['hydra:member'];
+					console.log(commandList);
+					return commandList;
+				} else {
+					console.error('error get duet_gcodes')
+					return commandList;
+				}
+			}
+
 	}

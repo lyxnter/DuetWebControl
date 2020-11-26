@@ -457,6 +457,17 @@ export default {
 	list: {
 		baseFileList: {
 			fileName: 'Filename',
+			fileProd: 'Production file',
+			fileNameProd: 'Production name',
+			fileNameSTL: 'Ref. STL',
+			machine: 'Machine',
+			surface: 'Surface',
+			material: 'Material',
+			nozzle: 'Noozle',
+			quantity: 'Quantity',
+			timeExecution: 'Time execution',
+			materialConsumed: 'Material Consumed',
+			toolHeadDef: 'ToolHead def',
 			size: 'Size',
 			lastModified: 'Last modified',
 			download: 'Download File',
@@ -530,6 +541,7 @@ export default {
 			caption: 'Machine Control',
 			dashboard: 'Dashboard',
 			console: 'G-Code Console',
+			command: 'Commands',
 			heightmap: 'Height Map'
 		},
 		job: {
@@ -598,6 +610,10 @@ export default {
 		loadingFile: {
 			title: 'Loading file...',
 			message: 'This file is relatively big so it may take a while before it is displayed.'
+		},
+		prodFile: {
+			title: 'Production file',
+			message: 'The production file cannot be modified'
 		},
 		message: 'Message',
 		mount: {

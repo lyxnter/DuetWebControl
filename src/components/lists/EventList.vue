@@ -34,7 +34,7 @@ th:last-child {
 	<div class="component">
 		<v-data-table :headers="headers" :items="events" :pagination.sync="pagination" hide-actions class="elevation-3 no-selection" :class="{ 'empty-table-fix' : !events.length }">
 			<template slot="no-data">
-				<v-alert :value="true" type="primary" class="ma-0" @contextmenu.prevent="">
+				<v-alert :value="true" class="ma-0" @contextmenu.prevent="">
 					{{ $t('list.eventLog.noEvents') }}
 				</v-alert>
 			</template>

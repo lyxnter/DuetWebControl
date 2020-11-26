@@ -178,7 +178,7 @@
 				</v-list-tile>
 			</v-card-text>
 
-			<v-alert :value="!filelist.length" type="secondary">
+			<v-alert :value="!filelist.length" >
 				{{ $t('list.macro.noMacros') }}
 			</v-alert>
 		</v-card>
@@ -279,7 +279,7 @@ export default {
 
 
 			this.loading = false;
-			
+
 			if( len == 1 && this.filelist[0].isDirectory && this.filelist[0].name.startsWith(this.getTool.substring(0,5)) && !this.filelist[0].directory.includes(this.getTool.substring(0,5))) {
 				console.log(this.filelist[0].directory + "/" + this.filelist[0].name);
 				await this.loadDirectory(this.filelist[0].directory + "/" + this.filelist[0].name)

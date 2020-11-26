@@ -260,12 +260,12 @@ export default {
 				if (!this.axios) {
 					let protocol = location.protocol;
 					this.axios = await axios.create({
-						baseURL:protocol+`//`+this.selectedMachine+`/`,
+						baseURL: ENTRYPOINT+`/`,
 						timeout: 8000,	// default session timeout in RepRapFirmware
 						withCredentials: true,
 					});
 				}
-				const response = await this.axios.get('pc_getip', {
+				const response = await this.axios.get('/duet/action/pc_getip', {
 					withCredentials: true,
 					params: params
 				});
@@ -316,12 +316,12 @@ export default {
 			if (!this.axios) {
 				let protocol = location.protocol;
 				this.axios = await axios.create({
-					baseURL:protocol+`//`+this.selectedMachine+`/`,
+					baseURL:ENTRYPOINT+`/`,
 					timeout: 8000,	// default session timeout in RepRapFirmware
 					withCredentials: true,
 				});
 			}
-			const response = await this.axios.get('pc_getip', {
+			const response = await this.axios.get('/duet/action/pc_getip', {
 				withCredentials: true,
 				params: {restart: true}
 			});
@@ -415,22 +415,49 @@ export default {
 	},
 	mounted() {
 		console.log(this.user.ifaces);
-		this.ifaces = this.user.ifaces;
-		this.publicIP = this.ifaces[0].addr_info[0].local//+"/"+this.ifaces[0].addr_info[0].prefixlen;
-		this.netmask = this.computeNetmask(this.ifaces[0].addr_info[0].prefixlen)
-		this.computeCidr(this.netmask);
-		this.gateway = this.ifaces[0].addr_info[0].gateway;
-		this.dns = [];
-		this.ifaces[0].addr_info[0].DNS.forEach((addr) => this.dns.push(addr));
+		if (Array.isArray(this.user.ifaces)) {
+			this.ifaces = this.user.ifaces[0];
+			this.publicIP = this.ifaces.addr_info[0].local//+"/"+this.ifaces[0].addr_info[0].prefixlen;
+			this.netmask = this.computeNetmask(this.ifaces[0].addr_info[0].prefixlen)
+			this.computeCidr(this.netmask);
+			this.gateway = this.ifaces[0].addr_info[0].gateway;
+			this.dns = [];
+			this.ifaces[0].addr_info[0].DNS.forEach((addr) => this.dns.push(addr));
+		} else {
+			this.ifaces = this.user.ifaces;
+			this.publicIP = this.ifaces.addr_info[0].local//+"/"+this.ifaces[0].addr_info[0].prefixlen;
+			this.netmask = this.computeNetmask(this.ifaces.addr_info[0].prefixlen)
+			this.computeCidr(this.netmask);
+			this.gateway = this.ifaces.addr_info[0].gateway;
+			this.dns = [];
+
+			if (this.ifaces.addr_info[0].DNS) {
+				this.ifaces.addr_info[0].DNS.forEach((addr) => this.dns.push(addr));
+			} 
+		}
+
 	},
 	watch: {
 		user(as){
 			console.log(as.ifaces);
 			this.ifaces = as.ifaces;
-			this.publicIP = this.ifaces[0].addr_info[0].local//+"/"+this.ifaces[0].addr_info[0].prefixlen;
-			this.netmask = this.computeNetmask(this.ifaces[0].addr_info[0].prefixlen)
-			this.gateway = this.ifaces[0].addr_info[0].gateway;
-			this.dns = this.ifaces[0].addr_info[0].DNS;
+			if (Array.isArray(as.ifaces)) {
+				this.publicIP = this.ifaces[0].addr_info[0].local//+"/"+this.ifaces[0].addr_info[0].prefixlen;
+				this.netmask = this.computeNetmask(this.ifaces[0].addr_info[0].prefixlen)
+				this.gateway = this.ifaces[0].addr_info[0].gateway;
+				this.dns = this.ifaces[0].addr_info[0].DNS;
+			} else {
+				this.publicIP = this.ifaces.addr_info[0].local//+"/"+this.ifaces[0].addr_info[0].prefixlen;
+				this.netmask = this.computeNetmask(this.ifaces.addr_info[0].prefixlen)
+				this.gateway = this.ifaces.addr_info[0].gateway;
+				if (this.ifaces.addr_info[0].DNS) {
+					this.dns = this.ifaces.addr_info[0].DNS;
+				} else {
+					this.dns = '';
+				}
+
+			}
+
 		},
 	}
 }

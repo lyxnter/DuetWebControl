@@ -43,7 +43,7 @@
 
 		<v-spacer v-show="!hasData"></v-spacer>
 		<v-card-text class="pa-0" v-show="!hasData">
-			<v-alert :value="true" type="info" class="mb-0">
+			<v-alert :value="true" class="mb-0">
 				{{ $t('chart.temperature.noData') }}
 			</v-alert>
 		</v-card-text>

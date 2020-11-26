@@ -120,7 +120,7 @@ table.v-table tbody th {
 
 		<template slot="no-data">
 			<slot name="no-data">
-				<v-alert :value="true" type="#504e4d" class="ma-0" @contextmenu.prevent="">
+				<v-alert :value="true" class="ma-0" @contextmenu.prevent="">
 					{{ $t('list.baseFileList.noFiles') }}
 				</v-alert>
 			</slot>
@@ -850,6 +850,10 @@ export default {
 		},
 		async edit(item) {
 			try {
+				if (item.fileprod) {
+					this.$makeNotification('warning', this.$t('notification.prodFile.title'), this.$t('notification.prodFile.message'), false);
+					return;
+				}
 				let notification, showDelay = 0;
 				if (item.size > bigFileThreshold) {
 					notification = this.$makeNotification('warning', this.$t('notification.loadingFile.title'), this.$t('notification.loadingFile.message'), false);
@@ -876,6 +880,11 @@ export default {
 			}
 		},
 		async rename(item) {
+
+			if (this.innerValue[0].fileprod) {
+				this.$makeNotification('warning', this.$t('notification.prodFile.title'), this.$t('notification.prodFile.message'), false);
+				return;
+			}
 			this.renameDialog.directory = this.innerDirectory;
 			this.renameDialog.item = (item && item.name) ? item : this.innerValue[0];
 			this.renameDialog.shown = true;
@@ -916,6 +925,7 @@ export default {
 			if (this.innerDoingFileOperation && !directory) {
 				return;
 			}
+
 			this.innerDoingFileOperation = true;
 			const deletedItems = [];
 			if (!directory) {
@@ -925,6 +935,10 @@ export default {
 			for (let i = 0; i < items.length; i++) {
 				try {
 					const item = items[i];
+					if (item.fileprod) {
+						this.$makeNotification('warning', this.$t('notification.prodFile.title'), this.$t('notification.prodFile.message'), false);
+						return;
+					}
 					if (item.isDirectory) {
 						let fileList = await this.getFileList(Path.combine(directory, item.name))
 						await this.remove(fileList, directory + '/' + item.name)

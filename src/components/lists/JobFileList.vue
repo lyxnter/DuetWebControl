@@ -116,6 +116,18 @@ export default {
 					value: 'name'
 				},
 				{
+					text: () => i18n.t('list.baseFileList.fileProd'),
+					value: 'fileprod'
+				},
+				{
+					text: () => i18n.t('list.baseFileList.fileNameProd'),
+					value: 'fileprod_name'
+				},
+				{
+					text: () => i18n.t('list.baseFileList.fileNameSTL'),
+					value: 'fileprod_stl'
+				},
+				{
 					text: () => i18n.t('list.baseFileList.size'),
 					value: 'size',
 					unit: 'bytes'
@@ -227,7 +239,7 @@ export default {
 			if (this.fileinfoDirectory === directory) {
 				if (this.isConnected && fileIndex < fileCount) {
 					const file = this.filelist[fileIndex];
-					let height = null, layerHeight = null, filament = [], generatedBy = null, printTime = null, simulatedTime = null;
+					let  height = null, layerHeight = null, filament = [], generatedBy = null, printTime = null, simulatedTime = null;
 
 					this.fileinfoProgress = fileIndex;
 					try {

@@ -18,7 +18,6 @@ export function logCode(code = '', response, hostname = store.state.selectedMach
 		// Make sure there is something to log...
 		return;
 	}
-
 	let seq = 0;
 	response = response.split(/([0-9]+: )/gm).map((item, index) => {
 		if (index%2) {
@@ -44,8 +43,10 @@ export function logCode(code = '', response, hostname = store.state.selectedMach
 		try {
 		  response = JSON.parse(response)
 			//{"prefix": "Progress:" , "bar" : "██████▏-------------------------------------------",  "percent": 12.26, "suffix" : "Complete"}
-			console.log(response)
-			code = response.prefix
+			if (response.prefix) {
+				code = response.prefix
+			}
+
 			response = " |" + response.bar + "| " + response.percent + "% " + response.suffix
 		} catch (e) {
 		  console.error("Parsing error:", e);
@@ -67,7 +68,8 @@ if (response.startsWith('Error: ')) {
 // Log it
 const responseLines = toLog.split("\n")
 if (hostname === store.state.selectedMachine) {
-	let title = code, message = responseLines.join('<br>');
+	var title = code;
+	var message = responseLines.join('<br>');
 	if (responseLines.length > 3) {
 		title = (code === '') ? i18n.t('notification.responseTooLong') : code;
 		message = (code === '') ? '' : i18n.t('notification.responseTooLong');

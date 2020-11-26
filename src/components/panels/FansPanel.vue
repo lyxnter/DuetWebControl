@@ -39,7 +39,7 @@
 			</v-flex>
 		</v-layout>
 
-		<v-alert type="primary" :value="!visibleFans.length">
+		<v-alert :value="!visibleFans.length">
 			{{ $t('panel.fans.noFans') }}
 		</v-alert>
 	</v-card>

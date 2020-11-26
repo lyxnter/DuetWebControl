@@ -117,7 +117,7 @@ autoplay: true;
 				</div>
 			</div>
 			<v-card-text> <!-- Print data -->
-				{{$t('list.jobs.generatedBy')}} : {{ item.generatedBy }} <br>
+
 				{{$t('list.jobs.layerHeight')}}: {{ item.layerHeight }} mm <br>
 				{{$t('list.jobs.height')}}: {{ item.height }} mm <br>
 				<template v-if="item.simulatedTime != null && item.simulatedTime > 0">
@@ -134,6 +134,19 @@ autoplay: true;
 				<div style="text-overflow: ellipsis;overflow: hidden; width: 440px;">
 					{{$t('list.baseFileList.fileName')}}: {{ item.name }}
 				</div>
+				{{$t('list.baseFileList.fileProd')}}: {{ item.fileprod }}<br>
+				{{$t('list.baseFileList.fileNameProd')}}: {{ item.fileprod_name }}<br>
+				{{$t('list.baseFileList.fileNameSTL')}}: {{ item.fileprod_stl }}<br>
+				{{$t('list.baseFileList.machine')}}: {{ item.fileprod_machine }}<br>
+				{{$t('list.baseFileList.surface')}}: {{ item.fileprod_surface }}<br>
+				{{$t('list.baseFileList.material')}}: {{ item.fileprod_material }}<br>
+				{{$t('list.baseFileList.nozzle')}}: {{ item.fileprod_nozzle }}<br>
+				{{$t('list.baseFileList.quantity')}}: {{ item.fileprod_quantity }}<br>
+				{{$t('list.baseFileList.timeExecution')}}: {{ item.fileprod_timeExecution }}<br>
+				{{$t('list.baseFileList.materialConsumed')}}: {{ item.fileprod_materialConsumed }}<br>
+				{{$t('list.baseFileList.toolHeadDef')}}: {{ item.fileprod_toolHeadDef }}<br>
+
+
 				{{$t('list.baseFileList.size')}}: {{ $displaySize(item.size) }}<br>
 				{{$t('list.baseFileList.lastModified')}}: {{ item.lastModified.toLocaleString() }} <br>
 			</v-card-text>
@@ -454,7 +467,7 @@ export default {
 			var start = new Date()
 			let that = this
 			$.ajax({
-				url: (this.selectedMachine?this.selectedMachine:"/") + "rr_upload?name=0:/www/img/GCodePreview/" + f + "/" + t + "&time=" + encodeURIComponent(this.timeToStr(new Date)),
+				url: (this.selectedMachine?this.selectedMachine:"/") + "/duet/action/rr_upload?name=0:/www/img/GCodePreview/" + f + "/" + t + "&time=" + encodeURIComponent(this.timeToStr(new Date)),
 				data: r,
 				type: "POST",
 				contentType: !1,

@@ -444,6 +444,17 @@ export default {
 	list: {
 		baseFileList: {
 			fileName: 'Nom',
+			fileProd: 'Fichier de production',
+			fileNameProd: 'Nom Production',
+			fileNameSTL: 'Ref. STL',
+			machine: 'Machine',
+			surface: 'Surface',
+			material: 'Material',
+			nozzle: 'Noozle',
+			quantity: 'Quantité',
+			timeExecution: 'Temps execution',
+			materialConsumed: 'Matériel utilisé',
+			toolHeadDef: 'ToolHead def',
 			size: 'Taille',
 			lastModified: 'Dernière modif',
 			download: 'Télécharger',
@@ -514,6 +525,7 @@ export default {
 			caption: 'Contrôle de la machine',
 			dashboard: 'Tableau de bord',
 			console: 'Console',
+			command: 'Commandes',
 			heightmap: 'Carte de compensation'
 		},
 		job: {
@@ -580,6 +592,10 @@ export default {
 		loadingFile: {
 			title: 'Chargement du fichier',
 			message: 'Ce fichier est relativement gros alors cela peut prendre du temps avant qu\'il s\'affiche.'
+		},
+		prodFile: {
+			title: 'Fichier de production',
+			message: 'Le fichier de production ne peut pas être modifié'
 		},
 		message: 'Message',
 		mount: {

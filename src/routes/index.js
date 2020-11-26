@@ -108,6 +108,15 @@ export const Routing = ( [
 				showLocal: true,
 				//minLevel: 1,
 			},
+			// Console
+			{
+				icon: 'code',
+				caption: 'menu.control.command',
+				path: '/Command',
+				component: Control.Command,
+				showLocal: true,
+				//minLevel: 1,
+			},
 			// Macros
 			{
 				icon: 'polymer',
