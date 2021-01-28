@@ -95,8 +95,11 @@ export default {
 		}
 	},
 	methods: {
+
 		lectDonnees: async function(file, path, caller) {
+		},
 			//console.log(caller)
+/*
 			this.extruders = [];
 			this.preview = true;
 			this.DEBUG = false;
@@ -306,7 +309,8 @@ if (document.title.includes("S600D - LAS")) {
 							return data;
 						}
 					}
-				}
+				)
+				*/
 					/*
 					if (true == false) {
 						if ((location.port === "8080") || (location.port === "8081") || (location.port === "8082")) {
@@ -340,7 +344,7 @@ if (document.title.includes("S600D - LAS")) {
 							//});
 						}
 					}*/
-
+/*
 					self.scene.preview.initRender(self);
 					self.scene.preview.animate();
 					this.lastPrct = 0;
@@ -373,6 +377,7 @@ if (document.title.includes("S600D - LAS")) {
 				});
 				//console.log(self.onProgress)
 			},
+			*/
 			parseGCode: function(line) {
 				var cmdLine = line.replace(/;.*$/, '').trim(); // Remove comments
 				var comLine = "";
